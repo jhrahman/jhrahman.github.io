@@ -191,55 +191,35 @@ function asideSectionTogglerBtn()
 
 
 // Contact Form 
-function sendmail(){
-    
+function sendmail() {
     var name = $('#Name').val();
     var email = $('#Sender').val();
     var subject = $('#Subject').val();
     var message = $('#Message').val();
 
-    // var body = $('#body').val();
+    // EmailJS template parameters
+    var templateParams = {
+        from_name: name,
+        from_email: email,
+        subject: subject,
+        message: message
+    };
 
-    var Body='Name: '+name+'<br>Email: '+email+'<br>Subject: '+subject+'<br>Message: '+message;
-    //console.log(name, phone, email, message);
-    
-    
-    Email.send({
-        SecureToken:"d1bb1373-a423-47eb-b3b2-37e065231718",
-        To: 'tflash978@gmail.com',
-        From: "jhlistener@gmail.com",
-        Subject: "Email From:  "+name,
-        Body: Body
-    }).then(
-        message =>{
-            //console.log (message);
-            if(message=='OK'){
-            alert('Success!! Thanks, for contacting with me.');
-            document.getElementById("myForm").reset();
-            document.getElementById('done').style.display = "block"; 
-            setTimeout(function(){
-                window.location.reload();
-            },2000);
-            
-            
-// 					this will reset every field after clicking OK
-			// 
-        }
-            else{
-                console.error (message);
-                alert(' Sorry !! Message could not be sent right now. Please try again later.  ')
-                
-            }
-            
-            
-            
+    emailjs.send('service_79rgt2a', 'template_5zw7b14', templateParams)
+    .then(function(response) {
+        alert('Success!! Thanks for contacting me.');
+        document.getElementById("myForm").reset();
+        document.getElementById('done').style.display = "block"; 
 
-        }
-    );
-
-
-
+        setTimeout(function(){
+            window.location.reload();
+        }, 2000);
+    }, function(error) {
+        console.error(error);
+        alert('Sorry !! Message could not be sent right now. Please try again later.');
+    });
 }
+
 
 // Contact form end 
 
