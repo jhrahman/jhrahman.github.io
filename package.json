@@ -2,7 +2,7 @@
     "name": "jahid-portfolio",
     "private": true,
     "version": "1.0.0",
-    "homepage": "https://rahman-devops.github.io/jh-rahman.github.io",
+    "homepage": "https://jh-rahman.github.io/",
     "type": "module",
     "scripts": {
         "dev": "vite",
