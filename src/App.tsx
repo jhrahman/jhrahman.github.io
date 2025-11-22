@@ -29,8 +29,6 @@ function AppContent() {
     return (
         <>
             <Navbar
-                theme={theme}
-                toggleTheme={toggleTheme}
                 onInfoClick={() => setShowInfoModal(true)}
             />
             <AnimatePresence mode="wait">

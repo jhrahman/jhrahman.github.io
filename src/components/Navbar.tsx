@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react';
 import './Navbar.css';
 
 interface NavbarProps {
-    theme: 'dark' | 'light';
-    toggleTheme: () => void;
     onInfoClick: () => void;
 }
 
-const Navbar = ({ theme, toggleTheme, onInfoClick }: NavbarProps) => {
+const Navbar = ({ onInfoClick }: NavbarProps) => {
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
