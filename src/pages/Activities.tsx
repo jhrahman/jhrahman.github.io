@@ -17,19 +17,19 @@ const Activities = () => {
             title: 'Basic e-commerce website',
             tech: 'HTML, CSS, JavaScript, Bootstrap',
             demo: 'https://jhrahman.github.io/laurels/',
-            image: '/images/project1.jpg'
+            image: `${import.meta.env.BASE_URL}images/project1.jpg`
         },
         {
             title: 'CRUD Operation Web Application',
             tech: 'Google script, HTML, CSS, JavaScript',
             demo: 'https://jtv-pc.netlify.app/',
-            image: '/images/project2.png'
+            image: `${import.meta.env.BASE_URL}images/project2.png`
         },
         {
             title: 'Internal Office Network Topology',
             tech: 'DHCP, VLAN, VTP, InterVLAN Routing, IP Routing, Static Route, SSH, Switching, Standard ACL and Extended ACL',
             demo: 'https://drive.google.com/file/d/1u0W54EIry-97U9iHSsNJhHDFw84spU95/view?usp=sharing',
-            image: '/images/project3.png'
+            image: `${import.meta.env.BASE_URL}images/project3.png`
         }
     ];
 

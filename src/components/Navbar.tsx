@@ -33,7 +33,7 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
             >
                 <div className="container navbar-content">
                     <Link to="/" className="logo">
-                        <img src="/favicon/favicon-32x32.png" alt="Logo" className="logo-image" />
+                        <img src={`${import.meta.env.BASE_URL}favicon/favicon-32x32.png`} alt="Logo" className="logo-image" />
                     </Link>
 
                     {/* Desktop Nav */}
