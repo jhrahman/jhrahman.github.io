@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import './About.css';
+import RecommendationsCarousel from '../components/RecommendationsCarousel';
 
 const About = () => {
     const [age, setAge] = useState(0);
@@ -315,6 +316,8 @@ const About = () => {
                         ))}
                     </motion.div>
                 </motion.section>
+
+                <RecommendationsCarousel />
             </div>
         </motion.div>
     );
