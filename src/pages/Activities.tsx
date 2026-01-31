@@ -30,6 +30,12 @@ const Activities = () => {
             tech: 'DHCP, VLAN, VTP, InterVLAN Routing, IP Routing, Static Route, SSH, Switching, Standard ACL and Extended ACL',
             demo: 'https://drive.google.com/file/d/1u0W54EIry-97U9iHSsNJhHDFw84spU95/view?usp=sharing',
             image: `${import.meta.env.BASE_URL}images/project3.png`
+        },
+        {
+            title: 'ShiftMate - Automated Team Roster',
+            tech: 'HTML5, CSS3, JavaScript, Vanilla JS, GitHub Actions, Discord Webhook API, GitHub API',
+            demo: 'https://jhrahman.github.io/shiftmate/',
+            image: `${import.meta.env.BASE_URL}images/project4.png`
         }
     ];
 
