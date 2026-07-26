@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import type { CSSProperties } from 'react';
 import './Home.css';
 
 const Home = () => {
     const socialLinks = [
-        { icon: 'fab fa-facebook-f', label: 'Facebook', url: 'https://www.facebook.com/jhrahman62/' },
-        { icon: 'fab fa-linkedin-in', label: 'LinkedIn', url: 'https://www.linkedin.com/in/jhrahman/' },
-        { icon: 'fab fa-github', label: 'GitHub', url: 'https://github.com/jhrahman' },
+        { icon: 'fab fa-facebook-f', label: 'Facebook', url: 'https://www.facebook.com/jhrahman62/', brand: '#1877F2' },
+        { icon: 'fab fa-linkedin-in', label: 'LinkedIn', url: 'https://www.linkedin.com/in/jhrahman/', brand: '#0A66C2' },
+        { icon: 'fab fa-github', label: 'GitHub', url: 'https://github.com/jhrahman', brand: '#333333' },
     ];
 
     return (
@@ -16,6 +18,8 @@ const Home = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
+            <div className="hero-glow hero-glow-1" aria-hidden="true"></div>
+            <div className="hero-glow hero-glow-2" aria-hidden="true"></div>
             <div className="container home-container">
                 <motion.div
                     className="hero-content"
@@ -30,7 +34,7 @@ const Home = () => {
                         transition={{ delay: 0.3, duration: 0.6, type: 'spring' }}
                     >
                         <img
-                            src="/images/myphoto.png"
+                            src={`${import.meta.env.BASE_URL}images/myphoto.png`}
                             alt="Jahidur Rahman"
                             className="profile-image"
                         />
@@ -45,20 +49,59 @@ const Home = () => {
                         <span className="gradient-text">Jahidur Rahman</span>
                     </motion.h1>
 
+                    <motion.div
+                        className="hero-capabilities"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.6, staggerChildren: 0.1 }}
+                    >
+                        {[
+                            { icon: 'fa-vial', label: 'Test Automation' },
+                            { icon: 'fa-shield-halved', label: 'Quality Assurance' },
+                            { icon: 'fa-bug', label: 'Issue Triage' },
+                        ].map((cap, index) => (
+                            <motion.span
+                                key={cap.label}
+                                className="hero-capability glass-effect"
+                                initial={{ y: 15, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.65 + index * 0.1, duration: 0.5 }}
+                                whileHover={{ y: -3 }}
+                            >
+                                <i className={`fas ${cap.icon}`} aria-hidden="true"></i>
+                                {cap.label}
+                            </motion.span>
+                        ))}
+                    </motion.div>
+
                     <motion.p
-                        className="hero-title"
+                        className="hero-tagline"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.6 }}
+                        transition={{ delay: 0.95, duration: 0.6 }}
                     >
-                        IT Engineer
+                        I'd rather catch a bug on my desk than have a customer catch it in production.
                     </motion.p>
+
+                    <motion.div
+                        className="hero-actions"
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 1.05, duration: 0.6 }}
+                    >
+                        <Link to="/activities" className="hero-btn hero-btn-primary">
+                            View My Work
+                        </Link>
+                        <Link to="/contact" className="hero-btn hero-btn-secondary">
+                            Get In Touch
+                        </Link>
+                    </motion.div>
 
                     <motion.div
                         className="social-links"
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.7, duration: 0.6 }}
+                        transition={{ delay: 1.1, duration: 0.6 }}
                     >
                         {socialLinks.map((link, index) => (
                             <motion.a
@@ -67,6 +110,7 @@ const Home = () => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="social-link glass-effect"
+                                style={{ '--brand-color': link.brand } as CSSProperties}
                                 whileHover={{ scale: 1.1, y: -5 }}
                                 whileTap={{ scale: 0.95 }}
                                 initial={{ scale: 0, opacity: 0 }}

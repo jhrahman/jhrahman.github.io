@@ -11,10 +11,12 @@ const Contact = () => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setErrorMessage('');
 
         try {
             await emailjs.send(
@@ -37,7 +39,7 @@ const Contact = () => {
             }, 3000);
         } catch (error) {
             console.error('Error sending email:', error);
-            alert('Failed to send message. Please try again.');
+            setErrorMessage("Something went wrong and your message wasn't sent. Please try again in a moment.");
         } finally {
             setIsSubmitting(false);
         }
@@ -151,11 +153,24 @@ const Contact = () => {
                     {showSuccess && (
                         <motion.div
                             className="success-message"
+                            role="status"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
                         >
-                            <i className="fas fa-check-circle"></i> Message sent successfully! I'll get back to you soon.
+                            <i className="fas fa-check-circle" aria-hidden="true"></i> Message sent successfully! I'll get back to you soon.
+                        </motion.div>
+                    )}
+
+                    {errorMessage && (
+                        <motion.div
+                            className="error-message"
+                            role="alert"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                        >
+                            <i className="fas fa-circle-exclamation" aria-hidden="true"></i> {errorMessage}
                         </motion.div>
                     )}
                 </motion.div>

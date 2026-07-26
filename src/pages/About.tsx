@@ -17,17 +17,73 @@ const About = () => {
         setAge(calculatedAge);
     }, []);
 
-    const skills = [
-        'Technical Support', 'Service Desk (Jira)', 'AWS Cloud', 'Bash scripting',
-        'Advanced Linux commands', 'Manual Testing (Xray)', 'QA automation (BugBug)',
-        'Postman', 'GitHub', 'Docker', 'PostgreSQL', 'Networking- Routing & Switching',
-        'System Administration', 'AI driven tech support', 'Broadcast/OTT Operations', 'IT Operations'
+    const skillCategories = [
+        {
+            category: 'Test Automation & QA',
+            icon: 'fa-vial',
+            items: ['Playwright (UI & API)', 'Playwright Agents (Planner, Generator, Healer)', 'E2E Testing', 'Page Object Model', 'Functional Testing', 'Regression Testing', 'Smoke Testing', 'Sanity Testing', 'Retesting', 'Manual Testing', 'Exploratory Testing', 'Defect Management', 'BugBug (AI-assisted automation)']
+        },
+        {
+            category: 'CI/CD & Containers',
+            icon: 'fa-diagram-project',
+            items: ['GitHub Actions', 'Git', 'GitHub', 'Docker', 'Docker Compose']
+        },
+        {
+            category: 'API & Performance Testing',
+            icon: 'fa-plug',
+            items: ['REST APIs', 'Postman', 'JMeter', 'k6']
+        },
+        {
+            category: 'Cross-Platform Testing',
+            icon: 'fa-display',
+            items: ['Web', 'Android', 'iOS', 'Apple TV', 'Android TV']
+        },
+        {
+            category: 'Defect & Production Support',
+            icon: 'fa-bug',
+            items: ['Root Cause Analysis', 'Production Issue Triage', 'Application Troubleshooting']
+        },
+        {
+            category: 'Cloud & Monitoring',
+            icon: 'fa-cloud',
+            items: ['AWS (S3, EC2, IAM, CloudWatch, DynamoDB, Cognito)', 'Datadog']
+        },
+        {
+            category: 'Methodologies',
+            icon: 'fa-arrows-spin',
+            items: ['Agile (Scrum)', 'SDLC', 'STLC']
+        },
+        {
+            category: 'Databases & SQL',
+            icon: 'fa-database',
+            items: ['SQL', 'PostgreSQL (psql)', 'DBeaver']
+        },
+        {
+            category: 'Programming',
+            icon: 'fa-code',
+            items: ['TypeScript', 'JavaScript']
+        },
+        {
+            category: 'AI-Assisted Tools',
+            icon: 'fa-robot',
+            items: ['Claude Code', 'GitHub Copilot', 'Google Antigravity (Agentic IDE)', 'ChatGPT (Codex)']
+        },
+        {
+            category: 'Domain Experience',
+            icon: 'fa-satellite-dish',
+            items: ['OTT Platforms', 'Broadcast & Streaming Operations', 'Content Management Systems']
+        },
+        {
+            category: 'Collaboration',
+            icon: 'fa-people-group',
+            items: ['Jira', 'Confluence', 'Slack']
+        }
     ];
 
     const experiences = [
         {
             period: 'January, 2024 - Present',
-            title: 'Technical Support Associate',
+            title: 'Technical Support Associate — Software QA & Tech Support',
             company: 'Craftsmen Limited'
         },
         {
@@ -60,12 +116,29 @@ const About = () => {
         }
     ];
 
-    const certifications = [
+    const certifications: {
+        year?: string;
+        title: string;
+        issuer: string;
+        link?: string;
+    }[] = [
+        {
+            year: '2026',
+            title: 'The Complete Software Testing Bootcamp',
+            issuer: 'Udemy',
+            link: 'https://www.udemy.com/certificate/UC-9c7cdd45-f43c-46fd-a5e8-8c0a2655888f/'
+        },
         {
             year: '2024',
             title: 'AWS Cloud Technical Essentials',
             issuer: 'Amazon Web Services',
             link: 'https://coursera.org/verify/NUK7RYKTU75D'
+        },
+        {
+            year: '2025',
+            title: 'SQL Basics',
+            issuer: 'HackerRank',
+            link: 'https://www.hackerrank.com/certificates/3798371304ba'
         },
         {
             year: '2023',
@@ -130,7 +203,7 @@ const About = () => {
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
                 >
-                    I'm a Technical Support Associate (Second-Line), handling advanced and escalated software issues to ensure smooth operations for SaaS platforms. I work with AWS services as part of my regular workflow and continue building skills in DevOps practices, covering AWS, bash scripting, advanced Linux commands, and QA automation to streamline testing and improve efficiency.
+                    QA and Technical Support professional with experience in manual and automated testing for cloud-based SaaS applications. Skilled in functional, regression, and API testing, with hands-on experience building Playwright automation frameworks integrated with CI/CD and Docker. Strong background in production issue investigation, root cause analysis, and cross-functional collaboration to improve software quality and release reliability.
                 </motion.p>
 
                 {/* Basic Info - New Icon Grid Design */}
@@ -213,16 +286,25 @@ const About = () => {
                     viewport={{ once: true, margin: "-100px" }}
                 >
                     <motion.h2 variants={itemVariants} className="section-title">Skills</motion.h2>
-                    <motion.div className="skills-grid" variants={containerVariants}>
-                        {skills.map((skill) => (
-                            <motion.div
-                                key={skill}
-                                className="skill-card glass-effect"
-                                variants={itemVariants}
-                                whileHover={{ scale: 1.05, y: -5 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
-                            >
-                                {skill}
+                    <motion.div className="skills-categories" variants={containerVariants}>
+                        {skillCategories.map((group) => (
+                            <motion.div key={group.category} className="skill-category" variants={itemVariants}>
+                                <h3 className="skill-category-title">
+                                    <i className={`fas ${group.icon}`} aria-hidden="true"></i>
+                                    {group.category}
+                                </h3>
+                                <div className="skill-chip-row">
+                                    {group.items.map((skill) => (
+                                        <motion.span
+                                            key={skill}
+                                            className="skill-chip glass-effect"
+                                            whileHover={{ scale: 1.05, y: -3 }}
+                                            transition={{ type: 'spring', stiffness: 300 }}
+                                        >
+                                            {skill}
+                                        </motion.span>
+                                    ))}
+                                </div>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -244,6 +326,8 @@ const About = () => {
                                 className="timeline-item glass-effect"
                                 variants={itemVariants}
                                 whileHover={{ x: 10 }}
+                                whileTap={{ x: 10, scale: 0.98 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                             >
                                 <div className="timeline-marker"></div>
                                 <div className="timeline-content">
@@ -272,6 +356,8 @@ const About = () => {
                                 className="timeline-item glass-effect"
                                 variants={itemVariants}
                                 whileHover={{ x: 10 }}
+                                whileTap={{ x: 10, scale: 0.98 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                             >
                                 <div className="timeline-marker"></div>
                                 <div className="timeline-content">
@@ -301,17 +387,19 @@ const About = () => {
                                 variants={itemVariants}
                                 whileHover={{ y: -10 }}
                             >
-                                <span className="cert-year">{cert.year}</span>
+                                {cert.year && <span className="cert-year">{cert.year}</span>}
                                 <h3 className="cert-title">{cert.title}</h3>
                                 <p className="cert-issuer">{cert.issuer}</p>
-                                <a
-                                    href={cert.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="cert-link"
-                                >
-                                    View Credential →
-                                </a>
+                                {cert.link && (
+                                    <a
+                                        href={cert.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="cert-link"
+                                    >
+                                        View Credential →
+                                    </a>
+                                )}
                             </motion.div>
                         ))}
                     </motion.div>

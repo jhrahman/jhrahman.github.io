@@ -87,7 +87,7 @@
 .icon-btn:hover {
     background: var(--bg-tertiary);
     color: var(--accent-primary);
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 15px rgba(var(--accent-primary-rgb), 0.3);
 }
 
 .icon-btn:hover i {

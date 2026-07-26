@@ -84,7 +84,7 @@
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(var(--accent-primary-rgb), 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -142,7 +142,37 @@
 .theme-toggle-btn:hover {
     border-color: var(--accent-primary);
     color: var(--accent-primary);
-    background: rgba(59, 130, 246, 0.05);
+    background: rgba(var(--accent-primary-rgb), 0.05);
+}
+
+.accent-swatch-row {
+    display: flex;
+    gap: 0.65rem;
+}
+
+.accent-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.7rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 0;
+}
+
+.accent-swatch:hover {
+    transform: scale(1.12);
+}
+
+.accent-swatch.active {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--bg-tertiary), 0 0 0 4px var(--text-primary);
 }
 
 .modal-footer {

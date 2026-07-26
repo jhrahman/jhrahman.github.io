@@ -43,6 +43,7 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                                 key={link.path}
                                 to={link.path}
                                 className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}
+                                aria-current={location.pathname === link.path ? 'page' : undefined}
                             >
                                 {link.label}
                                 {location.pathname === link.path && (
@@ -68,7 +69,8 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                         <button
                             className="mobile-menu-btn"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            aria-label="Menu"
+                            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+                            aria-expanded={mobileMenuOpen}
                         >
                             {mobileMenuOpen ? '✕' : '☰'}
                         </button>
@@ -103,6 +105,7 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                                 <button
                                     className="drawer-close-btn"
                                     onClick={() => setMobileMenuOpen(false)}
+                                    aria-label="Close menu"
                                 >
                                     ✕
                                 </button>
