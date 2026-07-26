@@ -10,6 +10,7 @@ interface Project {
     image: string;
     description?: string;
     logoPreview?: boolean;
+    graphicPreview?: boolean;
 }
 
 const Activities = () => {
@@ -22,7 +23,8 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/dockerized-playwright-project',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-dockerized-playwright.svg`,
-            description: '7-stage CI/CD pipeline (GitHub Actions → Docker → Playwright → Allure Report → GitHub Pages) with containerized retries, parallel execution, scheduled runs, and Discord notifications.'
+            description: '7-stage CI/CD pipeline (GitHub Actions → Docker → Playwright → Allure Report → GitHub Pages) with containerized retries, parallel execution, scheduled runs, and Discord notifications.',
+            graphicPreview: true
         },
         {
             title: 'Playwright API Testing',
@@ -30,7 +32,8 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/playwright-api-testing',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-playwright-api.svg`,
-            description: 'REST API test suite covering GET, POST, PATCH, PUT, DELETE, and header validation, with data-driven JSON payloads and a sequential CRUD flow.'
+            description: 'REST API test suite covering GET, POST, PATCH, PUT, DELETE, and header validation, with data-driven JSON payloads and a sequential CRUD flow.',
+            graphicPreview: true
         },
         {
             title: 'AI-Automated Testing for Peoplix',
@@ -38,7 +41,8 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/peoplix-e2e-tests',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-peoplix-ai-testing.svg`,
-            description: 'Playwright MCP + Playwright Agents set up in Claude Code to auto-generate test scripts, automating regression coverage for auth, RBAC, and CRUD features.'
+            description: 'Playwright MCP + Playwright Agents set up in Claude Code to auto-generate test scripts, automating regression coverage for auth, RBAC, and CRUD features.',
+            graphicPreview: true
         },
         {
             title: 'Playwright Page Object Model Framework',
@@ -46,7 +50,8 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/playwright-page-object-model',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-playwright-pom.svg`,
-            description: 'Automation framework for an e-commerce demo app structured with the Page Object Model, using reusable page classes for login, listing, and checkout flows.'
+            description: 'Automation framework for an e-commerce demo app structured with the Page Object Model, using reusable page classes for login, listing, and checkout flows.',
+            graphicPreview: true
         },
         {
             title: 'Applywise – AI Powered Job Match Platform',
@@ -154,7 +159,7 @@ const Activities = () => {
                             whileHover={{ y: -10 }}
                         >
                             <div
-                                className={`project-image-wrapper${project.logoPreview ? ' logo-preview' : ''}`}
+                                className={`project-image-wrapper${project.logoPreview ? ' logo-preview' : ''}${project.graphicPreview ? ' graphic-preview' : ''}`}
                                 onClick={() => setSelectedProject(project)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {

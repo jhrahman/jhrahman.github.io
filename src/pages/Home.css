@@ -259,6 +259,19 @@ a.social-link:focus-visible {
 }
 
 @media (max-width: 768px) {
+    /* Forcing the hero to exactly fill the dynamic viewport (100dvh) and
+       center its content pins the last row (social icons) right at the
+       bottom edge - on real devices that's where the browser's address bar/
+       gesture bar lives, so it can visually overlap or clip the icons when
+       the toolbar expands. Let the hero size to its content instead, and pad
+       for the safe area (notch/home-indicator) so nothing sits flush against
+       OS chrome. */
+    .home-container {
+        min-height: auto;
+        padding-top: 2.5rem;
+        padding-bottom: calc(3rem + env(safe-area-inset-bottom, 0px));
+    }
+
     .profile-image-wrapper {
         width: 180px;
         height: 180px;

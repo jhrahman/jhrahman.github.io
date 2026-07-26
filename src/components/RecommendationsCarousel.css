@@ -49,6 +49,7 @@
 .card-content {
     background: var(--bg-secondary);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: 20px;
     padding: 3rem 2rem 2rem;

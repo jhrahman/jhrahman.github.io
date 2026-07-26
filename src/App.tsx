@@ -11,11 +11,29 @@ import NotFound from './pages/NotFound';
 
 export type AccentColor = 'ocean' | 'charcoal' | 'olive' | 'deep-orange' | 'emerald';
 
+// localStorage can throw (private browsing, data-saver modes, disabled
+// storage, quota errors) - never let that crash the app or break the toggle.
+const safeGetItem = (key: string): string | null => {
+    try {
+        return localStorage.getItem(key);
+    } catch {
+        return null;
+    }
+};
+
+const safeSetItem = (key: string, value: string): void => {
+    try {
+        localStorage.setItem(key, value);
+    } catch {
+        // Persistence isn't available - the in-memory state still works for this session.
+    }
+};
+
 const getInitialTheme = (): 'dark' | 'light' =>
-    (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+    (safeGetItem('theme') as 'dark' | 'light') || 'dark';
 
 const getInitialAccent = (): AccentColor =>
-    (localStorage.getItem('accentColor') as AccentColor) || 'ocean';
+    (safeGetItem('accentColor') as AccentColor) || 'ocean';
 
 function ScrollToTop() {
     const { pathname } = useLocation();
@@ -44,12 +62,12 @@ function AppContent() {
     const toggleTheme = () => {
         const newTheme = theme === 'dark' ? 'light' : 'dark';
         setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
+        safeSetItem('theme', newTheme);
     };
 
     const changeAccentColor = (color: AccentColor) => {
         setAccentColor(color);
-        localStorage.setItem('accentColor', color);
+        safeSetItem('accentColor', color);
     };
 
     return (

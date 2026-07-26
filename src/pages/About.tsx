@@ -297,7 +297,7 @@ const About = () => {
                                     {group.items.map((skill) => (
                                         <motion.span
                                             key={skill}
-                                            className="skill-chip glass-effect"
+                                            className="skill-chip"
                                             whileHover={{ scale: 1.05, y: -3 }}
                                             transition={{ type: 'spring', stiffness: 300 }}
                                         >

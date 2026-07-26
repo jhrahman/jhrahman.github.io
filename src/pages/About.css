@@ -148,6 +148,10 @@
     border-radius: 10px;
     font-weight: 500;
     font-size: 0.9rem;
+    /* Solid background instead of glass-effect's backdrop-filter: with 50+
+       chips on this page, a blur per-chip is a heavy compositing cost that
+       causes visible scroll jank on mobile GPUs. */
+    background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     transition: all 0.3s ease;
     cursor: default;

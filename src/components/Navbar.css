@@ -121,6 +121,7 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 2000;
 }
 
@@ -132,10 +133,11 @@
     bottom: 0;
     width: 75%;
     max-width: 300px;
-    background: rgba(26, 26, 26, 0.85);
-    /* Semi-transparent dark */
-    backdrop-filter: blur(12px);
-    /* Glassy blur effect */
+    background: rgba(8, 9, 11, 0.85);
+    /* Semi-transparent dark, matches --bg-primary */
+    backdrop-filter: blur(20px) saturate(180%);
+    /* macOS vibrancy-style glassy blur */
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     z-index: 2001;
     padding: 2rem;
     box-shadow: var(--shadow-lg);
