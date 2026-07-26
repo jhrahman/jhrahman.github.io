@@ -13,7 +13,11 @@ interface InfoModalProps {
 }
 
 const accentOptions: { value: AccentColor; label: string; swatch: string }[] = [
+    { value: 'petrol-navy', label: 'Petrol Navy', swatch: '#0e6684' },
     { value: 'ocean', label: 'Ocean', swatch: '#3b82f6' },
+    { value: 'cerulean', label: 'Cerulean', swatch: '#0ea5e9' },
+    { value: 'klein-blue', label: 'Klein Blue', swatch: '#2547c9' },
+    { value: 'denim', label: 'Denim', swatch: '#4a6d99' },
     { value: 'charcoal', label: 'Charcoal', swatch: '#64748b' },
     { value: 'olive', label: 'Olive', swatch: '#7a8b3f' },
     { value: 'deep-orange', label: 'Deep Orange', swatch: '#f4511e' },

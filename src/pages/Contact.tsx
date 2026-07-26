@@ -152,25 +152,33 @@ const Contact = () => {
 
                     {showSuccess && (
                         <motion.div
-                            className="success-message"
+                            className="toast toast-success"
                             role="status"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
+                            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         >
-                            <i className="fas fa-check-circle" aria-hidden="true"></i> Message sent successfully! I'll get back to you soon.
+                            <span className="toast-icon" aria-hidden="true">
+                                <i className="fas fa-check"></i>
+                            </span>
+                            <span className="toast-text">Message sent! I'll get back to you soon.</span>
                         </motion.div>
                     )}
 
                     {errorMessage && (
                         <motion.div
-                            className="error-message"
+                            className="toast toast-error"
                             role="alert"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
+                            initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         >
-                            <i className="fas fa-circle-exclamation" aria-hidden="true"></i> {errorMessage}
+                            <span className="toast-icon" aria-hidden="true">
+                                <i className="fas fa-exclamation"></i>
+                            </span>
+                            <span className="toast-text">{errorMessage}</span>
                         </motion.div>
                     )}
                 </motion.div>

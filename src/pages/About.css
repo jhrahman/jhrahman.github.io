@@ -162,6 +162,63 @@
     box-shadow: var(--shadow-glow);
 }
 
+/* Skills CTA - deliberately no backdrop-filter here: this sits right below a
+   50+ chip section that already caused mobile scroll jank once (see
+   .skill-chip above), so this button relies only on transform/opacity/
+   box-shadow, which stay cheap to composite during scroll. */
+.skills-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.skills-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2.25rem;
+    background: var(--accent-gradient);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border-radius: 50px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.skills-cta-btn i {
+    transition: transform 0.25s ease;
+}
+
+.skills-cta-btn:hover,
+.skills-cta-btn:focus-visible {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.skills-cta-btn:hover i,
+.skills-cta-btn:focus-visible i {
+    transform: translateX(4px);
+}
+
+.skills-cta-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+@media (max-width: 768px) {
+    .skills-cta {
+        margin-top: 2.25rem;
+    }
+
+    .skills-cta-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.9rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
 /* Timeline */
 .timeline {
     position: relative;
@@ -221,6 +278,36 @@
 .timeline-company {
     color: var(--text-secondary);
     font-size: 1rem;
+}
+
+.timeline-responsibilities {
+    list-style: none;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.timeline-responsibilities li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.timeline-responsibilities li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.15);
 }
 
 /* Certifications */
@@ -330,5 +417,16 @@
 
     .timeline-marker {
         left: 4px;
+    }
+
+    .timeline-responsibilities {
+        margin-top: 0.85rem;
+        padding-top: 0.75rem;
+        gap: 0.5rem;
+    }
+
+    .timeline-responsibilities li {
+        font-size: 0.88rem;
+        padding-left: 1.25rem;
     }
 }

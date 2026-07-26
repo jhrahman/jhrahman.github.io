@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './About.css';
 import RecommendationsCarousel from '../components/RecommendationsCarousel';
 
@@ -84,17 +85,34 @@ const About = () => {
         {
             period: 'January, 2024 - Present',
             title: 'Technical Support Associate — Software QA & Tech Support',
-            company: 'Craftsmen Limited'
+            company: 'Craftsmen Limited',
+            responsibilities: [
+                'Review business requirements, user stories, and acceptance criteria to identify testable requirements, edge cases, and risks',
+                'Design and execute functional and regression test cases across cloud-based SaaS applications',
+                'Validate REST APIs using Postman, verifying payloads, status codes, authentication, and business logic',
+                'Execute cross-platform testing across Web, Android, iOS, Apple TV, and Android TV',
+                'Built automated regression suites with BugBug, reaching ~90% coverage and cutting regression testing time from 5 days to 2',
+                'Investigate production issues through log analysis and root cause analysis using Datadog and AWS CloudWatch'
+            ]
         },
         {
             period: 'December, 2022 - January, 2024 (1 Year)',
             title: 'IT & Broadcast Engineer',
-            company: 'Jamuna Television Ltd, a concern of Jamuna Group'
+            company: 'Jamuna Television Ltd, a concern of Jamuna Group',
+            responsibilities: [
+                'Monitored servers, networks, and system health across enterprise infrastructure supporting 500+ users',
+                'Triaged and resolved critical L1/L2 technical incidents across Windows, Linux, and macOS environments',
+                'Supported disaster recovery operations and ensured data backup integrity for business continuity'
+            ]
         },
         {
             period: 'November, 2021 - November, 2022 (1.1 Year)',
             title: 'BO & E',
-            company: 'T Sports, a concern of Bashundhara Group'
+            company: 'T Sports, a concern of Bashundhara Group',
+            responsibilities: [
+                'Maintained broadcast continuity by proactively monitoring workflows and transmission quality',
+                'Managed ingest and archive workflows for seamless media operations with high accuracy and consistency'
+            ]
         }
     ];
 
@@ -308,6 +326,16 @@ const About = () => {
                             </motion.div>
                         ))}
                     </motion.div>
+
+                    <motion.div
+                        className="skills-cta"
+                        variants={itemVariants}
+                    >
+                        <Link to="/activities" className="skills-cta-btn">
+                            <span>See These Skills in Action</span>
+                            <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                        </Link>
+                    </motion.div>
                 </motion.section>
 
                 {/* Experience */}
@@ -334,6 +362,11 @@ const About = () => {
                                     <span className="timeline-period">{exp.period}</span>
                                     <h3 className="timeline-title">{exp.title}</h3>
                                     <p className="timeline-company">{exp.company}</p>
+                                    <ul className="timeline-responsibilities">
+                                        {exp.responsibilities.map((point, i) => (
+                                            <li key={i}>{point}</li>
+                                        ))}
+                                    </ul>
                                 </div>
                             </motion.div>
                         ))}

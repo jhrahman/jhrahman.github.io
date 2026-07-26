@@ -1,27 +1,80 @@
 <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .think-ring { transform-box: fill-box; transform-origin: 50% 50%; animation: thinkPulse 2.2s ease-in-out infinite; }
+    @keyframes thinkPulse {
+      0%, 100% { transform: scale(1); opacity: 0.55; }
+      50% { transform: scale(1.35); opacity: 0; }
+    }
+    .pulse-node { transform-box: fill-box; transform-origin: 50% 50%; animation: nodePulse 2.4s ease-in-out infinite; }
+    @keyframes nodePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .flow { animation: flowGo 6s linear infinite; }
+    @keyframes flowGo {
+      0% { opacity: 0; transform: translateX(0); }
+      5% { opacity: 1; }
+      30% { opacity: 1; transform: translateX(158px); }
+      35%, 100% { opacity: 0; }
+    }
+    .check-flash { animation: checkFlash 6s ease-out infinite; animation-delay: 4.3s; }
+    @keyframes checkFlash {
+      0% { opacity: 0; transform: scale(0.6); }
+      6% { opacity: 1; transform: scale(1.2); }
+      18% { opacity: 1; transform: scale(1); }
+      30%, 100% { opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .think-ring, .pulse-node, .flow, .check-flash { animation: none !important; }
+    }
+  </style>
+
   <rect width="600" height="400" fill="#111827"/>
+  <text x="50" y="60" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="12" letter-spacing="2" fill="#6b7280">AI-GENERATED TEST FLOW</text>
 
-  <rect x="32" y="32" width="256" height="156" rx="20" fill="#2EAD33"/>
-  <g transform="translate(132,48) scale(2.333)" fill="#ffffff">
-    <path d="M23.996 7.462c-.056.837-.257 2.135-.716 3.85-.995 3.715-4.27 10.874-10.42 9.227-6.15-1.65-5.407-9.487-4.412-13.201.46-1.716.934-2.94 1.305-3.694.42-.853.846-.289 1.815.523.684.573 2.41 1.791 5.011 2.488 2.601.697 4.706.506 5.583.352 1.245-.219 1.897-.494 1.834.455Zm-9.807 3.863s-.127-1.819-1.773-2.286c-1.644-.467-2.613 1.04-2.613 1.04Zm4.058 4.539-7.769-2.172s.446 2.306 3.338 3.153c2.862.836 4.43-.98 4.43-.981Zm2.701-2.51s-.13-1.818-1.773-2.286c-1.644-.469-2.612 1.038-2.612 1.038ZM8.57 18.23c-4.749 1.279-7.261-4.224-8.021-7.08C.197 9.831.044 8.832.003 8.188c-.047-.73.455-.52 1.415-.354.677.118 2.3.261 4.308-.28a11.28 11.28 0 0 0 2.41-.956c-.058.197-.114.4-.17.61-.433 1.618-.827 4.055-.632 6.426-1.976.732-2.267 2.423-2.267 2.423l2.524-.715c.227 1.002.6 1.987 1.15 2.838a5.914 5.914 0 0 1-.171.049Zm-4.188-6.298c1.265-.333 1.363-1.631 1.363-1.631l-3.374.888s.745 1.076 2.01.743Z"/>
-  </g>
-  <text x="160" y="166" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" fill="#ffffff" text-anchor="middle">Playwright</text>
+  <line x1="140" y1="200" x2="260" y2="200" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+  <line x1="340" y1="200" x2="460" y2="200" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
 
-  <rect x="312" y="32" width="256" height="156" rx="20" fill="#D97757"/>
-  <g transform="translate(412,48) scale(2.333)" fill="#ffffff">
-    <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"/>
+  <g class="flow" style="animation-delay:0s">
+    <rect x="132" y="189" width="66" height="22" rx="11" fill="#a78bfa"/>
+    <text x="165" y="204" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="10" fill="#0b1220" text-anchor="middle">test.spec</text>
   </g>
-  <text x="440" y="166" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#ffffff" text-anchor="middle">Claude AI</text>
+  <g class="flow" style="animation-delay:2.6s">
+    <rect x="332" y="189" width="66" height="22" rx="11" fill="#4ade80"/>
+    <text x="365" y="204" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="10" fill="#0b1220" text-anchor="middle">RBAC/CRUD</text>
+  </g>
 
-  <rect x="32" y="212" width="256" height="156" rx="20" fill="#3178C6"/>
-  <g transform="translate(132,228) scale(2.333)" fill="#ffffff">
-    <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/>
+  <!-- Claude AI -->
+  <circle class="think-ring" cx="100" cy="200" r="44" fill="none" stroke="#D97757" stroke-width="2"/>
+  <g class="pulse-node" style="animation-delay:0s">
+    <circle cx="100" cy="200" r="40" fill="#D97757"/>
+    <g transform="translate(82,182) scale(1.5)" fill="#ffffff">
+      <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"/>
+    </g>
   </g>
-  <text x="160" y="346" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#ffffff" text-anchor="middle">TypeScript</text>
+  <text x="100" y="268" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Claude Code</text>
 
-  <rect x="312" y="212" width="256" height="156" rx="20" fill="#475569"/>
-  <g transform="translate(412,228) scale(2.333)">
-    <path d="M12 2 4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5z" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- Playwright MCP -->
+  <g class="pulse-node" style="animation-delay:0.8s">
+    <circle cx="300" cy="200" r="40" fill="#2EAD33"/>
+    <g transform="translate(282,182) scale(1.5)" fill="#ffffff">
+      <path d="M23.996 7.462c-.056.837-.257 2.135-.716 3.85-.995 3.715-4.27 10.874-10.42 9.227-6.15-1.65-5.407-9.487-4.412-13.201.46-1.716.934-2.94 1.305-3.694.42-.853.846-.289 1.815.523.684.573 2.41 1.791 5.011 2.488 2.601.697 4.706.506 5.583.352 1.245-.219 1.897-.494 1.834.455Zm-9.807 3.863s-.127-1.819-1.773-2.286c-1.644-.467-2.613 1.04-2.613 1.04Zm4.058 4.539-7.769-2.172s.446 2.306 3.338 3.153c2.862.836 4.43-.98 4.43-.981Zm2.701-2.51s-.13-1.818-1.773-2.286c-1.644-.469-2.612 1.038-2.612 1.038ZM8.57 18.23c-4.749 1.279-7.261-4.224-8.021-7.08C.197 9.831.044 8.832.003 8.188c-.047-.73.455-.52 1.415-.354.677.118 2.3.261 4.308-.28a11.28 11.28 0 0 0 2.41-.956c-.058.197-.114.4-.17.61-.433 1.618-.827 4.055-.632 6.426-1.976.732-2.267 2.423-2.267 2.423l2.524-.715c.227 1.002.6 1.987 1.15 2.838a5.914 5.914 0 0 1-.171.049Zm-4.188-6.298c1.265-.333 1.363-1.631 1.363-1.631l-3.374.888s.745 1.076 2.01.743Z"/>
+    </g>
   </g>
-  <text x="440" y="346" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" fill="#ffffff" text-anchor="middle">RBAC</text>
+  <text x="300" y="268" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Playwright Agents</text>
+
+  <!-- Peoplix target -->
+  <g class="pulse-node" style="animation-delay:1.6s">
+    <circle cx="500" cy="200" r="40" fill="#475569"/>
+    <g transform="translate(485,182) scale(1.5)">
+      <path d="M12 2 4 5v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V5z" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <g class="check-flash">
+    <circle cx="530" cy="172" r="14" fill="#22c55e"/>
+    <path d="M523 172l5 5 9-10" fill="none" stroke="#0b1220" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(0,-4) scale(0.85) translate(4,4)"/>
+  </g>
+  <text x="500" y="268" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Peoplix (RBAC/CRUD)</text>
+
+  <text x="300" y="330" font-family="Arial, Helvetica, sans-serif" font-style="italic" font-size="13" fill="#6b7280" text-anchor="middle">Claude Code + Playwright MCP auto-generate regression coverage</text>
 </svg>

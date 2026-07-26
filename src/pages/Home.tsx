@@ -92,8 +92,8 @@ const Home = () => {
                         <Link to="/activities" className="hero-btn hero-btn-primary">
                             View My Work
                         </Link>
-                        <Link to="/contact" className="hero-btn hero-btn-secondary">
-                            Get In Touch
+                        <Link to="/about" className="hero-btn hero-btn-secondary">
+                            View My Profile
                         </Link>
                     </motion.div>
 

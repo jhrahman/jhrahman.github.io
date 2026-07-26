@@ -1,30 +1,80 @@
 <svg width="600" height="400" viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .progress-fill { transform-box: fill-box; transform-origin: 0% 50%; animation: progressGrow 4.5s linear infinite; }
+    @keyframes progressGrow {
+      0% { transform: scaleX(0); }
+      88% { transform: scaleX(1); }
+      100% { transform: scaleX(1); }
+    }
+    .check-pop { transform-box: fill-box; transform-origin: 50% 50%; animation: checkPop 4.5s ease-out infinite; }
+    @keyframes checkPop {
+      0% { opacity: 0; transform: scale(0.5); }
+      6% { opacity: 1; transform: scale(1.2); }
+      12% { transform: scale(1); }
+      92% { opacity: 1; }
+      98%, 100% { opacity: 0; }
+    }
+    .pulse-node { transform-box: fill-box; transform-origin: 50% 50%; animation: nodePulse 2.6s ease-in-out infinite; }
+    @keyframes nodePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .progress-fill, .check-pop, .pulse-node { animation: none !important; }
+    }
+  </style>
+
   <rect width="600" height="400" fill="#111827"/>
+  <text x="50" y="50" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="12" letter-spacing="2" fill="#6b7280">PAGE OBJECT MODEL</text>
 
-  <rect x="32" y="32" width="256" height="156" rx="20" fill="#2EAD33"/>
-  <g transform="translate(132,48) scale(2.333)" fill="#ffffff">
-    <path d="M23.996 7.462c-.056.837-.257 2.135-.716 3.85-.995 3.715-4.27 10.874-10.42 9.227-6.15-1.65-5.407-9.487-4.412-13.201.46-1.716.934-2.94 1.305-3.694.42-.853.846-.289 1.815.523.684.573 2.41 1.791 5.011 2.488 2.601.697 4.706.506 5.583.352 1.245-.219 1.897-.494 1.834.455Zm-9.807 3.863s-.127-1.819-1.773-2.286c-1.644-.467-2.613 1.04-2.613 1.04Zm4.058 4.539-7.769-2.172s.446 2.306 3.338 3.153c2.862.836 4.43-.98 4.43-.981Zm2.701-2.51s-.13-1.818-1.773-2.286c-1.644-.469-2.612 1.038-2.612 1.038ZM8.57 18.23c-4.749 1.279-7.261-4.224-8.021-7.08C.197 9.831.044 8.832.003 8.188c-.047-.73.455-.52 1.415-.354.677.118 2.3.261 4.308-.28a11.28 11.28 0 0 0 2.41-.956c-.058.197-.114.4-.17.61-.433 1.618-.827 4.055-.632 6.426-1.976.732-2.267 2.423-2.267 2.423l2.524-.715c.227 1.002.6 1.987 1.15 2.838a5.914 5.914 0 0 1-.171.049Zm-4.188-6.298c1.265-.333 1.363-1.631 1.363-1.631l-3.374.888s.745 1.076 2.01.743Z"/>
+  <line x1="150" y1="120" x2="450" y2="120" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+  <line class="progress-fill" x1="150" y1="120" x2="450" y2="120" stroke="#0EA5A4" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Login -->
+  <circle cx="150" cy="120" r="26" fill="#0EA5A4"/>
+  <g transform="translate(138,108) scale(1)" fill="none" stroke="#ffffff" stroke-width="1.7">
+    <rect x="5" y="11" width="14" height="10" rx="2"/>
+    <path d="M8 11V8a4 4 0 0 1 8 0v3"/>
   </g>
-  <text x="160" y="166" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" fill="#ffffff" text-anchor="middle">Playwright</text>
+  <circle class="check-pop" cx="172" cy="98" r="12" fill="#22c55e" style="animation-delay:0.2s"/>
+  <path class="check-pop" d="M166 98l4 4 7-8" fill="none" stroke="#0b1220" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:0.2s"/>
+  <text x="150" y="168" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Login</text>
 
-  <rect x="312" y="32" width="256" height="156" rx="20" fill="#3178C6"/>
-  <g transform="translate(412,48) scale(2.333)" fill="#ffffff">
+  <!-- Listing -->
+  <circle cx="300" cy="120" r="26" fill="#0EA5A4"/>
+  <g transform="translate(288,108) scale(1)">
+    <rect x="5" y="6" width="14" height="3.5" rx="1.5" fill="#ffffff"/>
+    <rect x="5" y="12" width="14" height="3.5" rx="1.5" fill="#ffffff" opacity="0.75"/>
+    <rect x="5" y="18" width="14" height="3.5" rx="1.5" fill="#ffffff" opacity="0.5"/>
+  </g>
+  <circle class="check-pop" cx="322" cy="98" r="12" fill="#22c55e" style="animation-delay:2.1s"/>
+  <path class="check-pop" d="M316 98l4 4 7-8" fill="none" stroke="#0b1220" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:2.1s"/>
+  <text x="300" y="168" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Listing</text>
+
+  <!-- Checkout -->
+  <circle cx="450" cy="120" r="26" fill="#0EA5A4"/>
+  <g transform="translate(438,108) scale(1)" fill="none" stroke="#ffffff" stroke-width="1.7">
+    <rect x="4" y="6" width="16" height="12" rx="2"/>
+    <line x1="4" y1="10" x2="20" y2="10"/>
+  </g>
+  <circle class="check-pop" cx="472" cy="98" r="12" fill="#22c55e" style="animation-delay:3.9s"/>
+  <path class="check-pop" d="M466 98l4 4 7-8" fill="none" stroke="#0b1220" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="animation-delay:3.9s"/>
+  <text x="450" y="168" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Checkout</text>
+
+  <line x1="300" y1="146" x2="300" y2="230" stroke="#334155" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Playwright test runner -->
+  <g class="pulse-node" style="animation-delay:0s">
+    <circle cx="300" cy="280" r="44" fill="#2EAD33"/>
+    <g transform="translate(280,260) scale(1.65)" fill="#ffffff">
+      <path d="M23.996 7.462c-.056.837-.257 2.135-.716 3.85-.995 3.715-4.27 10.874-10.42 9.227-6.15-1.65-5.407-9.487-4.412-13.201.46-1.716.934-2.94 1.305-3.694.42-.853.846-.289 1.815.523.684.573 2.41 1.791 5.011 2.488 2.601.697 4.706.506 5.583.352 1.245-.219 1.897-.494 1.834.455Zm-9.807 3.863s-.127-1.819-1.773-2.286c-1.644-.467-2.613 1.04-2.613 1.04Zm4.058 4.539-7.769-2.172s.446 2.306 3.338 3.153c2.862.836 4.43-.98 4.43-.981Zm2.701-2.51s-.13-1.818-1.773-2.286c-1.644-.469-2.612 1.038-2.612 1.038ZM8.57 18.23c-4.749 1.279-7.261-4.224-8.021-7.08C.197 9.831.044 8.832.003 8.188c-.047-.73.455-.52 1.415-.354.677.118 2.3.261 4.308-.28a11.28 11.28 0 0 0 2.41-.956c-.058.197-.114.4-.17.61-.433 1.618-.827 4.055-.632 6.426-1.976.732-2.267 2.423-2.267 2.423l2.524-.715c.227 1.002.6 1.987 1.15 2.838a5.914 5.914 0 0 1-.171.049Zm-4.188-6.298c1.265-.333 1.363-1.631 1.363-1.631l-3.374.888s.745 1.076 2.01.743Z"/>
+    </g>
+  </g>
+  <circle cx="338" cy="248" r="16" fill="#3178C6"/>
+  <g transform="translate(330,240) scale(0.68)" fill="#ffffff">
     <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/>
   </g>
-  <text x="440" y="166" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#ffffff" text-anchor="middle">TypeScript</text>
+  <text x="300" y="348" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" fill="#cbd5e1" text-anchor="middle">Playwright Test Runner</text>
 
-  <rect x="32" y="212" width="256" height="156" rx="20" fill="#0EA5A4"/>
-  <g transform="translate(132,228) scale(2.333)">
-    <rect x="4" y="4" width="16" height="4" rx="2" fill="#ffffff"/>
-    <rect x="4" y="10" width="16" height="4" rx="2" fill="#ffffff" opacity="0.75"/>
-    <rect x="4" y="16" width="16" height="4" rx="2" fill="#ffffff" opacity="0.5"/>
-  </g>
-  <text x="160" y="346" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#ffffff" text-anchor="middle">Page Model</text>
-
-  <rect x="312" y="212" width="256" height="156" rx="20" fill="#334155"/>
-  <g transform="translate(412,228) scale(2.333)">
-    <circle cx="12" cy="12" r="9" fill="none" stroke="#ffffff" stroke-width="1.6"/>
-    <path d="M7.5 12.5l3 3 6-6.5" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-  </g>
-  <text x="440" y="346" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#ffffff" text-anchor="middle">E2E Tests</text>
+  <text x="300" y="378" font-family="Arial, Helvetica, sans-serif" font-style="italic" font-size="13" fill="#6b7280" text-anchor="middle">Reusable page classes drive E2E coverage</text>
 </svg>

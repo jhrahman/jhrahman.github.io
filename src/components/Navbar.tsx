@@ -32,8 +32,34 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                 transition={{ duration: 0.5 }}
             >
                 <div className="container navbar-content">
-                    <Link to="/" className="logo">
-                        <img src={`${import.meta.env.BASE_URL}favicon/favicon-32x32.png`} alt="Logo" className="logo-image" />
+                    <Link to="/" className="logo" aria-label="Jahidur Rahman - Home">
+                        <svg
+                            className="logo-mark"
+                            width="36"
+                            height="36"
+                            viewBox="0 0 40 40"
+                            xmlns="http://www.w3.org/2000/svg"
+                            role="img"
+                            aria-hidden="true"
+                        >
+                            <defs>
+                                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style={{ stopColor: 'var(--accent-primary)' }} />
+                                    <stop offset="100%" style={{ stopColor: 'var(--accent-secondary)' }} />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="20" cy="20" r="20" fill="url(#logoGradient)" />
+                            <text
+                                x="19.5"
+                                y="28.5"
+                                textAnchor="middle"
+                                fontFamily="'Lobster', cursive"
+                                fontSize="23"
+                                fill="#ffffff"
+                            >
+                                JH
+                            </text>
+                        </svg>
                     </Link>
 
                     {/* Desktop Nav */}

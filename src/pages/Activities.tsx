@@ -23,7 +23,7 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/dockerized-playwright-project',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-dockerized-playwright.svg`,
-            description: '7-stage CI/CD pipeline (GitHub Actions → Docker → Playwright → Allure Report → GitHub Pages) with containerized retries, parallel execution, scheduled runs, and Discord notifications.',
+            description: 'GitHub Actions → Docker → Playwright → Allure → Pages, with retries and Discord alerts.',
             graphicPreview: true
         },
         {
@@ -32,7 +32,7 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/playwright-api-testing',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-playwright-api.svg`,
-            description: 'REST API test suite covering GET, POST, PATCH, PUT, DELETE, and header validation, with data-driven JSON payloads and a sequential CRUD flow.',
+            description: 'REST API suite covering GET, POST, PATCH, PUT, DELETE, and header validation, driven by JSON test data.',
             graphicPreview: true
         },
         {
@@ -41,7 +41,7 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/peoplix-e2e-tests',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-peoplix-ai-testing.svg`,
-            description: 'Playwright MCP + Playwright Agents set up in Claude Code to auto-generate test scripts, automating regression coverage for auth, RBAC, and CRUD features.',
+            description: 'Claude Code + Playwright MCP auto-generate regression tests covering auth, RBAC, and CRUD features.',
             graphicPreview: true
         },
         {
@@ -50,7 +50,7 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/playwright-page-object-model',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/tech-playwright-pom.svg`,
-            description: 'Automation framework for an e-commerce demo app structured with the Page Object Model, using reusable page classes for login, listing, and checkout flows.',
+            description: 'Page Object Model framework for an e-commerce demo, with reusable page classes for login, listing, and checkout.',
             graphicPreview: true
         },
         {
@@ -59,7 +59,7 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/applywise',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/applywise-logo.svg`,
-            description: 'Privacy-first, fully client-side AI job-matching tool with no backend — resumes, API keys, and data never leave the browser. Multi-provider AI support with automatic fallback.',
+            description: 'Privacy-first, client-side AI job matcher — resumes and keys never leave the browser.',
             logoPreview: true
         },
         {
@@ -68,32 +68,36 @@ const Activities = () => {
             demo: 'https://github.com/jhrahman/peoplix',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/peoplix-app-icon.png`,
-            description: 'Full-stack HR management SaaS with role-based access, attendance, leave management, and audit logs — built testability-first with data-testid conventions throughout.',
+            description: 'Full-stack HR SaaS with RBAC, attendance, leave management, and audit logs.',
             logoPreview: true
         },
         {
             title: 'Basic e-commerce website',
             tech: 'HTML, CSS, JavaScript, Bootstrap',
             demo: 'https://jhrahman.github.io/laurels/',
-            image: `${import.meta.env.BASE_URL}images/project1.jpg`
+            image: `${import.meta.env.BASE_URL}images/project1.jpg`,
+            description: 'Responsive e-commerce storefront built with Bootstrap, HTML, CSS, and vanilla JavaScript.'
         },
         {
             title: 'CRUD Operation Web Application',
             tech: 'Google script, HTML, CSS, JavaScript',
             demo: 'https://jtv-pc.netlify.app/',
-            image: `${import.meta.env.BASE_URL}images/project2.png`
+            image: `${import.meta.env.BASE_URL}images/project2.png`,
+            description: 'CRUD web app backed by Google Apps Script, with HTML, CSS, and JavaScript for the interface.'
         },
         {
             title: 'Internal Office Network Topology',
             tech: 'DHCP, VLAN, VTP, InterVLAN Routing, IP Routing, Static Route, SSH, Switching, Standard ACL and Extended ACL',
             demo: 'https://drive.google.com/file/d/1u0W54EIry-97U9iHSsNJhHDFw84spU95/view?usp=sharing',
-            image: `${import.meta.env.BASE_URL}images/project3.png`
+            image: `${import.meta.env.BASE_URL}images/project3.png`,
+            description: 'Enterprise network design with VLAN segmentation, InterVLAN routing, SSH, and ACL-based traffic control.'
         },
         {
             title: 'ShiftMate - Automated Team Roster',
             tech: 'HTML5, CSS3, JavaScript, Vanilla JS, GitHub Actions, Discord Webhook API, GitHub API',
             demo: 'https://jhrahman.github.io/shiftmate/',
-            image: `${import.meta.env.BASE_URL}images/project4.png`
+            image: `${import.meta.env.BASE_URL}images/project4.png`,
+            description: 'Automated team roster using GitHub Actions, Vanilla JS, and Discord Webhooks for shift notifications.'
         }
     ];
 

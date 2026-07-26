@@ -100,50 +100,57 @@
     font-size: 1.125rem;
 }
 
-.success-message {
+/* Compact toast notifications - card-style, not a full-color pill, so the
+   success variant can pick up the current accent color instead of a fixed
+   "success green" that would clash with whatever accent the user has chosen. */
+.toast {
+    /* Centered via left:0/right:0/auto-margins rather than transform:
+       translateX(-50%) - Framer Motion drives its own `transform` on this
+       element (for the y/scale entrance animation) and would silently
+       overwrite a CSS transform, breaking the centering. */
     position: fixed;
     bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 1.25rem 2.5rem;
-    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-    color: white;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1.125rem;
-    box-shadow: var(--shadow-lg);
-    z-index: 1000;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: fit-content;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-}
-
-.success-message i {
-    font-size: 1.5rem;
-}
-
-.error-message {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 1.25rem 2.5rem;
-    background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
-    color: white;
-    border-radius: 50px;
-    font-weight: 600;
-    font-size: 1.05rem;
+    padding: 0.7rem 1.15rem 0.7rem 0.7rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
     box-shadow: var(--shadow-lg);
     z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: min(90vw, 620px);
+    max-width: min(90vw, 420px);
 }
 
-.error-message i {
-    font-size: 1.4rem;
+.toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 0.85rem;
+}
+
+.toast-success .toast-icon {
+    background: var(--accent-gradient);
+}
+
+.toast-error .toast-icon {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+.toast-text {
+    font-weight: 600;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--text-primary);
 }
 
 @media (max-width: 768px) {
@@ -151,13 +158,11 @@
         padding: 2rem 1.5rem;
     }
 
-    .success-message,
-    .error-message {
+    .toast {
         bottom: 1rem;
         left: 1rem;
         right: 1rem;
-        transform: none;
-        font-size: 1rem;
+        width: auto;
         max-width: none;
     }
 }

@@ -9,7 +9,7 @@ import Activities from './pages/Activities';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
 
-export type AccentColor = 'ocean' | 'charcoal' | 'olive' | 'deep-orange' | 'emerald';
+export type AccentColor = 'ocean' | 'charcoal' | 'olive' | 'deep-orange' | 'emerald' | 'cerulean' | 'klein-blue' | 'petrol-navy' | 'denim';
 
 // localStorage can throw (private browsing, data-saver modes, disabled
 // storage, quota errors) - never let that crash the app or break the toggle.
@@ -33,7 +33,7 @@ const getInitialTheme = (): 'dark' | 'light' =>
     (safeGetItem('theme') as 'dark' | 'light') || 'dark';
 
 const getInitialAccent = (): AccentColor =>
-    (safeGetItem('accentColor') as AccentColor) || 'ocean';
+    (safeGetItem('accentColor') as AccentColor) || 'petrol-navy';
 
 function ScrollToTop() {
     const { pathname } = useLocation();

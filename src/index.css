@@ -10,7 +10,9 @@
     --text-primary: #f4f5f6;
     --text-secondary: #a3aab5;
     --text-tertiary: #6b7280;
-    /* Accent Color - Ocean (default) */
+    /* Accent Color - Ocean (base :root values; the actual default shown to
+       visitors is Petrol Navy, applied via the [data-accent="petrol-navy"]
+       override below - see getInitialAccent() in App.tsx) */
     --accent-primary: #3b82f6;
     --accent-secondary: #60a5fa;
     --accent-primary-rgb: 59, 130, 246;
@@ -50,6 +52,31 @@
     --accent-primary: #10b981;
     --accent-secondary: #34d399;
     --accent-primary-rgb: 16, 185, 129;
+}
+
+/* Unique blue variants - distinct from the default "Ocean" indigo-blue */
+[data-accent="cerulean"] {
+    --accent-primary: #0ea5e9;
+    --accent-secondary: #38bdf8;
+    --accent-primary-rgb: 14, 165, 233;
+}
+
+[data-accent="klein-blue"] {
+    --accent-primary: #2547c9;
+    --accent-secondary: #4d6bea;
+    --accent-primary-rgb: 37, 71, 201;
+}
+
+[data-accent="petrol-navy"] {
+    --accent-primary: #0e6684;
+    --accent-secondary: #1f8bad;
+    --accent-primary-rgb: 14, 102, 132;
+}
+
+[data-accent="denim"] {
+    --accent-primary: #4a6d99;
+    --accent-secondary: #6c8fbd;
+    --accent-primary-rgb: 74, 109, 153;
 }
 
 [data-theme="light"] {
