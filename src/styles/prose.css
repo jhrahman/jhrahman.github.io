@@ -114,7 +114,9 @@
     border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 1rem 1.1rem;
+    max-width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     font-size: 0.9rem;
     line-height: 1.6;
     position: relative;
@@ -209,5 +211,15 @@ mark {
     .post-body,
     .editor-canvas {
         font-size: 1rem;
+    }
+
+    .post-body pre,
+    .editor-canvas pre {
+        font-size: 0.8rem;
+        padding: 0.85rem 0.9rem;
+    }
+
+    .post-body .code-copy-btn {
+        opacity: 1;
     }
 }

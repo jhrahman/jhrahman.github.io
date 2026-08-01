@@ -118,13 +118,13 @@
 
 .post-layout {
     display: grid;
-    grid-template-columns: 1fr 220px;
+    grid-template-columns: minmax(0, 1fr) 220px;
     gap: 3rem;
     align-items: start;
 }
 
 .post-layout.no-toc {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .post-footer-actions {
@@ -279,7 +279,7 @@
 
 @media (max-width: 768px) {
     .post-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
     }
 
