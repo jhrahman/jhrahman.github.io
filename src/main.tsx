@@ -19,6 +19,14 @@ import './index.css'
 import './styles/prose.css'
 import './styles/hljs-theme.css'
 
+// Rewrite legacy hash-router links (e.g. /#/blog/13, shared before the
+// BrowserRouter migration) to the real path before the router mounts, since
+// a URL fragment never reaches the server and BrowserRouter never reads it.
+if (window.location.pathname === '/' && window.location.hash.startsWith('#/')) {
+    const legacyPath = window.location.hash.slice(1);
+    window.history.replaceState(null, '', legacyPath + window.location.search);
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <App />

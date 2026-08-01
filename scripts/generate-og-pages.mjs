@@ -1,20 +1,24 @@
-// Generates a static, crawler-only HTML shell per blog post so link
-// previews on social platforms (Facebook, LinkedIn, Slack, etc.) show that
-// post's real title/excerpt/cover instead of the site's default preview.
+// Generates the static shells this BrowserRouter SPA needs on GitHub Pages,
+// which only serves flat files and has no server-side routing:
 //
-// Those crawlers fetch a URL's raw HTML without running JavaScript, and
-// GitHub Pages has no server logic to vary the response per path, so the
-// SPA's own client-rendered meta tags (set after the app boots) are never
-// seen by them. Each generated file is a plain static page at a real path
-// (dist/blog/<id>/index.html) with the correct <meta> tags already baked
-// in, which then redirects real visitors into the hash-routed app.
+// 1. dist/404.html - a copy of the built index.html. GitHub Pages serves this
+//    for any path with no matching file (keeping the requested URL in the
+//    address bar), so deep links like /activities or /blog/edit/x still boot
+//    the app and let the client router resolve them.
+// 2. dist/<route>/index.html - real files for the top-level pages, so those
+//    URLs return an actual 200 instead of falling through to 404.html.
+// 3. dist/blog/<id>/index.html - one per published post, same shell but with
+//    post-specific <title>/description/OG tags swapped in. Social/link-
+//    preview crawlers fetch raw HTML without running JS, so they only ever
+//    see whichever static file GitHub Pages hands them for that exact URL -
+//    this is what makes per-post previews (image, title, excerpt) work.
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const SITE_ORIGIN = 'https://jhrahman.github.io';
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/images/myphoto.png`;
+const DIST_DIR = join(process.cwd(), 'dist');
 const POSTS_DIR = join(process.cwd(), 'src/content/posts');
-const OUT_DIR = join(process.cwd(), 'dist/blog');
 
 function escapeHtml(str) {
     return String(str)
@@ -29,6 +33,32 @@ function stripHtml(html) {
     return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+const template = readFileSync(join(DIST_DIR, 'index.html'), 'utf8');
+
+// 1. SPA fallback for GitHub Pages.
+writeFileSync(join(DIST_DIR, '404.html'), template);
+
+// 2. Static shells for the top-level routes.
+for (const route of ['about', 'activities', 'contact', 'blog']) {
+    const dir = join(DIST_DIR, route);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, 'index.html'), template);
+}
+
+// 3. Per-post shells with real OG meta baked in.
+function withPostMeta(html, { title, description, image, canonical }) {
+    return html
+        .replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
+        .replace(/<meta name="description"[\s\S]*?\/>/, `<meta name="description" content="${description}" />`)
+        .replace(/<meta property="og:title"[\s\S]*?\/>/, `<meta property="og:title" content="${title}" />`)
+        .replace(/<meta property="og:description"[\s\S]*?\/>/, `<meta property="og:description" content="${description}" />`)
+        .replace(/<meta property="og:type"[\s\S]*?\/>/, '<meta property="og:type" content="article" />')
+        .replace(/<meta property="og:url"[\s\S]*?\/>/, `<meta property="og:url" content="${canonical}" />`)
+        .replace(/<meta property="og:image"[\s\S]*?\/>/, `<meta property="og:image" content="${image}" />`)
+        .replace(/<meta name="twitter:card"[\s\S]*?\/>/, '<meta name="twitter:card" content="summary_large_image" />')
+        .replace('</head>', `    <link rel="canonical" href="${canonical}" />\n</head>`);
+}
+
 const files = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.json'));
 let count = 0;
 
@@ -39,35 +69,14 @@ for (const file of files) {
     const title = escapeHtml(`${post.title} — Jahidur Rahman`);
     const description = escapeHtml(post.excerpt || stripHtml(post.html).slice(0, 160));
     const image = post.cover ? `${SITE_ORIGIN}${post.cover}` : DEFAULT_IMAGE;
-    const redirectTarget = `${SITE_ORIGIN}/#/blog/${post.id}`;
     const canonical = `${SITE_ORIGIN}/blog/${post.id}`;
 
-    const html = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${title}</title>
-<meta name="description" content="${description}" />
-<link rel="canonical" href="${canonical}" />
-<meta property="og:type" content="article" />
-<meta property="og:title" content="${title}" />
-<meta property="og:description" content="${description}" />
-<meta property="og:image" content="${image}" />
-<meta property="og:url" content="${canonical}" />
-<meta name="twitter:card" content="summary_large_image" />
-<meta http-equiv="refresh" content="0; url=${redirectTarget}" />
-</head>
-<body>
-<p>Redirecting to <a href="${redirectTarget}">${title}</a>…</p>
-</body>
-</html>
-`;
+    const html = withPostMeta(template, { title, description, image, canonical });
 
-    const dir = join(OUT_DIR, String(post.id));
+    const dir = join(DIST_DIR, 'blog', String(post.id));
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'index.html'), html);
     count++;
 }
 
-console.log(`generate-og-pages: wrote ${count} post preview page(s) to dist/blog/`);
+console.log(`generate-og-pages: wrote 404.html, 4 route shells, and ${count} post preview page(s)`);

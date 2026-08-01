@@ -29,7 +29,7 @@ Only the site owner can create, edit, or delete posts, authenticated with a GitH
 ## Stack
 
 - React 18 + TypeScript + Vite
-- React Router (`HashRouter`, for GitHub Pages compatibility)
+- React Router (`BrowserRouter`, with a static-shell fallback for GitHub Pages)
 - Framer Motion for page transitions and micro-interactions
 - TipTap (rich text editor), DOMPurify (sanitization), lowlight (code highlighting)
 - GitHub Contents API for publishing, giscus for comments

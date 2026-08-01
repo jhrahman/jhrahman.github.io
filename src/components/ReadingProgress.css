@@ -1,9 +1,10 @@
-/* Pinned directly under the fixed navbar (80px - matches .page padding-top
-   in Home.css, which every page inherits). position:fixed rather than
-   sticky - sticky's "nearest scrolling ancestor" resolution is fragile
-   inside animated/transformed page wrappers and can drift into content
-   mid-scroll; fixed is always relative to the viewport, matching how the
-   navbar itself is positioned. */
+/* Pinned directly under the fixed navbar - `top` is set inline in JS from
+   the navbar's real measured height, so the bar always hugs it exactly
+   instead of guessing a fixed offset. position:fixed rather than sticky -
+   sticky's "nearest scrolling ancestor" resolution is fragile inside
+   animated/transformed page wrappers and can drift into content mid-scroll;
+   fixed is always relative to the viewport, matching how the navbar itself
+   is positioned. */
 .reading-progress-track {
     position: fixed;
     top: 80px;

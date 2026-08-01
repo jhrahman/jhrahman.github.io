@@ -11,9 +11,10 @@ function setMeta(selector: string, attr: string, value: string) {
 
 /**
  * Sets document.title and OG/description meta tags for the current post,
- * restoring the site defaults on unmount. This is a HashRouter SPA with no
- * server-side rendering, so crawlers still only see one URL - this hook
- * improves social-share previews and browser history, not search indexing.
+ * restoring the site defaults on unmount. This has no effect on crawlers,
+ * which never run this JS - they see the static per-post shell generated at
+ * build time instead (see scripts/generate-og-pages.mjs). This hook only
+ * keeps the tab title and in-app meta correct for real visitors.
  */
 export function useDocumentMeta(title?: string, description?: string, image?: string) {
     useEffect(() => {
