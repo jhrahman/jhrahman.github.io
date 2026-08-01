@@ -111,8 +111,13 @@ const BlogPost = () => {
 
     const { prev, next } = getAdjacentPosts(post.slug);
 
+    // The hash-routed in-app URL (#/blog/<id>) never reaches the server, so
+    // link-preview crawlers can't see it - share the plain path instead,
+    // which resolves to a static per-post preview page that redirects here.
+    const shareableUrl = `${window.location.origin}${import.meta.env.BASE_URL}blog/${post.id}`;
+
     const share = async () => {
-        const url = window.location.href;
+        const url = shareableUrl;
         if (navigator.share) {
             try {
                 await navigator.share({ title: post.title, text: post.excerpt, url });
@@ -132,7 +137,7 @@ const BlogPost = () => {
 
     const copyLink = async () => {
         try {
-            await navigator.clipboard.writeText(window.location.href);
+            await navigator.clipboard.writeText(shareableUrl);
             setLinkCopied(true);
             setTimeout(() => setLinkCopied(false), 2000);
         } catch {
@@ -213,13 +218,15 @@ const BlogPost = () => {
                     </div>
                 )}
 
+                <TableOfContents items={toc} variant="mobile" />
+
                 <div className={`post-layout ${toc.length === 0 ? 'no-toc' : ''}`}>
                     <div
                         ref={bodyRef}
                         className="post-body"
                         dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                     />
-                    <TableOfContents items={toc} />
+                    <TableOfContents items={toc} variant="desktop" />
                 </div>
 
                 <div className="post-footer-actions">

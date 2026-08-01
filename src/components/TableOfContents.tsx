@@ -32,7 +32,12 @@ export function useToc(containerRef: React.RefObject<HTMLElement>, deps: unknown
     return items;
 }
 
-const TableOfContents = ({ items }: { items: TocItem[] }) => {
+interface TableOfContentsProps {
+    items: TocItem[];
+    variant?: 'desktop' | 'mobile';
+}
+
+const TableOfContents = ({ items, variant = 'desktop' }: TableOfContentsProps) => {
     if (items.length === 0) return null;
 
     const scrollTo = (id: string) => (e: React.MouseEvent) => {
@@ -40,19 +45,8 @@ const TableOfContents = ({ items }: { items: TocItem[] }) => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    return (
-        <>
-            <nav className="toc toc-desktop" aria-label="Table of contents">
-                <span className="toc-heading">On this page</span>
-                <ul>
-                    {items.map((item) => (
-                        <li key={item.id} className={`toc-level-${item.level}`}>
-                            <a href={`#${item.id}`} onClick={scrollTo(item.id)}>{item.text}</a>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-
+    if (variant === 'mobile') {
+        return (
             <details className="toc toc-mobile">
                 <summary>On this page</summary>
                 <ul>
@@ -63,7 +57,20 @@ const TableOfContents = ({ items }: { items: TocItem[] }) => {
                     ))}
                 </ul>
             </details>
-        </>
+        );
+    }
+
+    return (
+        <nav className="toc toc-desktop" aria-label="Table of contents">
+            <span className="toc-heading">On this page</span>
+            <ul>
+                {items.map((item) => (
+                    <li key={item.id} className={`toc-level-${item.level}`}>
+                        <a href={`#${item.id}`} onClick={scrollTo(item.id)}>{item.text}</a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
     );
 };
 

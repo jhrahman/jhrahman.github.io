@@ -1,14 +1,18 @@
-/* Sticks directly under the fixed navbar (80px tall - see .page padding-top
-   in Home.css, which every page inherits). Must be a direct child of .page,
-   outside .container, so it spans the full viewport width. */
+/* Pinned directly under the fixed navbar (80px - matches .page padding-top
+   in Home.css, which every page inherits). position:fixed rather than
+   sticky - sticky's "nearest scrolling ancestor" resolution is fragile
+   inside animated/transformed page wrappers and can drift into content
+   mid-scroll; fixed is always relative to the viewport, matching how the
+   navbar itself is positioned. */
 .reading-progress-track {
-    position: sticky;
+    position: fixed;
     top: 80px;
     left: 0;
     width: 100%;
     height: 3px;
     background: transparent;
     z-index: 900;
+    pointer-events: none;
 }
 
 .reading-progress-fill {
