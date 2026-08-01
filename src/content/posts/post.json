@@ -5,9 +5,9 @@
     "tags": [],
     "cover": "/images/blog/post/cover.webp",
     "date": "2026-08-01T15:21:28.687Z",
-    "updated": "2026-08-01T15:26:12.323Z",
+    "updated": "2026-08-01T15:29:25.259Z",
     "readingTime": 1,
     "featured": false,
-    "draft": true,
+    "draft": false,
     "html": "<h1><strong><em>Blog post test</em></strong></h1><p></p><p></p><p></p><p></p><p></p><p></p><pre><code>{{InteractiveExample(\"JavaScript Demo: Array.concat()\", \"shorter\")}}\n\n```js interactive-example\nconst array1 = [\"a\", \"b\", \"c\"];\nconst array2 = [\"d\", \"e\", \"f\"];\nconst array3 = array1.concat(array2);\n\nconsole.log(array3);\n// Expected output: Array [\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"]\n```</code></pre><hr><p></p><p></p><p></p><p></p><p></p><p><span style=\"font-family: Outfit;\">Blog post test</span></p>"
 }
