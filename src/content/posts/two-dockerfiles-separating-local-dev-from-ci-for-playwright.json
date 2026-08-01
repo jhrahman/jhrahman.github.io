@@ -1,8 +1,18 @@
 {
+    "id": 10,
     "slug": "two-dockerfiles-separating-local-dev-from-ci-for-playwright",
     "title": "Two Dockerfiles: Separating Local Dev From CI for Playwright",
     "excerpt": "Keeping separate Dockerfiles for local development and CI/CD turned out to be one of the simplest, most valuable decisions in dockerizing a Playwright project.",
-    "tags": ["Docker", "Playwright", "Test Automation", "QA", "SDET", "DevOps", "CI/CD", "Software Testing"],
+    "tags": [
+        "Docker",
+        "Playwright",
+        "Test Automation",
+        "QA",
+        "SDET",
+        "DevOps",
+        "CI/CD",
+        "Software Testing"
+    ],
     "cover": "/images/blog/two-dockerfiles-separating-local-dev-from-ci-for-playwright/cover.webp",
     "date": "2026-06-08T12:44:00.000Z",
     "updated": null,

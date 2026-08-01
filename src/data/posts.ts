@@ -21,6 +21,17 @@ export function getPost(slug: string, includeDrafts = false): Post | undefined {
     return source.find((p) => p.slug === slug);
 }
 
+/** Looks up a post by its short numeric id - what the public URL uses. */
+export function getPostById(id: number, includeDrafts = false): Post | undefined {
+    const source = includeDrafts ? allPostsIncludingDrafts : posts;
+    return source.find((p) => p.id === id);
+}
+
+/** Next id to assign when publishing a brand new post. */
+export function nextPostId(): number {
+    return allPostsIncludingDrafts.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+}
+
 export const allTags: string[] = [...new Set(posts.flatMap((p) => p.tags))].sort((a, b) =>
     a.localeCompare(b)
 );

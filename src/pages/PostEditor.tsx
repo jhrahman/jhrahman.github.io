@@ -19,7 +19,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
 import { useAuth } from '../lib/auth';
-import { getPost, slugify, allTags } from '../data/posts';
+import { getPost, slugify, allTags, nextPostId } from '../data/posts';
 import { publishPost, deletePost } from '../lib/publish';
 import { GitHubApiError } from '../lib/github';
 import EditorToolbar from '../components/EditorToolbar';
@@ -35,7 +35,7 @@ interface DraftShape {
 type PublishState =
     | { phase: 'idle' }
     | { phase: 'working'; message: string }
-    | { phase: 'success'; commitSha: string; slug: string }
+    | { phase: 'success'; commitSha: string; id: number }
     | { phase: 'error'; message: string; fallback: DraftShape };
 
 const PostEditor = () => {
@@ -61,6 +61,7 @@ const PostEditor = () => {
     const [publishState, setPublishState] = useState<PublishState>({ phase: 'idle' });
     const [restoredNotice, setRestoredNotice] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState('Deleting…');
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const editor = useEditor({
@@ -118,8 +119,11 @@ const PostEditor = () => {
     }, [editor]);
 
     // Autosave every few seconds so a refresh never loses work in progress.
+    // Stops once a publish has succeeded - otherwise the next tick would
+    // silently rewrite the just-cleared key with the same stale content.
     useEffect(() => {
         if (!editor) return;
+        if (publishState.phase === 'success') return;
         const interval = setInterval(() => {
             const payload: DraftShape = { title, excerpt, tags, featured, draft, slug, html: editor.getHTML() };
             try {
@@ -129,7 +133,7 @@ const PostEditor = () => {
             }
         }, 4000);
         return () => clearInterval(interval);
-    }, [editor, title, excerpt, tags, featured, draft, slug, autosaveKey]);
+    }, [editor, title, excerpt, tags, featured, draft, slug, autosaveKey, publishState.phase]);
 
     useEffect(() => {
         if (!slugTouched) setSlug(slugify(title));
@@ -188,6 +192,7 @@ const PostEditor = () => {
         try {
             const result = await publishPost({
                 token,
+                id: existingPost?.id ?? nextPostId(),
                 slug,
                 title,
                 excerpt,
@@ -202,7 +207,7 @@ const PostEditor = () => {
                 onProgress: (message) => setPublishState({ phase: 'working', message }),
             });
             sessionStorage.removeItem(autosaveKey);
-            setPublishState({ phase: 'success', commitSha: result.commitSha, slug: result.post.slug });
+            setPublishState({ phase: 'success', commitSha: result.commitSha, id: result.post.id });
         } catch (err) {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
@@ -222,8 +227,7 @@ const PostEditor = () => {
         setDeleting(true);
         setDeleteError(null);
         try {
-            await deletePost(token, existingPost.slug, existingPost.title);
-            sessionStorage.removeItem(autosaveKey);
+            await deletePost(token, existingPost.slug, existingPost.title, (message) => setDeleteMessage(message));
             navigate('/blog');
         } catch (err) {
             setDeleting(false);
@@ -276,7 +280,7 @@ const PostEditor = () => {
                             <summary>Post settings</summary>
 
                             <label className="editor-field">
-                                <span>URL slug</span>
+                                <span>Slug (file name, not shown in the URL)</span>
                                 <input
                                     value={slug}
                                     onChange={(e) => { setSlug(slugify(e.target.value)); setSlugTouched(true); }}
@@ -355,7 +359,7 @@ const PostEditor = () => {
                                 <a href="https://github.com/jhrahman/jhrahman.github.io/actions" target="_blank" rel="noopener noreferrer">
                                     Watch the deploy →
                                 </a>
-                                <Link to={`/blog/${publishState.slug}`}>View post →</Link>
+                                <Link to={`/blog/${publishState.id}`}>View post →</Link>
                             </div>
                         )}
 
@@ -378,7 +382,7 @@ const PostEditor = () => {
                                     disabled={deleting}
                                 >
                                     {deleting
-                                        ? <><i className="fas fa-spinner fa-spin"></i> Deleting…</>
+                                        ? <><i className="fas fa-spinner fa-spin"></i> {deleteMessage}</>
                                         : <><i className="fas fa-trash"></i> Delete post</>
                                     }
                                 </button>

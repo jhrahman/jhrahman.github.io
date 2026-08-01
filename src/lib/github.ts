@@ -127,6 +127,24 @@ export async function putFile(
     return { commitSha: body.commit?.sha, contentSha: body.content?.sha };
 }
 
+export interface RepoFile {
+    name: string;
+    path: string;
+    sha: string;
+    type: string;
+}
+
+export async function listDirectory(token: string, path: string): Promise<RepoFile[] | null> {
+    const res = await fetch(
+        `${API_BASE}/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`,
+        { headers: headers(token) }
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) return readError(res);
+    const body = await res.json();
+    return Array.isArray(body) ? body : null;
+}
+
 export async function deleteFile(
     token: string,
     path: string,

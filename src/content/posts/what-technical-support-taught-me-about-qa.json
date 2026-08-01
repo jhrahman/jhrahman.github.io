@@ -1,8 +1,14 @@
 {
+    "id": 2,
     "slug": "what-technical-support-taught-me-about-qa",
     "title": "What Technical Support Taught Me About QA",
     "excerpt": "Technical Support taught me how things actually fail. QA gives me the chance to catch those failures before they ever reach a user.",
-    "tags": ["Software Testing", "Technical Support", "Quality Assurance", "Incident Management"],
+    "tags": [
+        "Software Testing",
+        "Technical Support",
+        "Quality Assurance",
+        "Incident Management"
+    ],
     "cover": "/images/blog/what-technical-support-taught-me-about-qa/cover.webp",
     "date": "2026-01-22T14:02:00.000Z",
     "updated": null,

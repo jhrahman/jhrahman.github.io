@@ -84,10 +84,10 @@ function AppContent() {
                         <Route path="/activities" element={<Activities />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/blog" element={<Blog />} />
-                        {/* Must precede /blog/:slug so "new" isn't parsed as a slug */}
+                        {/* Must precede /blog/:id so "new" isn't parsed as an id */}
                         <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
                         <Route path="/blog/edit/:slug" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
-                        <Route path="/blog/:slug" element={<BlogPost />} />
+                        <Route path="/blog/:id" element={<BlogPost />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </AnimatePresence>

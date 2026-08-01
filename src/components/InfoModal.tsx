@@ -54,17 +54,25 @@ function PublishAccessRow({ onClose }: { onClose: () => void }) {
     if (isOwner && user) {
         return (
             <div className="info-row publish-row signed-in">
-                <img src={user.avatarUrl} alt="" className="publish-avatar" />
-                <div className="publish-row-body">
-                    <span className="info-label">Signed in as @{user.login}</span>
-                    {daysUntilExpiry !== null && (
-                        <span className={`token-expiry ${daysUntilExpiry <= 7 ? 'warn' : ''}`}>
-                            Token expires in {daysUntilExpiry}d
-                        </span>
-                    )}
+                <div className="publish-identity">
+                    <img src={user.avatarUrl} alt="" className="publish-avatar" />
+                    <div className="publish-row-body">
+                        <span className="publish-username">@{user.login}</span>
+                        {daysUntilExpiry !== null && (
+                            <span className={`token-expiry ${daysUntilExpiry <= 7 ? 'warn' : ''}`}>
+                                Token expires in {daysUntilExpiry}d
+                            </span>
+                        )}
+                    </div>
                 </div>
-                <Link to="/blog/new" className="publish-link-btn" onClick={onClose}>New post</Link>
-                <button className="publish-signout-btn" onClick={signOut}>Sign out</button>
+                <div className="publish-actions">
+                    <Link to="/blog/new" className="publish-link-btn" onClick={onClose}>
+                        <i className="fas fa-plus" aria-hidden="true"></i> New post
+                    </Link>
+                    <button className="publish-signout-btn" onClick={signOut}>
+                        <i className="fas fa-right-from-bracket" aria-hidden="true"></i> Sign out
+                    </button>
+                </div>
             </div>
         );
     }

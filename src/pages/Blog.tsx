@@ -24,7 +24,7 @@ function formatDate(iso: string): string {
 function PostCard({ post }: { post: Post }) {
     return (
         <motion.article className="post-card glass-effect" variants={itemVariants} whileHover={{ y: -8 }}>
-            <Link to={`/blog/${post.slug}`} className="post-card-link" aria-label={post.title}>
+            <Link to={`/blog/${post.id}`} className="post-card-link" aria-label={post.title}>
                 <div
                     className="post-card-cover"
                     style={post.cover ? { backgroundImage: `url(${post.cover})` } : undefined}
@@ -150,7 +150,7 @@ const Blog = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1, duration: 0.6 }}
                     >
-                        <Link to={`/blog/${featuredPosts[0].slug}`} className="post-hero-link">
+                        <Link to={`/blog/${featuredPosts[0].id}`} className="post-hero-link">
                             <div
                                 className="post-hero-cover"
                                 style={featuredPosts[0].cover ? { backgroundImage: `url(${featuredPosts[0].cover})` } : undefined}
@@ -191,7 +191,7 @@ const Blog = () => {
                                 variants={itemVariants}
                                 whileHover={{ y: -6 }}
                             >
-                                <Link to={`/blog/${post.slug}`} className="featured-card-link">
+                                <Link to={`/blog/${post.id}`} className="featured-card-link">
                                     <div
                                         className="featured-card-cover"
                                         style={post.cover ? { backgroundImage: `url(${post.cover})` } : undefined}

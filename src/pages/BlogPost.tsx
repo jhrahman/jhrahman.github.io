@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
-import { getPost, getAdjacentPosts } from '../data/posts';
+import { getPostById, getAdjacentPosts } from '../data/posts';
 import { useAuth } from '../lib/auth';
 import { deletePost } from '../lib/publish';
 import { GitHubApiError } from '../lib/github';
@@ -22,7 +22,7 @@ function getStoredTheme(): 'dark' | 'light' {
 }
 
 const BlogPost = () => {
-    const { slug } = useParams<{ slug: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { isOwner, getToken } = useAuth();
     const pageRef = useRef<HTMLDivElement>(null);
@@ -32,9 +32,11 @@ const BlogPost = () => {
     const [linkCopied, setLinkCopied] = useState(false);
     const [theme, setTheme] = useState<'dark' | 'light'>(getStoredTheme);
     const [deleting, setDeleting] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState('Deleting…');
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
-    const post = getPost(slug ?? '', isOwner);
+    const numericId = Number(id);
+    const post = Number.isInteger(numericId) ? getPostById(numericId, isOwner) : undefined;
 
     // Track theme changes for the giscus iframe, which can't read CSS vars.
     useEffect(() => {
@@ -148,7 +150,7 @@ const BlogPost = () => {
         setDeleting(true);
         setDeleteError(null);
         try {
-            await deletePost(token, post.slug, post.title);
+            await deletePost(token, post.slug, post.title, (message) => setDeleteMessage(message));
             navigate('/blog');
         } catch (err) {
             setDeleting(false);
@@ -198,7 +200,7 @@ const BlogPost = () => {
                             </button>
                             <button className="delete-post-btn" onClick={handleDelete} disabled={deleting}>
                                 <i className={`fas ${deleting ? 'fa-spinner fa-spin' : 'fa-trash'}`}></i>
-                                {deleting ? 'Deleting…' : 'Delete post'}
+                                {deleting ? deleteMessage : 'Delete post'}
                             </button>
                         </div>
                     )}
@@ -238,13 +240,13 @@ const BlogPost = () => {
                 {(prev || next) && (
                     <nav className="post-adjacent-nav" aria-label="More posts">
                         {prev ? (
-                            <Link to={`/blog/${prev.slug}`} className="post-adjacent-link prev">
+                            <Link to={`/blog/${prev.id}`} className="post-adjacent-link prev">
                                 <span className="post-adjacent-label"><i className="fas fa-arrow-left"></i> Previous</span>
                                 <span className="post-adjacent-title">{prev.title}</span>
                             </Link>
                         ) : <span />}
                         {next && (
-                            <Link to={`/blog/${next.slug}`} className="post-adjacent-link next">
+                            <Link to={`/blog/${next.id}`} className="post-adjacent-link next">
                                 <span className="post-adjacent-label">Next <i className="fas fa-arrow-right"></i></span>
                                 <span className="post-adjacent-title">{next.title}</span>
                             </Link>

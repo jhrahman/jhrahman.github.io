@@ -1,8 +1,18 @@
 {
+    "id": 9,
     "slug": "automating-api-workflows-with-playwright",
     "title": "Automating API Workflows With Playwright",
     "excerpt": "Automating API workflows with Playwright makes it possible to catch backend issues long before they ever reach the UI.",
-    "tags": ["Playwright", "API Testing", "Test Automation", "Software Testing", "Quality Assurance", "TypeScript", "QA Engineer", "SDET"],
+    "tags": [
+        "Playwright",
+        "API Testing",
+        "Test Automation",
+        "Software Testing",
+        "Quality Assurance",
+        "TypeScript",
+        "QA Engineer",
+        "SDET"
+    ],
     "cover": "/images/blog/automating-api-workflows-with-playwright/cover.webp",
     "date": "2026-05-19T10:26:00.000Z",
     "updated": null,

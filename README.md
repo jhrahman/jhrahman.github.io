@@ -9,6 +9,7 @@ Personal portfolio site for Jahidur Rahman (QA & Test Automation / Technical Sup
 - **Home** — hero intro with capability pills, quick links to profile and projects, social links
 - **About** — bio, categorized skills, career timeline (with responsibilities per role), education, certifications, and a touch-swipeable recommendations carousel
 - **Activities** — 10 projects, including 4 test-automation repos with animated SVG workflow-diagram previews (CI/CD pipeline, API test flow, AI-generated tests, Page Object Model), plus Applywise and Peoplix
+- **Blog** — long-form posts with cover images, tags/search, reading time, featured posts, a table of contents, code syntax highlighting, and comments via [giscus](https://giscus.app) (backed by GitHub Discussions)
 - **Contact** — EmailJS-powered contact form with a compact toast notification on send
 
 ## Design
@@ -19,11 +20,19 @@ Personal portfolio site for Jahidur Rahman (QA & Test Automation / Technical Sup
 - Fully responsive, with care taken to avoid scroll jank on mobile (no `backdrop-filter` on repeated elements like skill chips)
 - Respects `prefers-reduced-motion` throughout
 
+## Blog publishing
+
+Posts are authored with a rich WYSIWYG editor (headings, tables, code blocks, images, formatting) and stored as static JSON in `src/content/posts/`, baked into the build at compile time. There's no backend, no database, and no runtime API calls for visitors reading the blog.
+
+Only the site owner can create, edit, or delete posts, authenticated with a GitHub personal access token scoped to this repository only. All writes go through the GitHub Contents API, so GitHub itself enforces the actual permission check, not the client code. The token never leaves the browser tab it's typed into and is never stored in the repo or bundle.
+
 ## Stack
 
 - React 18 + TypeScript + Vite
 - React Router (`HashRouter`, for GitHub Pages compatibility)
 - Framer Motion for page transitions and micro-interactions
+- TipTap (rich text editor), DOMPurify (sanitization), lowlight (code highlighting)
+- GitHub Contents API for publishing, giscus for comments
 - EmailJS for the contact form (no backend)
 
 ## Development

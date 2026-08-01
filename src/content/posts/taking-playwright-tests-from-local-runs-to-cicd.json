@@ -1,8 +1,14 @@
 {
+    "id": 6,
     "slug": "taking-playwright-tests-from-local-runs-to-cicd",
     "title": "Taking Playwright Tests From Local Runs to CI/CD",
     "excerpt": "Notes from connecting the dots between local Playwright runs and a real CI/CD pipeline built on GitHub Actions.",
-    "tags": ["Playwright", "Test Automation", "QA", "Software Testing"],
+    "tags": [
+        "Playwright",
+        "Test Automation",
+        "QA",
+        "Software Testing"
+    ],
     "cover": "/images/blog/taking-playwright-tests-from-local-runs-to-cicd/cover.webp",
     "date": "2026-03-28T13:38:00.000Z",
     "updated": null,

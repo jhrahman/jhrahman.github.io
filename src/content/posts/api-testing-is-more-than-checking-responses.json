@@ -1,8 +1,16 @@
 {
+    "id": 3,
     "slug": "api-testing-is-more-than-checking-responses",
     "title": "API Testing Is More Than Checking Responses",
     "excerpt": "A green response doesn't mean the system behaved correctly. Real API testing means validating data, logic, and consistency, not just status codes.",
-    "tags": ["API Testing", "QA", "Software Testing", "Postman Automation", "Test Engineering", "Backend QA"],
+    "tags": [
+        "API Testing",
+        "QA",
+        "Software Testing",
+        "Postman Automation",
+        "Test Engineering",
+        "Backend QA"
+    ],
     "cover": "/images/blog/api-testing-is-more-than-checking-responses/cover.webp",
     "date": "2026-02-05T10:47:00.000Z",
     "updated": null,

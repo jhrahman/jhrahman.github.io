@@ -1,8 +1,15 @@
 {
+    "id": 5,
     "slug": "building-a-self-updating-team-roster-with-github-actions",
     "title": "Building a Self-Updating Team Roster With GitHub Actions",
     "excerpt": "A small experiment in AI-assisted development: a single-page team roster kept up to date automatically by GitHub Actions and Discord.",
-    "tags": ["AI", "Automation", "GitHub Actions", "DevOps", "Software Engineering"],
+    "tags": [
+        "AI",
+        "Automation",
+        "GitHub Actions",
+        "DevOps",
+        "Software Engineering"
+    ],
     "cover": "/images/blog/building-a-self-updating-team-roster-with-github-actions/cover.webp",
     "date": "2026-03-10T11:05:00.000Z",
     "updated": null,

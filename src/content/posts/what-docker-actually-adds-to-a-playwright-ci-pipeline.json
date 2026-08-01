@@ -1,8 +1,15 @@
 {
+    "id": 7,
     "slug": "what-docker-actually-adds-to-a-playwright-ci-pipeline",
     "title": "What Docker Actually Adds to a Playwright CI Pipeline",
     "excerpt": "Docker isn't about running tests in containers. It's about making the test environment consistent and reusable across every CI run.",
-    "tags": ["Software Testing", "QA", "Docker", "Playwright", "Quality Mindset"],
+    "tags": [
+        "Software Testing",
+        "QA",
+        "Docker",
+        "Playwright",
+        "Quality Mindset"
+    ],
     "cover": "/images/blog/what-docker-actually-adds-to-a-playwright-ci-pipeline/cover.webp",
     "date": "2026-04-14T09:52:00.000Z",
     "updated": null,

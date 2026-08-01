@@ -1,8 +1,15 @@
 {
+    "id": 1,
     "slug": "when-low-code-automation-meets-qa-instinct",
     "title": "When Low-Code Automation Meets QA Instinct",
     "excerpt": "Low-code test automation gets you started fast, but real reliability still comes down to QA instinct: tweaking locators, selectors, and scripts by hand.",
-    "tags": ["Software Testing", "QA", "Test Automation", "Agile Testing", "Quality Engineering"],
+    "tags": [
+        "Software Testing",
+        "QA",
+        "Test Automation",
+        "Agile Testing",
+        "Quality Engineering"
+    ],
     "cover": "/images/blog/when-low-code-automation-meets-qa-instinct/cover.webp",
     "date": "2026-01-08T09:14:00.000Z",
     "updated": null,

@@ -1,8 +1,15 @@
 {
+    "id": 12,
     "slug": "what-ai-assisted-test-automation-still-cant-replace",
     "title": "What AI-Assisted Test Automation Still Can't Replace",
     "excerpt": "AI sped up building an E2E suite, but it still missed a real scenario and two real bugs. Judgment and exploratory testing still do the heavy lifting.",
-    "tags": ["QA", "Playwright", "Test Automation", "SDET", "Agentic AI"],
+    "tags": [
+        "QA",
+        "Playwright",
+        "Test Automation",
+        "SDET",
+        "Agentic AI"
+    ],
     "cover": "/images/blog/what-ai-assisted-test-automation-still-cant-replace/cover.webp",
     "date": "2026-07-31T08:57:00.000Z",
     "updated": null,

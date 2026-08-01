@@ -1,8 +1,20 @@
 {
+    "id": 8,
     "slug": "building-a-playwright-framework-with-the-page-object-model",
     "title": "Building a Playwright Framework With the Page Object Model",
     "excerpt": "What I learned building a Playwright and TypeScript framework around the Page Object Model, and why it's about maintainability, not less code.",
-    "tags": ["Playwright", "Test Automation", "QA", "SDET", "Software Testing", "TypeScript", "Automation Testing", "Quality Assurance", "GitHub Actions", "CI/CD"],
+    "tags": [
+        "Playwright",
+        "Test Automation",
+        "QA",
+        "SDET",
+        "Software Testing",
+        "TypeScript",
+        "Automation Testing",
+        "Quality Assurance",
+        "GitHub Actions",
+        "CI/CD"
+    ],
     "cover": "/images/blog/building-a-playwright-framework-with-the-page-object-model/cover.webp",
     "date": "2026-04-30T15:11:00.000Z",
     "updated": null,

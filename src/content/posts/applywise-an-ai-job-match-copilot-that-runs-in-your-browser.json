@@ -1,8 +1,18 @@
 {
+    "id": 11,
     "slug": "applywise-an-ai-job-match-copilot-that-runs-in-your-browser",
     "title": "ApplyWise: An AI Job Match Copilot That Runs in Your Browser",
     "excerpt": "ApplyWise is a browser-based AI job match copilot that compares your resume against a posting, without ever uploading your data anywhere.",
-    "tags": ["Open Source", "Build In Public", "Browser Extension", "AI", "Job Search", "Career Tech", "Web Development", "Developer Tools"],
+    "tags": [
+        "Open Source",
+        "Build In Public",
+        "Browser Extension",
+        "AI",
+        "Job Search",
+        "Career Tech",
+        "Web Development",
+        "Developer Tools"
+    ],
     "cover": "/images/blog/applywise-an-ai-job-match-copilot-that-runs-in-your-browser/cover.svg",
     "date": "2026-06-25T17:09:00.000Z",
     "updated": null,

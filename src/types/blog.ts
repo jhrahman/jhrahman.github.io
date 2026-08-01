@@ -1,4 +1,5 @@
 export interface Post {
+    id: number; // stable, assigned once at first publish - used for the public URL
     slug: string;
     title: string;
     excerpt: string;

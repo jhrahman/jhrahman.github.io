@@ -1,6 +1,6 @@
 import DOMPurify from 'dompurify';
 import type { Post } from '../types/blog';
-import { toBase64, blobToBase64, getFileSha, putFile, deleteFile, GitHubApiError } from './github';
+import { toBase64, blobToBase64, getFileSha, putFile, deleteFile, listDirectory, GitHubApiError } from './github';
 import { processImage, buildImagePath, buildCoverPath, publicUrlFor } from './images';
 import { computeReadingTime, deriveExcerpt } from '../data/posts';
 
@@ -11,6 +11,7 @@ const PURIFY_CONFIG = {
 
 export interface PublishInput {
     token: string;
+    id: number;
     slug: string;
     title: string;
     excerpt: string;
@@ -82,7 +83,7 @@ function wrapTables(html: string): string {
 
 export async function publishPost(input: PublishInput): Promise<PublishResult> {
     const {
-        token, slug, title, excerpt, tags, featured, draft,
+        token, id, slug, title, excerpt, tags, featured, draft,
         rawHtml, pendingImages, coverFile, existingCover, existingDate, onProgress,
     } = input;
 
@@ -112,6 +113,7 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
 
     const now = new Date().toISOString();
     const post: Post = {
+        id,
         slug,
         title: title.trim(),
         excerpt: excerpt.trim() || deriveExcerpt(cleanHtml),
@@ -141,9 +143,34 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
     return { post, commitSha: result.commitSha };
 }
 
-export async function deletePost(token: string, slug: string, title: string): Promise<void> {
+export function autosaveDraftKey(slug: string): string {
+    return `blog_editor_draft_${slug}`;
+}
+
+export async function deletePost(
+    token: string,
+    slug: string,
+    title: string,
+    onProgress?: (message: string) => void
+): Promise<void> {
+    onProgress?.('Deleting post…');
     const path = `src/content/posts/${slug}.json`;
     const sha = await getFileSha(token, path);
     if (!sha) throw new Error(`No post found at "${slug}" to delete.`);
     await deleteFile(token, path, sha, `blog: delete "${title}"`);
+
+    const imageDir = `public/images/blog/${slug}`;
+    const files = await listDirectory(token, imageDir);
+    if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+            onProgress?.(`Removing image ${i + 1} of ${files.length}…`);
+            await deleteFile(token, files[i].path, files[i].sha, `blog: remove image for deleted post "${title}"`);
+        }
+    }
+
+    try {
+        sessionStorage.removeItem(autosaveDraftKey(slug));
+    } catch {
+        // Best-effort - not fatal if storage is unavailable.
+    }
 }
