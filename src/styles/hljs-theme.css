@@ -48,7 +48,9 @@
 
 .hljs-variable,
 .hljs-template-variable,
-.hljs-attribute {
+.hljs-attribute,
+.hljs-params,
+.hljs-subst {
     color: #9cdcfe;
 }
 
@@ -109,7 +111,9 @@
 
 [data-theme="light"] .hljs-variable,
 [data-theme="light"] .hljs-template-variable,
-[data-theme="light"] .hljs-attribute {
+[data-theme="light"] .hljs-attribute,
+[data-theme="light"] .hljs-params,
+[data-theme="light"] .hljs-subst {
     color: #4078f2;
 }
 

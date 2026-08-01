@@ -1,8 +1,12 @@
 import DOMPurify from 'dompurify';
+import { createLowlight, common } from 'lowlight';
+import type { Root as HastRoot, Element as HastElement, Text as HastText } from 'hast';
 import type { Post } from '../types/blog';
-import { toBase64, blobToBase64, getFileSha, putFile, deleteFile, listDirectory, GitHubApiError } from './github';
+import { toBase64, blobToBase64, getFileSha, putFile, GitHubApiError } from './github';
 import { processImage, buildImagePath, buildCoverPath, publicUrlFor } from './images';
 import { computeReadingTime, deriveExcerpt } from '../data/posts';
+
+const lowlight = createLowlight(common);
 
 const PURIFY_CONFIG = {
     ADD_TAGS: ['iframe'],
@@ -69,6 +73,58 @@ async function resolveImages(
     return doc.body.innerHTML;
 }
 
+function escapeHtml(str: string): string {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function hastToHtml(node: HastRoot | HastElement | HastText): string {
+    if (node.type === 'text') return escapeHtml(node.value);
+    if (node.type === 'root' || node.type === 'element') {
+        const children = (node.children as (HastElement | HastText)[] | undefined)?.map(hastToHtml).join('') ?? '';
+        if (node.type === 'root') return children;
+        const className = Array.isArray(node.properties?.className) ? node.properties.className.join(' ') : '';
+        return className ? `<span class="${className}">${children}</span>` : children;
+    }
+    return '';
+}
+
+// The editor highlights code live via ProseMirror decorations, which are a
+// view-only overlay - editor.getHTML() never includes them, so the HTML
+// this app actually saves is plain, unstyled <pre><code> text. This
+// re-tokenizes each code block's real text with the same lowlight engine
+// and bakes the resulting hljs-* spans into the saved HTML, so published
+// posts render with real syntax colors. Works for any language in the
+// `common` lowlight bundle, not just whatever was picked in the editor -
+// falls back to auto-detection when no language class is present.
+function highlightCodeBlocks(html: string): string {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('pre > code').forEach((codeEl) => {
+        const text = codeEl.textContent ?? '';
+        if (!text.trim()) return;
+
+        const requestedLang = codeEl.className.match(/language-([\w-]+)/)?.[1];
+        let tree;
+        let resolvedLang = requestedLang;
+        try {
+            if (requestedLang && requestedLang !== 'plaintext' && lowlight.registered(requestedLang)) {
+                tree = lowlight.highlight(requestedLang, text);
+            } else {
+                tree = lowlight.highlightAuto(text);
+                resolvedLang = (tree as HastRoot & { data?: { language?: string } }).data?.language;
+            }
+        } catch {
+            tree = lowlight.highlightAuto(text);
+            resolvedLang = (tree as HastRoot & { data?: { language?: string } }).data?.language;
+        }
+
+        codeEl.innerHTML = hastToHtml(tree as HastRoot);
+        codeEl.className = codeEl.className.replace(/language-[\w-]+/g, '').trim();
+        codeEl.classList.add('hljs');
+        if (resolvedLang) codeEl.classList.add(`language-${resolvedLang}`);
+    });
+    return doc.body.innerHTML;
+}
+
 function wrapTables(html: string): string {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('table').forEach((table) => {
@@ -92,7 +148,8 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
 
     onProgress?.('Preparing content…');
     const htmlWithImages = await resolveImages(token, slug, rawHtml, pendingImages, onProgress);
-    const sanitized = DOMPurify.sanitize(htmlWithImages, PURIFY_CONFIG);
+    const htmlWithHighlighting = highlightCodeBlocks(htmlWithImages);
+    const sanitized = DOMPurify.sanitize(htmlWithHighlighting, PURIFY_CONFIG);
     const cleanHtml = wrapTables(sanitized);
 
     let cover = existingCover;
@@ -141,36 +198,4 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
     const result = await putFile(token, path, toBase64(JSON.stringify(post, null, 4) + '\n'), message, sha);
 
     return { post, commitSha: result.commitSha };
-}
-
-export function autosaveDraftKey(slug: string): string {
-    return `blog_editor_draft_${slug}`;
-}
-
-export async function deletePost(
-    token: string,
-    slug: string,
-    title: string,
-    onProgress?: (message: string) => void
-): Promise<void> {
-    onProgress?.('Deleting post…');
-    const path = `src/content/posts/${slug}.json`;
-    const sha = await getFileSha(token, path);
-    if (!sha) throw new Error(`No post found at "${slug}" to delete.`);
-    await deleteFile(token, path, sha, `blog: delete "${title}"`);
-
-    const imageDir = `public/images/blog/${slug}`;
-    const files = await listDirectory(token, imageDir);
-    if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-            onProgress?.(`Removing image ${i + 1} of ${files.length}…`);
-            await deleteFile(token, files[i].path, files[i].sha, `blog: remove image for deleted post "${title}"`);
-        }
-    }
-
-    try {
-        sessionStorage.removeItem(autosaveDraftKey(slug));
-    } catch {
-        // Best-effort - not fatal if storage is unavailable.
-    }
 }

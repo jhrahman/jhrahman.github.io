@@ -51,8 +51,12 @@ async function makeOgImage(sourcePath, outPath) {
         .modulate({ brightness: 0.55 })
         .toBuffer();
 
+    // Fill as much of the frame as possible without cropping - only back off
+    // enough to leave a thin breathing margin, not the wide idle space a
+    // heavier shrink leaves (which is what made the image read as "zoomed
+    // out" instead of a proper full-bleed card).
     const foregroundMeta = await sharp(sourcePath).metadata();
-    const scale = Math.min(OG_WIDTH / foregroundMeta.width, OG_HEIGHT / foregroundMeta.height) * 0.86;
+    const scale = Math.min(OG_WIDTH / foregroundMeta.width, OG_HEIGHT / foregroundMeta.height) * 0.97;
     const foreground = await sharp(sourcePath)
         .resize(Math.round(foregroundMeta.width * scale), Math.round(foregroundMeta.height * scale), { fit: 'inside' })
         .toBuffer();

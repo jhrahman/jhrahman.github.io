@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { getPostById, getAdjacentPosts } from '../data/posts';
 import { useAuth } from '../lib/auth';
-import { deletePost } from '../lib/publish';
+import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ReadingProgress from '../components/ReadingProgress';
@@ -19,6 +19,24 @@ function formatDate(iso: string): string {
 
 function getStoredTheme(): 'dark' | 'light' {
     return (document.documentElement.getAttribute('data-theme') as 'dark' | 'light') || 'dark';
+}
+
+const LANG_LABELS: Record<string, string> = {
+    js: 'JavaScript', javascript: 'JavaScript',
+    ts: 'TypeScript', typescript: 'TypeScript',
+    py: 'Python', python: 'Python',
+    sh: 'Shell', bash: 'Shell', shell: 'Shell',
+    cs: 'C#', csharp: 'C#',
+    cpp: 'C++', 'c++': 'C++',
+    objectivec: 'Objective-C',
+    yml: 'YAML', yaml: 'YAML',
+    md: 'Markdown', markdown: 'Markdown',
+    plaintext: 'Text',
+};
+
+function formatLangLabel(lang?: string): string {
+    if (!lang) return 'Code';
+    return LANG_LABELS[lang.toLowerCase()] ?? (lang.charAt(0).toUpperCase() + lang.slice(1));
 }
 
 const BlogPost = () => {
@@ -75,8 +93,9 @@ const BlogPost = () => {
         return () => document.removeEventListener('keydown', onKeyDown);
     }, [lightboxSrc]);
 
-    // Copy-to-clipboard buttons on code blocks, injected after the sanitized
-    // HTML has rendered.
+    // Wraps each code block in a header (language + copy button) above the
+    // <pre>, injected after the sanitized HTML has rendered since the saved
+    // HTML itself only has a bare <pre><code>.
     useEffect(() => {
         const el = bodyRef.current;
         if (!el) return;
@@ -84,21 +103,39 @@ const BlogPost = () => {
         const cleanups: (() => void)[] = [];
 
         blocks.forEach((pre) => {
-            if (pre.querySelector('.code-copy-btn')) return;
+            if (pre.parentElement?.classList.contains('code-block')) return;
+            const codeEl = pre.querySelector('code');
+            const lang = codeEl?.className.match(/language-([\w-]+)/)?.[1];
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'code-block';
+            pre.parentNode?.insertBefore(wrapper, pre);
+
+            const header = document.createElement('div');
+            header.className = 'code-block-header';
+
+            const langLabel = document.createElement('span');
+            langLabel.className = 'code-block-lang';
+            langLabel.innerHTML = `<i class="fas fa-code"></i> ${formatLangLabel(lang)}`;
+            header.appendChild(langLabel);
+
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'code-copy-btn';
             btn.setAttribute('aria-label', 'Copy code');
             btn.innerHTML = '<i class="fas fa-copy"></i>';
             const onClick = () => {
-                const code = pre.querySelector('code')?.textContent ?? '';
+                const code = codeEl?.textContent ?? '';
                 navigator.clipboard?.writeText(code).then(() => {
                     btn.innerHTML = '<i class="fas fa-check"></i>';
                     setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i>'; }, 1500);
                 });
             };
             btn.addEventListener('click', onClick);
-            pre.appendChild(btn);
+            header.appendChild(btn);
+
+            wrapper.appendChild(header);
+            wrapper.appendChild(pre);
             cleanups.push(() => btn.removeEventListener('click', onClick));
         });
 
