@@ -1,0 +1,13 @@
+{
+    "slug": "when-low-code-automation-meets-qa-instinct",
+    "title": "When Low-Code Automation Meets QA Instinct",
+    "excerpt": "Low-code test automation gets you started fast, but real reliability still comes down to QA instinct: tweaking locators, selectors, and scripts by hand.",
+    "tags": ["Software Testing", "QA", "Test Automation", "Agile Testing", "Quality Engineering"],
+    "cover": "/images/blog/when-low-code-automation-meets-qa-instinct/cover.webp",
+    "date": "2026-01-08T09:14:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>Some days in Software QA feel like detective work, and that's actually one of the best parts.</p><p>I've been exploring low-code automation in testing, and it's been quite an experience. At first, everything looks simple: record a flow, get suggested locators, and your test is ready.</p><p>But as you start relying on those tests more, small challenges begin to show up:</p><ul><li>A locator that worked yesterday suddenly becomes unreliable</li><li>A minor UI tweak breaks a test flow</li><li>Dynamic elements don't behave the same way every time</li></ul><p>And that's where I rely more on QA instinct than the tool. I found myself going beyond the \"low-code\" comfort zone:</p><ul><li>Tweaking XPath to make it more stable</li><li>Switching to smarter CSS selectors</li><li>Adding custom JavaScript when needed</li><li>Using variables to keep things reusable and clean</li></ul><p>It feels less like just running automation and more like solving small, satisfying puzzles every day.</p><p>Low-code automation definitely helps speed things up, especially when getting started. But the real value shows up when you start refining, stabilizing, and making those tests truly reliable.</p><p>At the end of the day, it's not about how quickly a test is created. It's about how well it holds up over time.</p>"
+}

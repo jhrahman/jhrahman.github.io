@@ -1,0 +1,13 @@
+{
+    "slug": "taking-playwright-tests-from-local-runs-to-cicd",
+    "title": "Taking Playwright Tests From Local Runs to CI/CD",
+    "excerpt": "Notes from connecting the dots between local Playwright runs and a real CI/CD pipeline built on GitHub Actions.",
+    "tags": ["Playwright", "Test Automation", "QA", "Software Testing"],
+    "cover": "/images/blog/taking-playwright-tests-from-local-runs-to-cicd/cover.webp",
+    "date": "2026-03-28T13:38:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>It's a different kind of satisfaction watching your automated tests actually run in a CI/CD pipeline like GitHub Actions.</p><p>I recently spent some time exploring how this whole flow connects, from writing Playwright tests locally to running them in the cloud.</p><p>My setup is pretty simple right now. I write and run tests locally first to make sure everything works, then push changes to a develop branch. Every push triggers GitHub Actions, which runs the test suite in a clean environment.</p><p>If something breaks, I fix it locally, commit again, and push updates back to develop until everything is stable.</p><p>Once things look good, I merge develop into main using a pull request. And whenever needed, I can manually trigger full test runs using workflow_dispatch in GitHub Actions.</p><p>What I like most is this shift, from \"tests running on my machine\" to \"tests running in a real CI pipeline.\" It makes everything feel more structured, reliable, and closer to how real teams work.</p><p>Overall, it was a solid hands-on experience building a production-style automated testing flow.</p>"
+}

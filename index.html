@@ -16,28 +16,23 @@
         content="QA and Technical Support professional building Playwright automation frameworks integrated with CI/CD and Docker." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://jhrahman.github.io/" />
+    <meta property="og:image" content="https://jhrahman.github.io/images/myphoto.png" />
     <meta name="twitter:card" content="summary" />
-    <script>
-        // Apply the saved theme and accent color before first paint to avoid a flash of the wrong values.
-        (function () {
-            try {
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    localStorage.getItem('theme') || 'dark'
-                );
-                document.documentElement.setAttribute(
-                    'data-accent',
-                    localStorage.getItem('accentColor') || 'petrol-navy'
-                );
-            } catch (e) { }
-        })();
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Lobster&display=swap"
-        rel="stylesheet">
+
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data: blob: https://avatars.githubusercontent.com;
+        font-src 'self';
+        connect-src 'self' https://api.github.com https://api.emailjs.com;
+        frame-src https://giscus.app;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'self';
+    " />
+
+    <script src="/theme-init.js"></script>
 </head>
 
 <body>

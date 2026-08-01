@@ -1,0 +1,213 @@
+/* Typography for rendered post HTML (TipTap output) and, unscaled, for the
+   live editor canvas. Scoped to .post-body / .editor-canvas so it never
+   leaks onto the rest of the site. Measure and rhythm tuned for long-form
+   reading; all colors come from the existing theme tokens in index.css. */
+
+.post-body,
+.editor-canvas {
+    max-width: var(--post-measure, 68ch);
+    margin: 0 auto;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+@media (min-width: 1000px) {
+    .post-body {
+        font-size: 1.15rem;
+        line-height: 1.85;
+    }
+}
+
+.post-body>*+*,
+.editor-canvas>*+* {
+    margin-top: 1.25em;
+}
+
+.post-body h1,
+.post-body h2,
+.post-body h3,
+.post-body h4,
+.editor-canvas h1,
+.editor-canvas h2,
+.editor-canvas h3,
+.editor-canvas h4 {
+    scroll-margin-top: 100px;
+    margin-top: 1.8em;
+}
+
+.post-body h2,
+.editor-canvas h2 {
+    font-size: 1.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.post-body h3,
+.editor-canvas h3 {
+    font-size: 1.3rem;
+}
+
+.post-body p,
+.editor-canvas p {
+    color: var(--text-secondary);
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+}
+
+.post-body a,
+.editor-canvas a {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    text-decoration-color: rgba(var(--accent-primary-rgb), 0.4);
+    text-underline-offset: 2px;
+}
+
+.post-body a:hover,
+.editor-canvas a:hover {
+    text-decoration-color: var(--accent-primary);
+}
+
+.post-body ul,
+.post-body ol,
+.editor-canvas ul,
+.editor-canvas ol {
+    padding-left: 1.5em;
+    color: var(--text-secondary);
+}
+
+.post-body li+li,
+.editor-canvas li+li {
+    margin-top: 0.4em;
+}
+
+.post-body blockquote,
+.editor-canvas blockquote {
+    border-left: 3px solid var(--accent-primary);
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    background: rgba(var(--accent-primary-rgb), 0.05);
+    border-radius: 0 8px 8px 0;
+}
+
+.post-body hr,
+.editor-canvas hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+}
+
+.post-body img,
+.editor-canvas img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    display: block;
+    margin: 1.5em auto;
+    cursor: zoom-in;
+}
+
+.post-body pre,
+.editor-canvas pre {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    position: relative;
+}
+
+.post-body .code-copy-btn {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.post-body pre:hover .code-copy-btn,
+.post-body .code-copy-btn:focus-visible {
+    opacity: 1;
+}
+
+.post-body .code-copy-btn:hover {
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.post-body :not(pre)>code,
+.editor-canvas :not(pre)>code {
+    background: rgba(var(--accent-primary-rgb), 0.1);
+    color: var(--accent-primary);
+    padding: 0.15em 0.4em;
+    border-radius: 5px;
+    font-size: 0.88em;
+}
+
+/* Wide tables get their own scroll container so they never widen the page
+   itself - the codebase has no tablet-tier breakpoint, so this matters at
+   every width below the table's natural size. */
+.post-body .table-wrapper,
+.editor-canvas .tableWrapper {
+    overflow-x: auto;
+    margin: 1.25em 0;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.post-body table,
+.editor-canvas table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 480px;
+}
+
+.post-body th,
+.post-body td,
+.editor-canvas th,
+.editor-canvas td {
+    border: 1px solid var(--border-color);
+    padding: 0.6em 0.9em;
+    text-align: left;
+}
+
+.post-body th,
+.editor-canvas th {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.post-body tr:nth-child(even) td,
+.editor-canvas tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+mark {
+    background: rgba(var(--accent-primary-rgb), 0.35);
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 0.15em;
+}
+
+@media (max-width: 768px) {
+
+    .post-body,
+    .editor-canvas {
+        font-size: 1rem;
+    }
+}

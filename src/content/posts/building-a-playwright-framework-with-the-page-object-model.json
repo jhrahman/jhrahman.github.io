@@ -1,0 +1,13 @@
+{
+    "slug": "building-a-playwright-framework-with-the-page-object-model",
+    "title": "Building a Playwright Framework With the Page Object Model",
+    "excerpt": "What I learned building a Playwright and TypeScript framework around the Page Object Model, and why it's about maintainability, not less code.",
+    "tags": ["Playwright", "Test Automation", "QA", "SDET", "Software Testing", "TypeScript", "Automation Testing", "Quality Assurance", "GitHub Actions", "CI/CD"],
+    "cover": "/images/blog/building-a-playwright-framework-with-the-page-object-model/cover.webp",
+    "date": "2026-04-30T15:11:00.000Z",
+    "updated": null,
+    "readingTime": 2,
+    "featured": false,
+    "draft": false,
+    "html": "<p>Many automation projects start small and simple. A few test scripts, a handful of locators, and everything seems manageable.</p><p>The real challenge begins when the test suite grows. What works for 5 tests often becomes difficult to maintain at 50 or 500. Locators get duplicated, updates become time-consuming, and test code gradually turns harder to understand.</p><p>To better understand how modern automation frameworks address this challenge, I recently built a Playwright + TypeScript framework using the Page Object Model design pattern.</p><p>A few key takeaways from the experience:</p><ol><li><strong>Separation of concerns</strong> — page interactions stay inside page classes while test files focus on validations and business flows.</li><li><strong>Maintainability</strong> — UI changes can often be handled in a single location rather than across multiple test cases.</li><li><strong>Reusability</strong> — common actions can be leveraged across different scenarios without duplicating code.</li><li><strong>Scalability</strong> — a structured framework remains easier to extend as automation coverage expands.</li></ol><p>As part of the framework, I also implemented:</p><ul><li>Authentication setup using storage state</li><li>Environment variable management with .env</li><li>HTML reporting with screenshots, videos, and traces</li><li>GitHub Actions CI/CD integration</li><li>Modular Page Object architecture</li></ul><p>One lesson that stood out is that automation frameworks are not built to reduce the amount of code. They are built to reduce the complexity of maintaining that code over time.</p><p>This project was a great opportunity to explore not just browser automation, but also the design principles that help keep automated test suites reliable, scalable, and easier to maintain.</p>"
+}

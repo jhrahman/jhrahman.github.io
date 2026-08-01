@@ -1,0 +1,13 @@
+{
+    "slug": "applywise-an-ai-job-match-copilot-that-runs-in-your-browser",
+    "title": "ApplyWise: An AI Job Match Copilot That Runs in Your Browser",
+    "excerpt": "ApplyWise is a browser-based AI job match copilot that compares your resume against a posting, without ever uploading your data anywhere.",
+    "tags": ["Open Source", "Build In Public", "Browser Extension", "AI", "Job Search", "Career Tech", "Web Development", "Developer Tools"],
+    "cover": "/images/blog/applywise-an-ai-job-match-copilot-that-runs-in-your-browser/cover.svg",
+    "date": "2026-06-25T17:09:00.000Z",
+    "updated": null,
+    "readingTime": 2,
+    "featured": false,
+    "draft": false,
+    "html": "<p>If you're actively looking for your next opportunity, you've probably experienced this.</p><p>A job post pops up on LinkedIn or another job board and, at first glance, it looks perfect. Then the questions start.</p><p>\"Does my resume actually match this role?\" \"Am I missing any important skills?\" \"Should I even spend time applying for this?\"</p><p>Before you know it, you've spent several minutes reading through the description, comparing it with your resume, checking ATS keywords, thinking about interview questions, and then doing the exact same thing for the next job post.</p><p>It felt like there should be a faster way. That's what led me to build ApplyWise.</p><p>It's an AI job match copilot that works right inside your browser. Getting started takes just 2–3 minutes, and you can begin with nothing more than a free Gemini API key. If you already use another AI provider, you can plug in your own API key instead.</p><p>Instead of manually comparing everything, ApplyWise helps you understand how well your resume matches the role, highlights missing skills and ATS keywords, suggests practical improvements, and even generates interview questions tailored to both the job posting and your profile.</p><p>One thing I cared about from the beginning was keeping users in control. Your resumes stay in your browser, you choose which AI provider and API key to use, and nothing is uploaded to any ApplyWise-owned server, because there isn't one. Everything runs locally in your browser from end to end.</p><p>The goal isn't to replace your judgment or magically land you a job. It's simply to take away the repetitive part of analyzing job posts, so you can spend more time building projects, learning new skills, preparing for interviews, and applying with more confidence.</p><p>If that sounds useful, feel free to <a href=\"https://lnkd.in/gw-RJ_AR\" target=\"_blank\" rel=\"noopener noreferrer\">check out the quick start and features</a>.</p><p>I'd genuinely love to hear your thoughts, feedback, or ideas for where ApplyWise should go next.</p>"
+}

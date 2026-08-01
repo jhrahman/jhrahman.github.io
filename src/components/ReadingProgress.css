@@ -1,0 +1,18 @@
+/* Sticks directly under the fixed navbar (80px tall - see .page padding-top
+   in Home.css, which every page inherits). Must be a direct child of .page,
+   outside .container, so it spans the full viewport width. */
+.reading-progress-track {
+    position: sticky;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    z-index: 900;
+}
+
+.reading-progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    transition: width 0.1s linear;
+}

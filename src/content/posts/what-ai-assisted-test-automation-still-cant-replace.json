@@ -1,0 +1,13 @@
+{
+    "slug": "what-ai-assisted-test-automation-still-cant-replace",
+    "title": "What AI-Assisted Test Automation Still Can't Replace",
+    "excerpt": "AI sped up building an E2E suite, but it still missed a real scenario and two real bugs. Judgment and exploratory testing still do the heavy lifting.",
+    "tags": ["QA", "Playwright", "Test Automation", "SDET", "Agentic AI"],
+    "cover": "/images/blog/what-ai-assisted-test-automation-still-cant-replace/cover.webp",
+    "date": "2026-07-31T08:57:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": true,
+    "draft": false,
+    "html": "<p>I've been experimenting with AI-assisted test automation over the past few weeks, and it completely changed how quickly I could build and iterate on an E2E test suite.</p><p>For this project, I used Claude Code, Playwright MCP, and Playwright's Planner, Generator, and Healer throughout the development process.</p><p>The workflow felt almost effortless at times. Write a test plan, generate tests, run them, fix failures, and repeat until the suite was stable across the browsers.</p><p>At one point, I thought I was done. Then I started clicking through the application myself.</p><p>Within a few minutes, I found an important scenario that the automation had completely missed: editing a leave request. Shortly after, I stumbled upon two actual bugs. AI was great at helping investigate them, but getting to the real root cause still meant reading logs, validating assumptions, and understanding how the feature was supposed to behave.</p><p>That changed how I think about AI-assisted testing.</p><p>The biggest lesson wasn't about how capable the AI was. It was realizing that speed doesn't eliminate the need for judgment. Every meaningful decision still came down to understanding the product, the user, and asking whether the automation reflected reality.</p><p>As the repetitive work shrinks, I think our role shifts even more toward investigation, critical thinking, and asking better questions rather than simply writing more tests.</p><p>Curious to hear how others are balancing AI agents with exploratory testing in their day-to-day work.</p>"
+}

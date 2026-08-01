@@ -1,0 +1,13 @@
+{
+    "slug": "building-a-self-updating-team-roster-with-github-actions",
+    "title": "Building a Self-Updating Team Roster With GitHub Actions",
+    "excerpt": "A small experiment in AI-assisted development: a single-page team roster kept up to date automatically by GitHub Actions and Discord.",
+    "tags": ["AI", "Automation", "GitHub Actions", "DevOps", "Software Engineering"],
+    "cover": "/images/blog/building-a-self-updating-team-roster-with-github-actions/cover.webp",
+    "date": "2026-03-10T11:05:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>A couple of weeks ago, I explored AI-assisted development by building a small but meaningful project: a single-page team roster system.</p><p>The goal wasn't to build something complex, but to keep it lightweight, automated, and genuinely useful in day-to-day operations.</p><p>What it does:</p><ul><li>A GitHub Actions workflow automatically updates the roster every week</li><li>Sends scheduled updates to a Discord channel</li><li>Supports manual overrides, like swapping team members when needed</li><li>Includes a simple configuration option to manage Discord integration dynamically</li></ul><p>This project was more of an experiment to understand how far I can go with automation using GitHub Actions combined with a simple static setup.</p><p>What stood out to me is how even a static page can start behaving like a dynamic system when it's powered by the right workflows and automation. It also reinforced a simple idea: small systems, when designed well, can remove a surprising amount of manual effort.</p><p>Next, I'm planning to explore more complex applications using AI-assisted development, continuing to experiment and learn what's possible beyond simple automation.</p>"
+}

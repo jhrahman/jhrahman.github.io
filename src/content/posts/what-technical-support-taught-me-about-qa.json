@@ -1,0 +1,13 @@
+{
+    "slug": "what-technical-support-taught-me-about-qa",
+    "title": "What Technical Support Taught Me About QA",
+    "excerpt": "Technical Support taught me how things actually fail. QA gives me the chance to catch those failures before they ever reach a user.",
+    "tags": ["Software Testing", "Technical Support", "Quality Assurance", "Incident Management"],
+    "cover": "/images/blog/what-technical-support-taught-me-about-qa/cover.webp",
+    "date": "2026-01-22T14:02:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>It's been a while since I've been working across both Technical Support and Software QA, and over time I started noticing something interesting about this combination.</p><p>In support, I deal with real user issues, not test cases. I see the impact, investigate, troubleshoot, and stay with it until there's a resolution. In QA, the mindset shifts: now I'm thinking ahead, asking how this could break from a user's perspective.</p><p>At some point, I started seeing the connection between the two. Support shows me how things actually fail. QA gives me the chance to catch those failures earlier.</p><p>So now when I test, I don't just follow steps. I think about real issues I've already seen. And when I troubleshoot, I don't go straight for a fix. I try to understand what really happened first.</p><p>Still learning every day, and beginning to see how much this combination is shaping the way I think and work.</p>"
+}

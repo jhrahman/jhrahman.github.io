@@ -1,11 +1,21 @@
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './About.css';
 import RecommendationsCarousel from '../components/RecommendationsCarousel';
 
+const identityTags = [
+    { icon: 'fa-vial', label: 'QA Engineer' },
+    { icon: 'fa-robot', label: 'Automation Builder' },
+    { icon: 'fa-diagram-project', label: 'DevOps Enthusiast' },
+    { icon: 'fa-headset', label: 'Support Specialist' },
+    { icon: 'fa-lightbulb', label: 'Problem Solver' },
+    { icon: 'fa-seedling', label: 'Adaptive Learner' },
+];
+
 const About = () => {
     const [age, setAge] = useState(0);
+    const [tagIndex, setTagIndex] = useState(0);
 
     useEffect(() => {
         const birthDate = new Date('1998-01-13');
@@ -16,6 +26,13 @@ const About = () => {
             calculatedAge--;
         }
         setAge(calculatedAge);
+    }, []);
+
+    useEffect(() => {
+        const id = setInterval(() => {
+            setTagIndex((i) => (i + 1) % identityTags.length);
+        }, 2800);
+        return () => clearInterval(id);
     }, []);
 
     const skillCategories = [
@@ -215,14 +232,48 @@ const About = () => {
                     About Me
                 </motion.h1>
 
-                <motion.p
-                    className="about-intro"
-                    initial={{ y: 20, opacity: 0 }}
+                <motion.div
+                    className="about-hero-card glass-effect"
+                    initial={{ y: 24, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 0.6 }}
+                    transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -4 }}
                 >
-                    QA and Technical Support professional with experience in manual and automated testing for cloud-based SaaS applications. Skilled in functional, regression, and API testing, with hands-on experience building Playwright automation frameworks integrated with CI/CD and Docker. Strong background in production issue investigation, root cause analysis, and cross-functional collaboration to improve software quality and release reliability.
-                </motion.p>
+                    <div className="about-photo-frame">
+                        <div
+                            className="about-photo-media"
+                            style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/about/portrait.webp)` }}
+                        >
+                            <img
+                                src={`${import.meta.env.BASE_URL}images/about/portrait.webp`}
+                                alt="Jahidur Rahman presenting at a company AI workshop"
+                                loading="lazy"
+                            />
+                        </div>
+                        <span className="about-photo-badge">
+                            <AnimatePresence mode="wait">
+                                <motion.span
+                                    key={identityTags[tagIndex].label}
+                                    className="about-photo-badge-inner"
+                                    initial={{ opacity: 0, y: 6 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -6 }}
+                                    transition={{ duration: 0.35 }}
+                                >
+                                    <i className={`fas ${identityTags[tagIndex].icon}`} aria-hidden="true"></i>
+                                    {identityTags[tagIndex].label}
+                                </motion.span>
+                            </AnimatePresence>
+                        </span>
+                    </div>
+
+                    <div className="about-hero-text">
+                        <span className="about-greeting">Hi, I&apos;m Jahid</span>
+                        <p className="about-intro">
+                            QA and Technical Support professional who crafts testing strategies that drive real business outcomes. Built automated regression suites that cut testing time from 5 days to 2 while reaching about 90% coverage, validated REST APIs to keep cloud-based SaaS releases reliable, and traced production issues to root cause using Datadog and AWS CloudWatch to protect uptime for end users. Comfortable testing across Web, Android, iOS, and TV platforms, with hands-on experience building Playwright automation frameworks wired into CI/CD pipelines with Docker.
+                        </p>
+                    </div>
+                </motion.div>
 
                 {/* Basic Info - New Icon Grid Design */}
                 <motion.section

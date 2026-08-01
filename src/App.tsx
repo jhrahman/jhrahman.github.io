@@ -1,33 +1,29 @@
-import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, MotionConfig } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense, type ReactNode } from 'react';
 import Navbar from './components/Navbar';
 import InfoModal from './components/InfoModal';
 import Home from './pages/Home';
 import About from './pages/About';
 import Activities from './pages/Activities';
 import Contact from './pages/Contact';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import NotFound from './pages/NotFound';
+import { AuthProvider, useAuth } from './lib/auth';
+import { safeGetItem, safeSetItem } from './lib/storage';
+
+const PostEditor = lazy(() => import('./pages/PostEditor'));
+
+// Gate runs before the lazy element renders, so the chunk import never fires
+// unless this resolves true.
+function RequireOwner({ children }: { children: ReactNode }) {
+    const { isOwner } = useAuth();
+    if (!isOwner) return <Navigate to="/blog" replace />;
+    return <>{children}</>;
+}
 
 export type AccentColor = 'ocean' | 'charcoal' | 'olive' | 'deep-orange' | 'emerald' | 'cerulean' | 'klein-blue' | 'petrol-navy' | 'denim';
-
-// localStorage can throw (private browsing, data-saver modes, disabled
-// storage, quota errors) - never let that crash the app or break the toggle.
-const safeGetItem = (key: string): string | null => {
-    try {
-        return localStorage.getItem(key);
-    } catch {
-        return null;
-    }
-};
-
-const safeSetItem = (key: string, value: string): void => {
-    try {
-        localStorage.setItem(key, value);
-    } catch {
-        // Persistence isn't available - the in-memory state still works for this session.
-    }
-};
 
 const getInitialTheme = (): 'dark' | 'light' =>
     (safeGetItem('theme') as 'dark' | 'light') || 'dark';
@@ -79,11 +75,19 @@ function AppContent() {
             <ScrollToTop />
             <main id="main-content">
                 <AnimatePresence mode="wait">
+                    {/* Suspense is scoped to each lazy route's element (not wrapped
+                        around <Routes>) so it doesn't sit between AnimatePresence
+                        and its keyed child - that would break the exit animation. */}
                     <Routes location={location} key={location.pathname}>
                         <Route path="/" element={<Home />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/activities" element={<Activities />} />
                         <Route path="/contact" element={<Contact />} />
+                        <Route path="/blog" element={<Blog />} />
+                        {/* Must precede /blog/:slug so "new" isn't parsed as a slug */}
+                        <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                        <Route path="/blog/edit/:slug" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                        <Route path="/blog/:slug" element={<BlogPost />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>
                 </AnimatePresence>
@@ -104,7 +108,9 @@ function App() {
     return (
         <MotionConfig reducedMotion="user">
             <Router>
-                <AppContent />
+                <AuthProvider>
+                    <AppContent />
+                </AuthProvider>
             </Router>
         </MotionConfig>
     );

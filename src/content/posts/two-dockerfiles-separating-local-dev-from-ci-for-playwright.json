@@ -1,0 +1,13 @@
+{
+    "slug": "two-dockerfiles-separating-local-dev-from-ci-for-playwright",
+    "title": "Two Dockerfiles: Separating Local Dev From CI for Playwright",
+    "excerpt": "Keeping separate Dockerfiles for local development and CI/CD turned out to be one of the simplest, most valuable decisions in dockerizing a Playwright project.",
+    "tags": ["Docker", "Playwright", "Test Automation", "QA", "SDET", "DevOps", "CI/CD", "Software Testing"],
+    "cover": "/images/blog/two-dockerfiles-separating-local-dev-from-ci-for-playwright/cover.webp",
+    "date": "2026-06-08T12:44:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>Not every improvement in a test automation framework comes from writing more test code. Sometimes, it comes from how the development environment is structured.</p><p>One approach that I found particularly valuable while dockerizing a Playwright test automation project was keeping separate Dockerfiles for local development and CI/CD.</p><p>A Dockerfile.dev can be tailored for development by keeping the container alive for debugging, interactive testing, and iterative changes without constantly rebuilding the environment.</p><p>A separate Dockerfile for CI/CD, on the other hand, focuses on building a clean, reproducible image that executes the test suite and exits. This keeps pipeline execution predictable and avoids carrying development-specific configurations into automated workflows.</p><p>For the project, separating the two environments meant each Dockerfile could focus on a single responsibility: one optimized for development, the other for automated execution. The result was a setup that felt cleaner, easier to maintain, and simpler to evolve as the project grows.</p><p>Sometimes, the biggest improvements in an automation framework come from thoughtful engineering decisions behind the scenes rather than the test code itself.</p>"
+}

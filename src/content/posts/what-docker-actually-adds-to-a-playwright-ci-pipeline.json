@@ -1,0 +1,13 @@
+{
+    "slug": "what-docker-actually-adds-to-a-playwright-ci-pipeline",
+    "title": "What Docker Actually Adds to a Playwright CI Pipeline",
+    "excerpt": "Docker isn't about running tests in containers. It's about making the test environment consistent and reusable across every CI run.",
+    "tags": ["Software Testing", "QA", "Docker", "Playwright", "Quality Mindset"],
+    "cover": "/images/blog/what-docker-actually-adds-to-a-playwright-ci-pipeline/cover.webp",
+    "date": "2026-04-14T09:52:00.000Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<p>While exploring Docker alongside Playwright, I was trying to understand why teams bring it into CI/CD pipelines when tools like GitHub Actions already provide a clean Ubuntu environment out of the box.</p><p>At first, it felt like CI should already be enough. It installs dependencies, sets up browsers, and runs the tests. Everything works as expected, so it's not immediately obvious what Docker adds on top of that.</p><p>What became clearer is the repetition in CI setup. Every run starts from scratch: installing Node modules, setting up Playwright browsers, pulling system libraries, and only then executing the tests. It works, but a lot of time is spent just preparing the environment.</p><p>With Docker, that entire setup is packaged once into an image. After that, CI doesn't need to rebuild everything repeatedly. It just pulls the image and runs the tests inside it. The focus shifts from setup to execution.</p><p>The key idea for me was realizing that Docker isn't really about \"running tests in containers.\" It's about making the test environment consistent and reusable across every run.</p><p>It also makes the CI pipeline feel cleaner, since most of the environment setup complexity moves out of the workflow file and into the Dockerfile.</p>"
+}

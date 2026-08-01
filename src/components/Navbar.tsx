@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useAuth } from '../lib/auth';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -10,13 +11,18 @@ interface NavbarProps {
 const Navbar = ({ onInfoClick }: NavbarProps) => {
     const location = useLocation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { registerGearTap } = useAuth();
 
     const navLinks = [
         { path: '/', label: 'Home' },
         { path: '/about', label: 'About' },
         { path: '/activities', label: 'Activities' },
+        { path: '/blog', label: 'Blog' },
         { path: '/contact', label: 'Contact' },
     ];
+
+    const isActive = (path: string) =>
+        path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
     // Close mobile menu when route changes
     useEffect(() => {
@@ -68,11 +74,11 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                             <Link
                                 key={link.path}
                                 to={link.path}
-                                className={`nav-link ${location.pathname === link.path ? 'active' : ''}`}
-                                aria-current={location.pathname === link.path ? 'page' : undefined}
+                                className={`nav-link ${isActive(link.path) ? 'active' : ''}`}
+                                aria-current={isActive(link.path) ? 'page' : undefined}
                             >
                                 {link.label}
-                                {location.pathname === link.path && (
+                                {isActive(link.path) && (
                                     <motion.div
                                         className="nav-link-underline"
                                         layoutId="underline"
@@ -86,7 +92,8 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                     <div className="nav-controls">
                         <button
                             className="icon-btn"
-                            onClick={onInfoClick}
+                            data-info-trigger="true"
+                            onClick={() => { onInfoClick(); registerGearTap(); }}
                             aria-label="Settings & Info"
                             title="Settings & Info"
                         >
@@ -147,7 +154,7 @@ const Navbar = ({ onInfoClick }: NavbarProps) => {
                                     >
                                         <Link
                                             to={link.path}
-                                            className={`mobile-nav-link ${location.pathname === link.path ? 'active' : ''}`}
+                                            className={`mobile-nav-link ${isActive(link.path) ? 'active' : ''}`}
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             {link.label}

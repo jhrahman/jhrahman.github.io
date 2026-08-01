@@ -310,3 +310,10 @@ h3 {
 .animate-float {
     animation: float 3s ease-in-out infinite;
 }
+
+/* Suspense fallback while the lazy-loaded post editor chunk downloads
+   (owner only - visitors never trigger this). */
+.page-loading {
+    min-height: 100dvh;
+    padding-top: 80px;
+}

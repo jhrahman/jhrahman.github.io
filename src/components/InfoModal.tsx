@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { AccentColor } from '../App';
+import { useAuth } from '../lib/auth';
 import './InfoModal.css';
 
 interface InfoModalProps {
@@ -24,52 +26,130 @@ const accentOptions: { value: AccentColor; label: string; swatch: string }[] = [
     { value: 'emerald', label: 'Emerald', swatch: '#10b981' },
 ];
 
+function PublishAccessRow({ onClose }: { onClose: () => void }) {
+    const { user, isOwner, tokenExpiry, signIn, signOut } = useAuth();
+    const [expanded, setExpanded] = useState(false);
+    const [token, setToken] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const daysUntilExpiry = tokenExpiry
+        ? Math.ceil((new Date(tokenExpiry).getTime() - Date.now()) / 86400000)
+        : null;
+
+    const handleSignIn = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setError(null);
+        const result = await signIn(token.trim());
+        setSubmitting(false);
+        setToken('');
+        if (result.ok) {
+            setExpanded(false);
+        } else {
+            setError(result.error);
+        }
+    };
+
+    if (isOwner && user) {
+        return (
+            <div className="info-row publish-row signed-in">
+                <img src={user.avatarUrl} alt="" className="publish-avatar" />
+                <div className="publish-row-body">
+                    <span className="info-label">Signed in as @{user.login}</span>
+                    {daysUntilExpiry !== null && (
+                        <span className={`token-expiry ${daysUntilExpiry <= 7 ? 'warn' : ''}`}>
+                            Token expires in {daysUntilExpiry}d
+                        </span>
+                    )}
+                </div>
+                <Link to="/blog/new" className="publish-link-btn" onClick={onClose}>New post</Link>
+                <button className="publish-signout-btn" onClick={signOut}>Sign out</button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="info-row publish-row">
+            <button className="publish-toggle" onClick={() => setExpanded((s) => !s)} aria-expanded={expanded}>
+                <i className="fas fa-lock" aria-hidden="true"></i>
+                <span>Publish access</span>
+                <i className={`fas fa-chevron-down publish-chevron ${expanded ? 'open' : ''}`} aria-hidden="true"></i>
+            </button>
+            {expanded && (
+                <form className="publish-signin-form" onSubmit={handleSignIn}>
+                    <input
+                        type="password"
+                        autoComplete="off"
+                        spellCheck={false}
+                        placeholder="Fine-grained GitHub token"
+                        value={token}
+                        onChange={(e) => setToken(e.target.value)}
+                        disabled={submitting}
+                    />
+                    <button type="submit" disabled={submitting || !token.trim()}>
+                        {submitting
+                            ? <><i className="fas fa-spinner fa-spin"></i> Signing in…</>
+                            : 'Sign in'
+                        }
+                    </button>
+                    {error && <p className="publish-error">{error}</p>}
+                </form>
+            )}
+        </div>
+    );
+}
+
 const InfoModal = ({ isOpen, onClose, theme, toggleTheme, accentColor, onAccentChange }: InfoModalProps) => {
-    const [currentTime, setCurrentTime] = useState('');
-    const [currentDate, setCurrentDate] = useState('');
+    const { isOwner, publishAccessRevealed } = useAuth();
+    const [footerTime, setFooterTime] = useState('');
+    const [fullDate, setFullDate] = useState('');
     const [copyrightYear, setCopyrightYear] = useState('');
 
     useEffect(() => {
+        if (!isOpen) return;
         setCopyrightYear(new Date().getFullYear().toString());
 
-        const updateTime = () => {
+        const update = () => {
             const now = new Date();
-            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-            const bdTime = new Date(utc + (3600000 * 6));
-
-            const timeOptions: Intl.DateTimeFormatOptions = {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            };
-
-            const dateOptions: Intl.DateTimeFormatOptions = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-
-            setCurrentTime(bdTime.toLocaleString('en-US', timeOptions));
-            setCurrentDate(bdTime.toLocaleDateString('en-US', dateOptions));
+            setFooterTime(
+                new Intl.DateTimeFormat('en-US', {
+                    hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Dhaka',
+                }).format(now)
+            );
+            setFullDate(
+                new Intl.DateTimeFormat('en-US', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Dhaka',
+                }).format(now)
+            );
         };
 
-        updateTime();
-        const interval = setInterval(updateTime, 1000);
-
+        update();
+        const interval = setInterval(update, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return;
-
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose();
         };
-
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
+
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const handlePointerDown = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (modalRef.current?.contains(target)) return;
+            if (target.closest('[data-info-trigger]')) return;
+            onClose();
+        };
+        document.addEventListener('mousedown', handlePointerDown);
+        return () => document.removeEventListener('mousedown', handlePointerDown);
     }, [isOpen, onClose]);
 
     return (
@@ -81,9 +161,9 @@ const InfoModal = ({ isOpen, onClose, theme, toggleTheme, accentColor, onAccentC
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={onClose}
                     />
                     <motion.div
+                        ref={modalRef}
                         className="modal-content glass-effect"
                         role="dialog"
                         aria-modal="true"
@@ -91,12 +171,7 @@ const InfoModal = ({ isOpen, onClose, theme, toggleTheme, accentColor, onAccentC
                         initial={{ opacity: 0, scale: 0.95, x: 20, y: -20 }}
                         animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, x: 20, y: -20 }}
-                        transition={{
-                            type: 'spring',
-                            damping: 20,
-                            stiffness: 200,
-                            duration: 0.3
-                        }}
+                        transition={{ type: 'spring', damping: 22, stiffness: 220, duration: 0.25 }}
                     >
                         <button className="modal-close" onClick={onClose} aria-label="Close">
                             ✕
@@ -106,72 +181,58 @@ const InfoModal = ({ isOpen, onClose, theme, toggleTheme, accentColor, onAccentC
                             <i className="fas fa-sliders-h"></i> Settings & Info
                         </h3>
 
-                        <div className="info-items">
-                            <div className="info-item">
-                                <span className="info-icon">
-                                    <i className="fas fa-adjust"></i>
-                                </span>
-                                <div className="info-content-row">
-                                    <div className="info-label">Appearance</div>
-                                    <button
-                                        className="theme-toggle-btn"
-                                        onClick={toggleTheme}
-                                    >
-                                        {theme === 'light' ? (
-                                            <>
-                                                <i className="fas fa-moon"></i> Switch to Dark Mode
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="fas fa-sun"></i> Switch to Light Mode
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-icon">
-                                    <i className="fas fa-palette"></i>
-                                </span>
-                                <div className="info-content-row">
-                                    <div className="info-label">Accent Color</div>
-                                    <div className="accent-swatch-row" role="radiogroup" aria-label="Accent color">
-                                        {accentOptions.map((option) => (
-                                            <button
-                                                key={option.value}
-                                                type="button"
-                                                className={`accent-swatch ${accentColor === option.value ? 'active' : ''}`}
-                                                style={{ backgroundColor: option.swatch }}
-                                                onClick={() => onAccentChange(option.value)}
-                                                role="radio"
-                                                aria-checked={accentColor === option.value}
-                                                aria-label={option.label}
-                                                title={option.label}
-                                            >
-                                                {accentColor === option.value && (
-                                                    <i className="fas fa-check" aria-hidden="true"></i>
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="info-item">
-                                <span className="info-icon">
-                                    <i className="fas fa-clock"></i>
-                                </span>
-                                <div>
-                                    <div className="info-label">Local Time (UTC+6)</div>
-                                    <div className="info-value">{currentTime}</div>
-                                    <div className="info-date">{currentDate}</div>
-                                </div>
+                        <div className="info-row">
+                            <span className="info-label">Appearance</span>
+                            <div className="theme-segmented" role="radiogroup" aria-label="Appearance">
+                                <button
+                                    type="button"
+                                    className={theme === 'light' ? 'active' : ''}
+                                    onClick={() => theme !== 'light' && toggleTheme()}
+                                    role="radio"
+                                    aria-checked={theme === 'light'}
+                                >
+                                    <i className="fas fa-sun"></i> Light
+                                </button>
+                                <button
+                                    type="button"
+                                    className={theme === 'dark' ? 'active' : ''}
+                                    onClick={() => theme !== 'dark' && toggleTheme()}
+                                    role="radio"
+                                    aria-checked={theme === 'dark'}
+                                >
+                                    <i className="fas fa-moon"></i> Dark
+                                </button>
                             </div>
                         </div>
 
-                        <div className="modal-footer">
-                            <p>© {copyrightYear} Jahidur Rahman</p>
+                        <div className="info-row">
+                            <span className="info-label">Accent Color</span>
+                            <div className="accent-swatch-row" role="radiogroup" aria-label="Accent color">
+                                {accentOptions.map((option) => (
+                                    <button
+                                        key={option.value}
+                                        type="button"
+                                        className={`accent-swatch ${accentColor === option.value ? 'active' : ''}`}
+                                        style={{ backgroundColor: option.swatch }}
+                                        onClick={() => onAccentChange(option.value)}
+                                        role="radio"
+                                        aria-checked={accentColor === option.value}
+                                        aria-label={option.label}
+                                        title={option.label}
+                                    >
+                                        {accentColor === option.value && (
+                                            <i className="fas fa-check" aria-hidden="true"></i>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {(isOwner || publishAccessRevealed) && <PublishAccessRow onClose={onClose} />}
+
+                        <div className="modal-footer" title={fullDate}>
+                            <span>{footerTime} · Dhaka</span>
+                            <span>© {copyrightYear} Jahidur Rahman</span>
                         </div>
                     </motion.div>
                 </>
