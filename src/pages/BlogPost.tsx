@@ -11,6 +11,7 @@ import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ReadingProgress from '../components/ReadingProgress';
 import TableOfContents, { useToc } from '../components/TableOfContents';
 import SeriesNav from '../components/SeriesNav';
+import ScrollButtons from '../components/ScrollButtons';
 import Comments from '../components/Comments';
 import NotFound from './NotFound';
 import './BlogPost.css';
@@ -222,6 +223,7 @@ const BlogPost = () => {
             transition={{ duration: 0.5 }}
         >
             <ReadingProgress targetRef={pageRef} />
+            <ScrollButtons />
 
             <div className="container">
                 <Link to="/blog" className="back-to-blog">

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { getCategory, partsOf, categoryStats, coverFor } from '../data/categories';
 import { useAuth } from '../lib/auth';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import ScrollButtons from '../components/ScrollButtons';
 import NotFound from './NotFound';
 import './CategoryPage.css';
 
@@ -32,6 +33,8 @@ const CategoryPage = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
         >
+            <ScrollButtons />
+
             <div className="container">
                 <Link to="/blog" className="back-to-blog">
                     <i className="fas fa-arrow-left"></i> Back to Blog
