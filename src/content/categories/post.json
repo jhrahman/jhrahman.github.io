@@ -1,0 +1,9 @@
+{
+    "slug": "post",
+    "title": "Playwright Fundamentals with TypeScript",
+    "description": "A step-by-step Playwright Fundamentals series with TypeScript, covering the core concepts you need before moving to advanced automation.",
+    "cover": "/images/blog/categories/post/cover.webp",
+    "featured": true,
+    "date": "2026-08-02T08:00:38.598Z",
+    "updated": null
+}
