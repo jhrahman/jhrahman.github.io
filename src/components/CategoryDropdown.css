@@ -24,6 +24,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    /* Flex items default to min-width: auto, which lets this span ignore
+       overflow/ellipsis entirely and just push the button (and the whole
+       page) wider instead of truncating - this is what actually lets the
+       truncation above take effect. */
+    min-width: 0;
 }
 
 .category-dropdown-trigger:hover {
@@ -104,6 +109,25 @@
     .category-dropdown-trigger {
         max-width: none;
         width: 100%;
+        align-items: flex-start;
+    }
+
+    /* On mobile, prefer wrapping a long series name onto a second line
+       over truncating it - the button grows taller, never wider than the
+       viewport, so the page never gains horizontal scroll. */
+    .category-dropdown-trigger span {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        word-break: break-word;
+    }
+
+    .category-dropdown-trigger i:first-child {
+        margin-top: 0.15rem;
+    }
+
+    .category-dropdown-caret {
+        margin-top: 0.2rem;
     }
 
     .category-dropdown-panel {
