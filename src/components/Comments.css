@@ -15,6 +15,22 @@
     min-height: 150px;
 }
 
+/* The widget's own panel (header, sort control) already picks up the dark
+   colors passed into commentBox(), but its compose row (avatar, input,
+   button, footer) is fixed light styling inside a cross-origin iframe from
+   app.commentbox.io - CSS from this page can't reach into that document at
+   all. Framing the iframe itself as a deliberate card (rounded corners,
+   border, shadow matching the site's other cards) is the one lever left:
+   it can't recolor the white compose area, but it stops the transition
+   into it from reading as an unstyled, broken edge. */
+.commentbox iframe {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+}
+
 @media (max-width: 768px) {
     .comments-section {
         margin-top: 3rem;
