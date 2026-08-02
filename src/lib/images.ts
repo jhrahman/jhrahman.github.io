@@ -82,6 +82,11 @@ export function buildCoverPath(postSlug: string, ext: string): string {
     return `public/images/blog/${postSlug}/cover.${ext}`;
 }
 
+/** Same convention as buildCoverPath, namespaced under categories/ so slugs can't collide with post slugs. */
+export function buildCategoryCoverPath(categorySlug: string, ext: string): string {
+    return `public/images/blog/categories/${categorySlug}/cover.${ext}`;
+}
+
 export function publicUrlFor(repoPath: string): string {
     // repoPath is `public/images/blog/...` -> served from BASE_URL + `images/...`
     const withoutPublic = repoPath.replace(/^public\//, '');

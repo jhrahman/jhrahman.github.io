@@ -1,0 +1,118 @@
+.category-manager-page {
+    padding-bottom: 4rem;
+}
+
+.category-manager-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+}
+
+.category-manager-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    transition: border-color 0.2s ease;
+}
+
+.category-manager-row.active {
+    border-color: var(--accent-primary);
+}
+
+.category-manager-row-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.category-manager-row-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.category-manager-row-meta {
+    color: var(--text-tertiary);
+    font-size: 0.8rem;
+}
+
+.category-manager-row-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.category-manager-row-actions button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-manager-row-actions button:hover:not(:disabled) {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.category-manager-row-actions .delete-btn-inline:hover:not(:disabled) {
+    border-color: #f4511e;
+    color: #f4511e;
+}
+
+.category-manager-row-actions button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.category-manager-form {
+    max-width: 560px;
+    padding: 1.75rem;
+    border-radius: 18px;
+}
+
+.category-manager-form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.category-manager-form-header h2 {
+    font-size: 1.2rem;
+}
+
+.category-manager-hint {
+    font-weight: 400;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+    .category-manager-row {
+        flex-wrap: wrap;
+    }
+
+    .category-manager-form {
+        max-width: none;
+        padding: 1.25rem;
+    }
+}

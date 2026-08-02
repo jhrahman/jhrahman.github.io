@@ -27,6 +27,7 @@ import sharp from 'sharp';
 const SITE_ORIGIN = 'https://jhrahman.github.io';
 const DIST_DIR = join(process.cwd(), 'dist');
 const POSTS_DIR = join(process.cwd(), 'src/content/posts');
+const CATEGORIES_DIR = join(process.cwd(), 'src/content/categories');
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 
@@ -103,11 +104,11 @@ function withPostMeta(html, { title, description, image, canonical }) {
         .replace('</head>', `    <link rel="canonical" href="${canonical}" />\n</head>`);
 }
 
-const files = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.json'));
+const postFiles = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.json'));
+const allPosts = postFiles.map((f) => JSON.parse(readFileSync(join(POSTS_DIR, f), 'utf8')));
 let count = 0;
 
-for (const file of files) {
-    const post = JSON.parse(readFileSync(join(POSTS_DIR, file), 'utf8'));
+for (const post of allPosts) {
     if (post.draft) continue;
 
     const title = escapeHtml(`${post.title} — Jahidur Rahman`);
@@ -133,4 +134,52 @@ for (const file of files) {
     count++;
 }
 
-console.log(`generate-og-pages: wrote 404.html, 4 route shells, 1 default og:image, and ${count} post preview page(s)`);
+// 5. Per-category ("series") shells, same treatment as posts but keyed on
+// slug and with og:type "website" instead of "article" - a series is a
+// collection, not a single piece of writing.
+let categoryCount = 0;
+if (existsSync(CATEGORIES_DIR)) {
+    const categoryFiles = readdirSync(CATEGORIES_DIR).filter((f) => f.endsWith('.json'));
+
+    for (const file of categoryFiles) {
+        const category = JSON.parse(readFileSync(join(CATEGORIES_DIR, file), 'utf8'));
+        // partsOf() equivalent: published posts pointing at this category,
+        // in part order, mirroring src/data/categories.ts so the OG shell
+        // agrees with what the client app actually renders.
+        const parts = allPosts
+            .filter((p) => !p.draft && p.category === category.slug)
+            .sort((a, b) => {
+                if (a.part != null && b.part != null) return a.part - b.part;
+                if (a.part != null) return -1;
+                if (b.part != null) return 1;
+                return a.date.localeCompare(b.date);
+            });
+        if (parts.length === 0) continue;
+
+        const title = escapeHtml(`${category.title} — Jahidur Rahman`);
+        const description = escapeHtml(category.description || `A ${parts.length}-part series.`);
+        const canonical = `${SITE_ORIGIN}/blog/category/${category.slug}`;
+
+        const coverSource = category.cover || parts[0].cover;
+        let image = DEFAULT_IMAGE;
+        if (coverSource) {
+            const coverFsPath = join(DIST_DIR, coverSource.replace(/^\//, ''));
+            if (existsSync(coverFsPath)) {
+                const ogDir = join(DIST_DIR, 'images', 'blog', 'categories', category.slug);
+                mkdirSync(ogDir, { recursive: true });
+                await makeOgImage(coverFsPath, join(ogDir, 'og-cover.jpg'));
+                image = `${SITE_ORIGIN}/images/blog/categories/${category.slug}/og-cover.jpg`;
+            }
+        }
+
+        const html = withPostMeta(template, { title, description, image, canonical })
+            .replace('<meta property="og:type" content="article" />', '<meta property="og:type" content="website" />');
+
+        const dir = join(DIST_DIR, 'blog', 'category', category.slug);
+        mkdirSync(dir, { recursive: true });
+        writeFileSync(join(dir, 'index.html'), html);
+        categoryCount++;
+    }
+}
+
+console.log(`generate-og-pages: wrote 404.html, 4 route shells, 1 default og:image, ${count} post preview page(s), and ${categoryCount} category preview page(s)`);

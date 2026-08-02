@@ -9,11 +9,13 @@ import Activities from './pages/Activities';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
+import CategoryPage from './pages/CategoryPage';
 import NotFound from './pages/NotFound';
 import { AuthProvider, useAuth } from './lib/auth';
 import { safeGetItem, safeSetItem } from './lib/storage';
 
 const PostEditor = lazy(() => import('./pages/PostEditor'));
+const CategoryManager = lazy(() => import('./pages/CategoryManager'));
 
 // Gate runs before the lazy element renders, so the chunk import never fires
 // unless this resolves true.
@@ -84,9 +86,11 @@ function AppContent() {
                         <Route path="/activities" element={<Activities />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/blog" element={<Blog />} />
-                        {/* Must precede /blog/:id so "new" isn't parsed as an id */}
+                        {/* Must precede /blog/:id so these segments aren't parsed as an id */}
                         <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
                         <Route path="/blog/edit/:slug" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                        <Route path="/blog/categories" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><CategoryManager /></Suspense></RequireOwner>} />
+                        <Route path="/blog/category/:slug" element={<CategoryPage />} />
                         <Route path="/blog/:id" element={<BlogPost />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>

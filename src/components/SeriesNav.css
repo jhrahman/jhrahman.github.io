@@ -1,0 +1,134 @@
+.series-nav-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    margin-bottom: 0.9rem;
+}
+
+.series-nav-heading i {
+    color: var(--accent-primary);
+}
+
+.series-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.series-nav li a,
+.series-nav li span[aria-current] {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-radius: 0 6px 6px 0;
+    padding: 0.45rem 0.75rem;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.series-nav li a {
+    color: var(--text-secondary);
+}
+
+.series-nav li a:hover {
+    background: rgba(var(--accent-primary-rgb), 0.08);
+    border-color: var(--accent-primary);
+}
+
+.series-nav li.series-nav-current span[aria-current] {
+    border-color: var(--accent-primary);
+    background: rgba(var(--accent-primary-rgb), 0.12);
+}
+
+.series-nav-part {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-primary);
+}
+
+.series-nav-title {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.series-nav-current .series-nav-title {
+    font-weight: 600;
+}
+
+/* Deliberately not sticky (unlike the ToC it sits above): two independently
+   sticky siblings pinned to the same top offset would slide into and
+   overlap each other once both reach it. This scrolls away naturally,
+   then the ToC below it takes over the sticky slot. */
+.series-nav-desktop {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.series-nav-mobile {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .series-nav-desktop {
+        display: none;
+    }
+
+    .series-nav-mobile {
+        display: block;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .series-nav-mobile summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-primary);
+        list-style: none;
+    }
+
+    .series-nav-mobile summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .series-nav-summary-progress {
+        color: var(--text-tertiary);
+        font-weight: 400;
+    }
+
+    .series-nav-mobile summary::after {
+        content: '▾';
+        float: right;
+        color: var(--text-tertiary);
+    }
+
+    .series-nav-mobile[open] summary::after {
+        content: '▴';
+    }
+
+    .series-nav-mobile ul {
+        margin-top: 1rem;
+    }
+}

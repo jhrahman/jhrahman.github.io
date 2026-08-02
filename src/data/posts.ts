@@ -7,7 +7,9 @@ import type { Post } from '../types/blog';
 const modules = import.meta.glob<{ default: Post }>('../content/posts/*.json', { eager: true });
 
 const allPosts: Post[] = Object.values(modules)
-    .map((m) => m.default)
+    // category/part are newer fields - default them for any post JSON saved
+    // before they existed, rather than requiring a one-time file migration.
+    .map((m) => ({ ...m.default, category: m.default.category ?? null, part: m.default.part ?? null }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
 /** Published posts only, newest first - what visitors see. */
@@ -41,6 +43,12 @@ export function pickFeatured(source: Post[]): Post[] {
     return featured.length > 0 ? featured : source.slice(0, 1);
 }
 
+/**
+ * Global chronological prev/next. When a post belongs to a category, callers
+ * should prefer the in-series neighbours from partsOf() in categories.ts
+ * instead - kept as a separate helper there (rather than folded in here) to
+ * avoid a posts.ts -> categories.ts -> posts.ts import cycle.
+ */
 export function getAdjacentPosts(slug: string): { prev: Post | null; next: Post | null } {
     const index = posts.findIndex((p) => p.slug === slug);
     if (index === -1) return { prev: null, next: null };

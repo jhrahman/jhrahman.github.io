@@ -3,12 +3,14 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { getPostById, getAdjacentPosts } from '../data/posts';
+import { getCategory, partsOf, getSeriesAdjacent } from '../data/categories';
 import { useAuth } from '../lib/auth';
 import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ReadingProgress from '../components/ReadingProgress';
 import TableOfContents, { useToc } from '../components/TableOfContents';
+import SeriesNav from '../components/SeriesNav';
 import Comments from '../components/Comments';
 import NotFound from './NotFound';
 import './BlogPost.css';
@@ -56,7 +58,7 @@ const BlogPost = () => {
     const numericId = Number(id);
     const post = Number.isInteger(numericId) ? getPostById(numericId, isOwner) : undefined;
 
-    // Track theme changes for the giscus iframe, which can't read CSS vars.
+    // Track theme changes for the CommentBox widget, which can't read CSS vars.
     useEffect(() => {
         const observer = new MutationObserver(() => setTheme(getStoredTheme()));
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -146,7 +148,16 @@ const BlogPost = () => {
 
     if (!post) return <NotFound />;
 
-    const { prev, next } = getAdjacentPosts(post.slug);
+    const category = post.category ? getCategory(post.category) : undefined;
+    const seriesParts = category ? partsOf(category.slug, isOwner) : [];
+    const seriesIndex = category ? seriesParts.findIndex((p) => p.slug === post.slug) : -1;
+    const isLastInSeries = category && seriesIndex !== -1 && seriesIndex === seriesParts.length - 1;
+
+    const globalAdjacent = getAdjacentPosts(post.slug);
+    const seriesAdjacent = getSeriesAdjacent(post, isOwner);
+    // Inside a series, prev/next stay within it rather than jumping to
+    // whatever else was published around the same time.
+    const { prev, next } = category ? seriesAdjacent : globalAdjacent;
 
     const shareableUrl = `${window.location.origin}${import.meta.env.BASE_URL}blog/${post.id}`;
 
@@ -219,6 +230,13 @@ const BlogPost = () => {
 
                 <header className="post-header">
                     {post.draft && <span className="draft-badge post-header-draft">Draft</span>}
+                    {category && (
+                        <Link to={`/blog/category/${category.slug}`} className="post-category-pill">
+                            <i className="fas fa-layer-group" aria-hidden="true"></i>
+                            {category.title}
+                            {seriesIndex !== -1 && <span> · Part {post.part ?? seriesIndex + 1} of {seriesParts.length}</span>}
+                        </Link>
+                    )}
                     <h1 className="post-title gradient-text">{post.title}</h1>
                     <div className="post-header-meta">
                         <span>{formatDate(post.date)}</span>
@@ -252,15 +270,21 @@ const BlogPost = () => {
                     </div>
                 )}
 
+                {category && <SeriesNav category={category} parts={seriesParts} currentSlug={post.slug} variant="mobile" />}
                 <TableOfContents items={toc} variant="mobile" />
 
-                <div className={`post-layout ${toc.length === 0 ? 'no-toc' : ''}`}>
+                <div className={`post-layout ${toc.length === 0 && !category ? 'no-toc' : ''}`}>
                     <div
                         ref={bodyRef}
                         className="post-body"
                         dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
                     />
-                    <TableOfContents items={toc} variant="desktop" />
+                    {(category || toc.length > 0) && (
+                        <div className="post-layout-rail">
+                            {category && <SeriesNav category={category} parts={seriesParts} currentSlug={post.slug} variant="desktop" />}
+                            <TableOfContents items={toc} variant="desktop" />
+                        </div>
+                    )}
                 </div>
 
                 <div className="post-footer-actions">
@@ -282,17 +306,25 @@ const BlogPost = () => {
                     <nav className="post-adjacent-nav" aria-label="More posts">
                         {prev ? (
                             <Link to={`/blog/${prev.id}`} className="post-adjacent-link prev">
-                                <span className="post-adjacent-label"><i className="fas fa-arrow-left"></i> Previous</span>
+                                <span className="post-adjacent-label"><i className="fas fa-arrow-left"></i> {category ? 'Previous in series' : 'Previous'}</span>
                                 <span className="post-adjacent-title">{prev.title}</span>
                             </Link>
                         ) : <span />}
                         {next && (
                             <Link to={`/blog/${next.id}`} className="post-adjacent-link next">
-                                <span className="post-adjacent-label">Next <i className="fas fa-arrow-right"></i></span>
+                                <span className="post-adjacent-label">{category ? 'Next in series' : 'Next'} <i className="fas fa-arrow-right"></i></span>
                                 <span className="post-adjacent-title">{next.title}</span>
                             </Link>
                         )}
                     </nav>
+                )}
+
+                {category && isLastInSeries && (
+                    <Link to={`/blog/category/${category.slug}`} className="series-complete-card glass-effect">
+                        <i className="fas fa-flag-checkered" aria-hidden="true"></i>
+                        <span>You've finished <strong>{category.title}</strong> — revisit the full series</span>
+                        <i className="fas fa-arrow-right" aria-hidden="true"></i>
+                    </Link>
                 )}
 
                 <Comments slug={post.slug} theme={theme} />

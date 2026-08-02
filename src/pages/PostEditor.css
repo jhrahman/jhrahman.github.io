@@ -128,8 +128,10 @@
 
 .editor-field input[type="text"],
 .editor-field input[type="url"],
+.editor-field input[type="number"],
 .editor-field input:not([type]),
-.editor-field textarea {
+.editor-field textarea,
+.editor-field select {
     font: inherit;
     font-weight: 400;
     padding: 0.6rem 0.75rem;
@@ -138,6 +140,19 @@
     background: var(--bg-tertiary);
     color: var(--text-primary);
     resize: vertical;
+}
+
+.manage-categories-link {
+    align-self: flex-start;
+    margin-top: 0.3rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.manage-categories-link:hover {
+    text-decoration: underline;
 }
 
 .editor-field input:disabled {

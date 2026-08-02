@@ -22,6 +22,8 @@ export interface PublishInput {
     tags: string[];
     featured: boolean;
     draft: boolean;
+    category: string | null;
+    part: number | null;
     rawHtml: string;
     pendingImages: Map<string, File>;
     coverFile: File | null;
@@ -139,7 +141,7 @@ function wrapTables(html: string): string {
 
 export async function publishPost(input: PublishInput): Promise<PublishResult> {
     const {
-        token, id, slug, title, excerpt, tags, featured, draft,
+        token, id, slug, title, excerpt, tags, featured, draft, category, part,
         rawHtml, pendingImages, coverFile, existingCover, existingDate, onProgress,
     } = input;
 
@@ -182,6 +184,9 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
         featured,
         draft,
         html: cleanHtml,
+        category,
+        // A part number is meaningless without a series to belong to.
+        part: category ? part : null,
     };
 
     const path = `src/content/posts/${slug}.json`;

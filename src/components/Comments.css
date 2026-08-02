@@ -10,18 +10,9 @@
     margin-bottom: 1.5rem;
 }
 
-.giscus-frame {
-    display: block;
+.commentbox {
     width: 100%;
-    border: none;
     min-height: 150px;
-    color-scheme: normal;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.giscus-frame.is-loaded {
-    opacity: 1;
 }
 
 @media (max-width: 768px) {

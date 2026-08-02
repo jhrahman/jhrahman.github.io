@@ -1,9 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { posts, allPostsIncludingDrafts, allTags, pickFeatured } from '../data/posts';
+import { posts, allPostsIncludingDrafts, allTags } from '../data/posts';
+import { partsOf, categories, categoryStats, getCategory } from '../data/categories';
+import { buildFeed, pickFeaturedEntries, entryKey, type FeedEntry } from '../data/blogFeed';
 import { useAuth } from '../lib/auth';
+import { useBlogFilters } from '../hooks/useBlogFilters';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
+import CategoryDropdown from '../components/CategoryDropdown';
+import CategoryCard from '../components/CategoryCard';
 import type { Post } from '../types/blog';
 import './Blog.css';
 
@@ -61,30 +66,64 @@ function PostCard({ post }: { post: Post }) {
     );
 }
 
+function FeedCard({ entry, isOwner }: { entry: FeedEntry; isOwner: boolean }) {
+    return entry.kind === 'post'
+        ? <PostCard post={entry.post} />
+        : <CategoryCard category={entry.category} includeDrafts={isOwner} />;
+}
+
+function stripHtml(html: string): string {
+    return html.replace(/<[^>]*>/g, ' ');
+}
+
 const Blog = () => {
     const { isOwner } = useAuth();
-    const [search, setSearch] = useState('');
-    const [activeTag, setActiveTag] = useState<string | null>(null);
+    const { category: activeCategory, tag: activeTag, search, setCategory, setTag, setSearch, clearCategory, clearTag, clearAll } = useBlogFilters();
 
     useDocumentMeta('Blog', 'Notes on QA engineering, test automation, and building things.');
 
     const visiblePosts = isOwner ? allPostsIncludingDrafts : posts;
-    const featuredPosts = pickFeatured(visiblePosts);
-    const featuredSlugs = new Set(featuredPosts.map((p) => p.slug));
-    const showFeatured = featuredPosts.length > 0 && !search.trim() && !activeTag;
+    const feed = useMemo(() => buildFeed(visiblePosts, isOwner), [visiblePosts, isOwner]);
+    const featuredEntries = pickFeaturedEntries(feed);
+    const featuredKeys = new Set(featuredEntries.map(entryKey));
 
+    const categoryOptions = useMemo(
+        () => categories
+            .map((c) => ({ slug: c.slug, title: c.title, count: categoryStats(c.slug, isOwner).parts }))
+            .filter((c) => c.count > 0),
+        [isOwner]
+    );
+
+    const activeCategoryRecord = activeCategory ? getCategory(activeCategory) : undefined;
+    const hasFilters = Boolean(activeCategory || activeTag || search.trim());
+    const showFeatured = featuredEntries.length > 0 && !hasFilters;
+
+    // Entry-level matching: a category "matches" search/tag when its own
+    // title/description matches, OR any of its parts do - so a series is
+    // never hidden just because the match lives inside Part 3's body.
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
-        return visiblePosts.filter((post) => {
-            if (activeTag && !post.tags.includes(activeTag)) return false;
+        return feed.filter((entry) => {
+            if (entry.kind === 'post') {
+                const post = entry.post;
+                if (activeTag && !post.tags.includes(activeTag)) return false;
+                if (!q) return true;
+                const haystack = `${post.title} ${post.excerpt} ${post.tags.join(' ')} ${stripHtml(post.html)}`.toLowerCase();
+                return haystack.includes(q);
+            }
+            const parts = partsOf(entry.category.slug, isOwner);
+            if (activeTag && !parts.some((p) => p.tags.includes(activeTag))) return false;
             if (!q) return true;
-            const haystack = `${post.title} ${post.excerpt} ${post.tags.join(' ')} ${post.html.replace(/<[^>]*>/g, ' ')}`.toLowerCase();
+            const haystack = `${entry.category.title} ${entry.category.description} ${parts.map((p) => `${p.title} ${p.excerpt} ${p.tags.join(' ')} ${stripHtml(p.html)}`).join(' ')}`.toLowerCase();
             return haystack.includes(q);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [search, activeTag, isOwner]);
+    }, [feed, search, activeTag, isOwner]);
 
-    const gridPosts = filtered.filter((p) => activeTag || search.trim() || !featuredSlugs.has(p.slug));
+    const gridEntries = filtered.filter((entry) => hasFilters || !featuredKeys.has(entryKey(entry)));
+
+    const seriesParts = activeCategoryRecord ? partsOf(activeCategoryRecord.slug, isOwner) : [];
+    const seriesStats = activeCategoryRecord ? categoryStats(activeCategoryRecord.slug, isOwner) : null;
 
     return (
         <motion.div
@@ -105,28 +144,39 @@ const Blog = () => {
                         Blog
                     </motion.h1>
                     {isOwner && (
-                        <Link to="/blog/new" className="new-post-btn">
-                            <i className="fas fa-plus"></i> New post
-                        </Link>
+                        <div className="blog-header-actions">
+                            <Link to="/blog/categories" className="manage-categories-btn">
+                                <i className="fas fa-layer-group"></i> Manage categories
+                            </Link>
+                            <Link to="/blog/new" className="new-post-btn">
+                                <i className="fas fa-plus"></i> New post
+                            </Link>
+                        </div>
                     )}
                 </div>
 
                 <div className="blog-controls">
-                    <div className="blog-search">
-                        <i className="fas fa-search" aria-hidden="true"></i>
-                        <input
-                            type="search"
-                            placeholder="Search posts…"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            aria-label="Search posts"
-                        />
+                    <div className="blog-controls-row">
+                        <div className="blog-search">
+                            <i className="fas fa-search" aria-hidden="true"></i>
+                            <input
+                                type="search"
+                                placeholder="Search posts…"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                aria-label="Search posts"
+                            />
+                        </div>
+                        {categoryOptions.length > 0 && (
+                            <CategoryDropdown options={categoryOptions} value={activeCategory} onChange={setCategory} />
+                        )}
                     </div>
+
                     {allTags.length > 0 && (
                         <div className="blog-tags" role="group" aria-label="Filter by tag">
                             <button
                                 className={`blog-tag-chip ${activeTag === null ? 'active' : ''}`}
-                                onClick={() => setActiveTag(null)}
+                                onClick={() => setTag(null)}
                             >
                                 All
                             </button>
@@ -134,103 +184,157 @@ const Blog = () => {
                                 <button
                                     key={tag}
                                     className={`blog-tag-chip ${activeTag === tag ? 'active' : ''}`}
-                                    onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                                    onClick={() => setTag(activeTag === tag ? null : tag)}
                                 >
                                     {tag}
                                 </button>
                             ))}
                         </div>
                     )}
+
+                    {(activeCategoryRecord || activeTag) && (
+                        <div className="active-filters">
+                            {activeCategoryRecord && (
+                                <span className="active-filter-chip">
+                                    {activeCategoryRecord.title}
+                                    <button type="button" onClick={clearCategory} aria-label={`Clear ${activeCategoryRecord.title} filter`}>✕</button>
+                                </span>
+                            )}
+                            {activeTag && (
+                                <span className="active-filter-chip">
+                                    {activeTag}
+                                    <button type="button" onClick={clearTag} aria-label={`Clear ${activeTag} filter`}>✕</button>
+                                </span>
+                            )}
+                            {activeCategoryRecord && activeTag && (
+                                <button type="button" className="clear-all-filters" onClick={clearAll}>Clear all</button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                {showFeatured && featuredPosts.length === 1 && (
-                    <motion.article
-                        className="post-hero glass-effect"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1, duration: 0.6 }}
-                    >
-                        <Link to={`/blog/${featuredPosts[0].id}`} className="post-hero-link">
-                            <div
-                                className="post-hero-cover"
-                                style={featuredPosts[0].cover ? { backgroundImage: `url(${featuredPosts[0].cover})` } : undefined}
-                            >
-                                {featuredPosts[0].cover ? (
-                                    <img src={featuredPosts[0].cover} alt="" />
-                                ) : (
-                                    <div className="post-hero-cover-placeholder" aria-hidden="true">
-                                        <i className="fas fa-feather-alt"></i>
+                {activeCategoryRecord && seriesStats ? (
+                    <>
+                        <div className="blog-series-header">
+                            <div>
+                                <h2>{activeCategoryRecord.title}</h2>
+                                <span className="series-count">{seriesStats.parts} part{seriesStats.parts === 1 ? '' : 's'} · ~{seriesStats.totalReadingTime} min total</span>
+                            </div>
+                            <Link to={`/blog/category/${activeCategoryRecord.slug}`} className="view-series-link">
+                                View the full series <i className="fas fa-arrow-right"></i>
+                            </Link>
+                        </div>
+                        <div className="series-compact-list">
+                            {seriesParts.map((post, i) => (
+                                <Link key={post.slug} to={`/blog/${post.id}`} className="series-compact-row">
+                                    <span className="post-part-badge">Part {post.part ?? i + 1}</span>
+                                    <div className="series-compact-row-title">
+                                        <h3>
+                                            {post.title}
+                                            {post.draft && <span className="draft-badge">Draft</span>}
+                                        </h3>
                                     </div>
-                                )}
-                            </div>
-                            <div className="post-hero-content">
-                                <span className="post-hero-badge">Featured</span>
-                                <h2 className="post-hero-title">{featuredPosts[0].title}</h2>
-                                <p className="post-hero-excerpt">{featuredPosts[0].excerpt}</p>
-                                <div className="post-card-meta">
-                                    <span>{formatDate(featuredPosts[0].date)}</span>
-                                    <span aria-hidden="true">·</span>
-                                    <span>{featuredPosts[0].readingTime} min read</span>
-                                </div>
-                            </div>
-                        </Link>
-                    </motion.article>
-                )}
-
-                {showFeatured && featuredPosts.length > 1 && (
-                    <motion.div
-                        className="featured-grid"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                    >
-                        {featuredPosts.map((post) => (
+                                    <span className="series-compact-row-meta">{post.readingTime} min read</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        {showFeatured && featuredEntries.length === 1 && featuredEntries[0].kind === 'post' && (
                             <motion.article
-                                key={post.slug}
-                                className="featured-card glass-effect"
-                                variants={itemVariants}
-                                whileHover={{ y: -6 }}
+                                className="post-hero glass-effect"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1, duration: 0.6 }}
                             >
-                                <Link to={`/blog/${post.id}`} className="featured-card-link">
+                                <Link to={`/blog/${featuredEntries[0].post.id}`} className="post-hero-link">
                                     <div
-                                        className="featured-card-cover"
-                                        style={post.cover ? { backgroundImage: `url(${post.cover})` } : undefined}
+                                        className="post-hero-cover"
+                                        style={featuredEntries[0].post.cover ? { backgroundImage: `url(${featuredEntries[0].post.cover})` } : undefined}
                                     >
-                                        {post.cover ? (
-                                            <img src={post.cover} alt="" loading="lazy" />
+                                        {featuredEntries[0].post.cover ? (
+                                            <img src={featuredEntries[0].post.cover} alt="" />
                                         ) : (
-                                            <div className="post-card-cover-placeholder" aria-hidden="true">
+                                            <div className="post-hero-cover-placeholder" aria-hidden="true">
                                                 <i className="fas fa-feather-alt"></i>
                                             </div>
                                         )}
                                     </div>
-                                    <div className="featured-card-content">
+                                    <div className="post-hero-content">
                                         <span className="post-hero-badge">Featured</span>
-                                        <h3 className="featured-card-title">{post.title}</h3>
-                                        <p className="post-card-excerpt">{post.excerpt}</p>
+                                        <h2 className="post-hero-title">{featuredEntries[0].post.title}</h2>
+                                        <p className="post-hero-excerpt">{featuredEntries[0].post.excerpt}</p>
                                         <div className="post-card-meta">
-                                            <span>{formatDate(post.date)}</span>
+                                            <span>{formatDate(featuredEntries[0].post.date)}</span>
                                             <span aria-hidden="true">·</span>
-                                            <span>{post.readingTime} min read</span>
+                                            <span>{featuredEntries[0].post.readingTime} min read</span>
                                         </div>
                                     </div>
                                 </Link>
                             </motion.article>
-                        ))}
-                    </motion.div>
-                )}
+                        )}
 
-                {gridPosts.length > 0 ? (
-                    <motion.div className="posts-grid" variants={containerVariants} initial="hidden" animate="visible">
-                        {gridPosts.map((post) => (
-                            <PostCard key={post.slug} post={post} />
-                        ))}
-                    </motion.div>
-                ) : (
-                    <div className="blog-empty">
-                        <i className="fas fa-inbox" aria-hidden="true"></i>
-                        <p>{visiblePosts.length === 0 ? 'No posts yet — check back soon.' : 'No posts match your search.'}</p>
-                    </div>
+                        {showFeatured && (featuredEntries.length > 1 || (featuredEntries.length === 1 && featuredEntries[0].kind === 'category')) && (
+                            <motion.div
+                                className="featured-grid"
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                            >
+                                {featuredEntries.map((entry) =>
+                                    entry.kind === 'post' ? (
+                                        <motion.article
+                                            key={entryKey(entry)}
+                                            className="featured-card glass-effect"
+                                            variants={itemVariants}
+                                            whileHover={{ y: -6 }}
+                                        >
+                                            <Link to={`/blog/${entry.post.id}`} className="featured-card-link">
+                                                <div
+                                                    className="featured-card-cover"
+                                                    style={entry.post.cover ? { backgroundImage: `url(${entry.post.cover})` } : undefined}
+                                                >
+                                                    {entry.post.cover ? (
+                                                        <img src={entry.post.cover} alt="" loading="lazy" />
+                                                    ) : (
+                                                        <div className="post-card-cover-placeholder" aria-hidden="true">
+                                                            <i className="fas fa-feather-alt"></i>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="featured-card-content">
+                                                    <span className="post-hero-badge">Featured</span>
+                                                    <h3 className="featured-card-title">{entry.post.title}</h3>
+                                                    <p className="post-card-excerpt">{entry.post.excerpt}</p>
+                                                    <div className="post-card-meta">
+                                                        <span>{formatDate(entry.post.date)}</span>
+                                                        <span aria-hidden="true">·</span>
+                                                        <span>{entry.post.readingTime} min read</span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        </motion.article>
+                                    ) : (
+                                        <CategoryCard key={entryKey(entry)} category={entry.category} variant="featured" includeDrafts={isOwner} />
+                                    )
+                                )}
+                            </motion.div>
+                        )}
+
+                        {gridEntries.length > 0 ? (
+                            <motion.div className="posts-grid" variants={containerVariants} initial="hidden" animate="visible">
+                                {gridEntries.map((entry) => (
+                                    <FeedCard key={entryKey(entry)} entry={entry} isOwner={isOwner} />
+                                ))}
+                            </motion.div>
+                        ) : (
+                            <div className="blog-empty">
+                                <i className="fas fa-inbox" aria-hidden="true"></i>
+                                <p>{visiblePosts.length === 0 ? 'No posts yet — check back soon.' : 'No posts match your search.'}</p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </motion.div>

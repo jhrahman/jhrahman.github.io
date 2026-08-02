@@ -20,6 +20,7 @@ import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
 import { useAuth } from '../lib/auth';
 import { getPost, slugify, allTags, nextPostId } from '../data/posts';
+import { categories, nextPartNumber } from '../data/categories';
 import { publishPost } from '../lib/publish';
 import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
@@ -31,6 +32,7 @@ const AUTOSAVE_KEY_PREFIX = 'blog_editor_draft_';
 
 interface DraftShape {
     title: string; excerpt: string; tags: string[]; featured: boolean; draft: boolean; html: string; slug: string;
+    category: string | null; part: number | null;
 }
 
 type PublishState =
@@ -57,6 +59,8 @@ const PostEditor = () => {
     const [tagInput, setTagInput] = useState('');
     const [featured, setFeatured] = useState(existingPost?.featured ?? false);
     const [draft, setDraft] = useState(existingPost?.draft ?? true);
+    const [category, setCategory] = useState<string | null>(existingPost?.category ?? null);
+    const [part, setPart] = useState<number | null>(existingPost?.part ?? null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(existingPost?.cover ?? null);
     const [publishState, setPublishState] = useState<PublishState>({ phase: 'idle' });
@@ -110,6 +114,8 @@ const PostEditor = () => {
                 setTags(saved.tags);
                 setFeatured(saved.featured);
                 setDraft(saved.draft);
+                setCategory(saved.category ?? null);
+                setPart(saved.part ?? null);
                 editor.commands.setContent(saved.html);
                 setRestoredNotice(true);
             }
@@ -126,7 +132,7 @@ const PostEditor = () => {
         if (!editor) return;
         if (publishState.phase === 'success') return;
         const interval = setInterval(() => {
-            const payload: DraftShape = { title, excerpt, tags, featured, draft, slug, html: editor.getHTML() };
+            const payload: DraftShape = { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() };
             try {
                 sessionStorage.setItem(autosaveKey, JSON.stringify(payload));
             } catch {
@@ -134,7 +140,7 @@ const PostEditor = () => {
             }
         }, 4000);
         return () => clearInterval(interval);
-    }, [editor, title, excerpt, tags, featured, draft, slug, autosaveKey, publishState.phase]);
+    }, [editor, title, excerpt, tags, featured, draft, category, part, slug, autosaveKey, publishState.phase]);
 
     useEffect(() => {
         if (!slugTouched) setSlug(slugify(title));
@@ -181,11 +187,11 @@ const PostEditor = () => {
         if (!editor) return;
         const token = getToken();
         if (!token) {
-            setPublishState({ phase: 'error', message: 'You are signed out. Sign in again from the settings panel.', fallback: { title, excerpt, tags, featured, draft, slug, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message: 'You are signed out. Sign in again from the settings panel.', fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
             return;
         }
         if (slugCollision) {
-            setPublishState({ phase: 'error', message: `A post with the slug "${slug}" already exists. Choose a different URL slug.`, fallback: { title, excerpt, tags, featured, draft, slug, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message: `A post with the slug "${slug}" already exists. Choose a different URL slug.`, fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
             return;
         }
 
@@ -200,6 +206,8 @@ const PostEditor = () => {
                 tags,
                 featured,
                 draft,
+                category,
+                part,
                 rawHtml: editor.getHTML(),
                 pendingImages: pendingImages.current,
                 coverFile,
@@ -213,7 +221,7 @@ const PostEditor = () => {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
                 : err instanceof Error ? err.message : 'Something went wrong while publishing.';
-            setPublishState({ phase: 'error', message, fallback: { title, excerpt, tags, featured, draft, slug, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message, fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
         }
     };
 
@@ -324,6 +332,38 @@ const PostEditor = () => {
                                     ))}
                                 </div>
                             </label>
+
+                            <label className="editor-field">
+                                <span>Category</span>
+                                <select
+                                    value={category ?? ''}
+                                    onChange={(e) => {
+                                        const next = e.target.value || null;
+                                        setCategory(next);
+                                        // Prefill the next free slot in that series; the
+                                        // owner can still override it below.
+                                        setPart(next ? nextPartNumber(next) : null);
+                                    }}
+                                >
+                                    <option value="">None</option>
+                                    {categories.map((c) => (
+                                        <option key={c.slug} value={c.slug}>{c.title}</option>
+                                    ))}
+                                </select>
+                                <Link to="/blog/categories" className="manage-categories-link">Manage categories →</Link>
+                            </label>
+
+                            {category && (
+                                <label className="editor-field">
+                                    <span>Part number</span>
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        value={part ?? ''}
+                                        onChange={(e) => setPart(e.target.value ? Number(e.target.value) : null)}
+                                    />
+                                </label>
+                            )}
 
                             <label className="editor-field">
                                 <span>Cover image</span>
