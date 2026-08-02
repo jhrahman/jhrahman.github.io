@@ -102,10 +102,9 @@ export async function getFileSha(token: string, path: string): Promise<string | 
 
 export interface FileContent {
     base64Content: string;
-    sha: string;
 }
 
-/** Downloads a file's raw (still base64-encoded) content and sha - used to move a file to a new path (download old, putFile new, delete old), since the Contents API has no rename/move endpoint. */
+/** Downloads a file's raw (still base64-encoded) content - used to move a file to a new path (read the old content here, then stage it as a create-at-new-path + delete-at-old-path pair for commitFiles), since neither the Contents API nor the Git Data API has a rename/move endpoint. */
 export async function getFileContent(token: string, path: string): Promise<FileContent | null> {
     const res = await fetch(
         `${API_BASE}/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`,
@@ -115,35 +114,8 @@ export async function getFileContent(token: string, path: string): Promise<FileC
     if (!res.ok) return readError(res);
     const body = await res.json();
     // GitHub returns base64 content with embedded newlines every 60 chars -
-    // strip them so it round-trips cleanly through putFile's body.content.
-    return { base64Content: (body.content as string).replace(/\n/g, ''), sha: body.sha as string };
-}
-
-export interface PutFileResult {
-    commitSha: string;
-    contentSha: string;
-}
-
-export async function putFile(
-    token: string,
-    path: string,
-    base64Content: string,
-    message: string,
-    sha?: string | null
-): Promise<PutFileResult> {
-    const res = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/contents/${path}`, {
-        method: 'PUT',
-        headers: { ...headers(token), 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            message,
-            content: base64Content,
-            branch: BRANCH,
-            ...(sha ? { sha } : {}),
-        }),
-    });
-    if (!res.ok) return readError(res);
-    const body = await res.json();
-    return { commitSha: body.commit?.sha, contentSha: body.content?.sha };
+    // strip them so it round-trips cleanly through commitFiles' blob content.
+    return { base64Content: (body.content as string).replace(/\n/g, '') };
 }
 
 export interface RepoFile {
@@ -164,18 +136,100 @@ export async function listDirectory(token: string, path: string): Promise<RepoFi
     return Array.isArray(body) ? body : null;
 }
 
-export async function deleteFile(
+export interface FileChange {
+    path: string;
+    /** base64-encoded content to write at this path, or null to delete it. */
+    content: string | null;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Commits any number of file adds/updates/deletes as ONE atomic commit via
+ * the Git Data API (blobs + a tree + a commit + a ref update), instead of
+ * the Contents API's one-commit-per-file-call that putFile/deleteFile use.
+ *
+ * This is the fix for a real, observed race: every commit to this repo
+ * triggers its own independent GitHub Pages build+deploy, and nothing
+ * guarantees those deploys finish in the order the commits were made -
+ * whichever one finishes last in wall-clock time wins and overwrites the
+ * live site, even if it was built from an older, incomplete commit. An
+ * operation that's logically "one edit" - a post rename that moves images
+ * and replaces the old file, a delete that removes a JSON file and its
+ * whole image folder - has to land as one commit, or it can visibly go
+ * live in a half-finished state depending on how the deploys happen to
+ * queue. Any call site that changes more than one file must go through
+ * here rather than multiple putFile/deleteFile calls.
+ *
+ * Retries a few times, rebuilding on the new HEAD, if the final ref update
+ * conflicts (branch moved between reading it and writing here) - a
+ * transient race on the *read* of HEAD, not a lost update, since the tree
+ * is only built from whatever HEAD was current at the start of this call.
+ */
+export async function commitFiles(
     token: string,
-    path: string,
-    sha: string,
-    message: string
-): Promise<void> {
-    const res = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/contents/${path}`, {
-        method: 'DELETE',
+    changes: FileChange[],
+    message: string,
+    attempt = 1
+): Promise<{ commitSha: string }> {
+    if (changes.length === 0) throw new Error('commitFiles called with no changes.');
+
+    const refRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/ref/heads/${BRANCH}`, { headers: headers(token) });
+    if (!refRes.ok) return readError(refRes);
+    const refBody = await refRes.json();
+    const baseCommitSha = refBody.object.sha as string;
+
+    const baseCommitRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/commits/${baseCommitSha}`, { headers: headers(token) });
+    if (!baseCommitRes.ok) return readError(baseCommitRes);
+    const baseCommitBody = await baseCommitRes.json();
+    const baseTreeSha = baseCommitBody.tree.sha as string;
+
+    const tree = await Promise.all(changes.map(async (change) => {
+        if (change.content === null) {
+            return { path: change.path, mode: '100644', type: 'blob', sha: null };
+        }
+        const blobRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/blobs`, {
+            method: 'POST',
+            headers: { ...headers(token), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: change.content, encoding: 'base64' }),
+        });
+        if (!blobRes.ok) return readError(blobRes);
+        const blobBody = await blobRes.json();
+        return { path: change.path, mode: '100644', type: 'blob', sha: blobBody.sha as string };
+    }));
+
+    const treeRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/trees`, {
+        method: 'POST',
         headers: { ...headers(token), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, sha, branch: BRANCH }),
+        body: JSON.stringify({ base_tree: baseTreeSha, tree }),
     });
-    if (!res.ok) return readError(res);
+    if (!treeRes.ok) return readError(treeRes);
+    const treeBody = await treeRes.json();
+
+    const commitRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/commits`, {
+        method: 'POST',
+        headers: { ...headers(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, tree: treeBody.sha, parents: [baseCommitSha] }),
+    });
+    if (!commitRes.ok) return readError(commitRes);
+    const commitBody = await commitRes.json();
+
+    const updateRefRes = await fetch(`${API_BASE}/repos/${OWNER}/${REPO}/git/refs/heads/${BRANCH}`, {
+        method: 'PATCH',
+        headers: { ...headers(token), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sha: commitBody.sha }),
+    });
+    if (!updateRefRes.ok) {
+        if (updateRefRes.status === 422 && attempt < 4) {
+            await sleep(300 * attempt);
+            return commitFiles(token, changes, message, attempt + 1);
+        }
+        return readError(updateRefRes);
+    }
+
+    return { commitSha: commitBody.sha as string };
 }
 
 export const actionsUrl = `https://github.com/${OWNER}/${REPO}/actions`;

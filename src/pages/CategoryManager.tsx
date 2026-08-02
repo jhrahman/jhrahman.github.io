@@ -16,7 +16,7 @@ import './CategoryManager.css';
 type SaveState =
     | { phase: 'idle' }
     | { phase: 'working' }
-    | { phase: 'success'; commitSha: string; id: number; warning?: string }
+    | { phase: 'success'; commitSha: string; id: number }
     | { phase: 'error'; message: string };
 
 const emptyForm = { slug: '', title: '', description: '', featured: false };
@@ -119,7 +119,7 @@ const CategoryManager = () => {
                 existingCover: coverFile ? null : (existing?.cover ?? coverPreview),
                 existingDate: existing?.date ?? null,
             });
-            setSaveState({ phase: 'success', commitSha: result.commitSha, id: result.category.id, warning: result.warning });
+            setSaveState({ phase: 'success', commitSha: result.commitSha, id: result.category.id });
         } catch (err) {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
@@ -257,11 +257,6 @@ const CategoryManager = () => {
                             <p>Committed! Live on the site in ~60–90s once the build finishes.</p>
                             <a href={actionsUrl} target="_blank" rel="noopener noreferrer">Watch the deploy →</a>
                             <Link to={`/blog/category/${saveState.id}`}>View category →</Link>
-                            {saveState.warning && (
-                                <p className="editor-result-warning">
-                                    <i className="fas fa-triangle-exclamation"></i> {saveState.warning}
-                                </p>
-                            )}
                         </div>
                     )}
 

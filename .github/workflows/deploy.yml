@@ -12,6 +12,17 @@ permissions:
 
 # Only one deployment at a time; cancel superseded in-progress runs, but let
 # the currently-live deployment finish rather than getting interrupted.
+#
+# Note this only prevents runs from overlapping - it doesn't guarantee they
+# *complete* in the order they were queued. If several commits land in quick
+# succession (e.g. a multi-step edit made through the in-browser editor),
+# each triggers its own run, and those can finish out of order; whichever
+# one finishes last simply overwrites the live site. Checking out `ref`
+# below (the branch tip at the time each run actually executes) rather than
+# the specific commit that triggered it is what makes that harmless: every
+# queued run ends up building the *current* tip, so once no new commits are
+# landing, all of them converge on identical output and "whichever finishes
+# last" stops mattering.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -22,6 +33,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

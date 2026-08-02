@@ -3,7 +3,7 @@
 // syntax-highlighting engine, which should only ever ship inside the lazy
 // PostEditor chunk. Keeping this in its own module stops that from leaking
 // into the main bundle every visitor downloads.
-import { getFileSha, deleteFile, listDirectory } from './github';
+import { getFileSha, listDirectory, commitFiles, type FileChange } from './github';
 
 export function autosaveDraftKey(slug: string): string {
     return `blog_editor_draft_${slug}`;
@@ -19,16 +19,19 @@ export async function deletePost(
     const path = `src/content/posts/${slug}.json`;
     const sha = await getFileSha(token, path);
     if (!sha) throw new Error(`No post found at "${slug}" to delete.`);
-    await deleteFile(token, path, sha, `blog: delete "${title}"`);
 
+    // The JSON and every image are removed together as one commit (see
+    // commitFiles' doc comment) - split across several commits, each would
+    // trigger its own independent deploy, and those can finish out of
+    // order and briefly (or not so briefly) resurrect a "half-deleted" post.
+    const changes: FileChange[] = [{ path, content: null }];
     const imageDir = `public/images/blog/${slug}`;
     const files = await listDirectory(token, imageDir);
-    if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-            onProgress?.(`Removing image ${i + 1} of ${files.length}…`);
-            await deleteFile(token, files[i].path, files[i].sha, `blog: remove image for deleted post "${title}"`);
-        }
+    if (files) {
+        for (const file of files) changes.push({ path: file.path, content: null });
     }
+
+    await commitFiles(token, changes, `blog: delete "${title}"`);
 
     try {
         sessionStorage.removeItem(autosaveDraftKey(slug));

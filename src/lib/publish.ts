@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import { createLowlight, common } from 'lowlight';
 import type { Root as HastRoot, Element as HastElement, Text as HastText } from 'hast';
 import type { Post } from '../types/blog';
-import { toBase64, blobToBase64, getFileSha, getFileContent, putFile, deleteFile, listDirectory, GitHubApiError } from './github';
+import { toBase64, blobToBase64, getFileContent, listDirectory, commitFiles, type FileChange } from './github';
 import { processImage, buildImagePath, buildCoverPath, buildImageDir, publicUrlFor } from './images';
 import { computeReadingTime, deriveExcerpt } from '../data/posts';
 
@@ -37,67 +37,54 @@ export interface PublishInput {
 export interface PublishResult {
     post: Post;
     commitSha: string;
-    /** Set when the post itself published fine but a rename's cleanup step (removing the old JSON/images) didn't fully complete - surfaced to the owner rather than silently leaving orphaned files. */
-    warning?: string;
 }
 
 /**
- * Moves every file under the old slug's image folder to the new slug's
- * folder (download + re-upload, since the Contents API has no rename/move
- * endpoint), returning old-URL -> new-URL pairs so callers can rewrite any
- * already-published <img src> / cover references. Uploads all new copies
- * before deleting any old one, so a failure partway through never leaves a
- * post with zero copies of an image - at worst a harmless duplicate that a
- * retry cleans up (the old folder will already be empty on the next pass).
+ * Reads every file under the old slug's image folder so its content can be
+ * re-staged at the new path in the same commit as everything else - moving
+ * a file has to be an add-at-new-path + delete-at-old-path within one
+ * commit, since the Contents/Git APIs have no rename endpoint. Returns
+ * old-URL -> new-URL pairs so the caller can rewrite any already-published
+ * <img src> / cover references, plus the FileChange entries themselves.
  */
-async function moveImageFolder(
+async function planImageFolderMove(
     token: string,
     oldSlug: string,
     newSlug: string,
     onProgress?: (message: string) => void
-): Promise<{ replacements: Array<[string, string]>; cleanup: () => Promise<void> }> {
+): Promise<{ replacements: Array<[string, string]>; changes: FileChange[] }> {
     const files = await listDirectory(token, buildImageDir(oldSlug));
-    if (!files || files.length === 0) return { replacements: [], cleanup: async () => {} };
+    if (!files || files.length === 0) return { replacements: [], changes: [] };
 
     const replacements: Array<[string, string]> = [];
+    const changes: FileChange[] = [];
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        onProgress?.(`Moving image ${i + 1} of ${files.length} to the new slug…`);
+        onProgress?.(`Reading image ${i + 1} of ${files.length} to move…`);
         const content = await getFileContent(token, file.path);
         if (!content) continue; // vanished between listing and reading - nothing to move
         const newPath = `${buildImageDir(newSlug)}/${file.name}`;
-        await putFile(token, newPath, content.base64Content, `blog: move image for "${newSlug}" (renamed from "${oldSlug}")`);
+        changes.push({ path: newPath, content: content.base64Content });
+        changes.push({ path: file.path, content: null });
         replacements.push([publicUrlFor(file.path), publicUrlFor(newPath)]);
     }
 
-    const cleanup = async () => {
-        for (let i = 0; i < files.length; i++) {
-            onProgress?.(`Removing old image ${i + 1} of ${files.length}…`);
-            // Re-check the sha immediately before deleting rather than reusing
-            // the one from the initial listing - it's the same file, but this
-            // keeps the delete request valid even if something else touched
-            // the folder in between.
-            const sha = await getFileSha(token, files[i].path);
-            if (sha) await deleteFile(token, files[i].path, sha, `blog: remove image after rename to "${newSlug}"`);
-        }
-    };
-
-    return { replacements, cleanup };
+    return { replacements, changes };
 }
 
-async function uploadImage(token: string, slug: string, file: File): Promise<string> {
+async function stageImage(slug: string, file: File): Promise<{ path: string; url: string; base64: string }> {
     const processed = await processImage(file);
     const path = buildImagePath(slug, file.name, processed.ext);
     const base64 = await blobToBase64(processed.blob);
-    await putFile(token, path, base64, `blog: add image for "${slug}"`);
-    return publicUrlFor(path);
+    return { path, url: publicUrlFor(path), base64 };
 }
 
+/** Swaps every blob: <img src> for its final repo-hosted URL, staging each upload's content as a FileChange rather than committing it immediately. */
 async function resolveImages(
-    token: string,
     slug: string,
     html: string,
     pendingImages: Map<string, File>,
+    changes: FileChange[],
     onProgress?: (message: string) => void
 ): Promise<string> {
     if (pendingImages.size === 0) return html;
@@ -114,10 +101,11 @@ async function resolveImages(
         }
         const file = pendingImages.get(src);
         if (!file) continue;
-        onProgress?.(`Uploading image ${resolved.size + 1} of ${pendingImages.size}…`);
-        const url = await uploadImage(token, slug, file);
-        resolved.set(src, url);
-        img.setAttribute('src', url);
+        onProgress?.(`Preparing image ${resolved.size + 1} of ${pendingImages.size}…`);
+        const staged = await stageImage(slug, file);
+        changes.push({ path: staged.path, content: staged.base64 });
+        resolved.set(src, staged.url);
+        img.setAttribute('src', staged.url);
     }
 
     return doc.body.innerHTML;
@@ -197,16 +185,18 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
     if (!title.trim()) throw new Error('A post needs a title before it can be published.');
 
     const isRename = previousSlug !== null && previousSlug !== slug;
+    const changes: FileChange[] = [];
 
     onProgress?.('Preparing content…');
     // New images pasted into the editor this session already upload under
     // the *new* slug (below), so only pre-existing images - the ones a
     // rename actually needs to move - live under the old folder.
     const move = isRename
-        ? await moveImageFolder(token, previousSlug, slug, onProgress)
-        : { replacements: [] as Array<[string, string]>, cleanup: async () => {} };
+        ? await planImageFolderMove(token, previousSlug, slug, onProgress)
+        : { replacements: [] as Array<[string, string]>, changes: [] as FileChange[] };
+    changes.push(...move.changes);
 
-    const htmlWithImages = await resolveImages(token, slug, rawHtml, pendingImages, onProgress);
+    const htmlWithImages = await resolveImages(slug, rawHtml, pendingImages, changes, onProgress);
     const htmlWithHighlighting = highlightCodeBlocks(htmlWithImages);
     const sanitized = DOMPurify.sanitize(htmlWithHighlighting, PURIFY_CONFIG);
     let cleanHtml = wrapTables(sanitized);
@@ -220,17 +210,11 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
     }
 
     if (coverFile) {
-        onProgress?.('Uploading cover image…');
+        onProgress?.('Preparing cover image…');
         const processed = await processImage(coverFile);
         const path = buildCoverPath(slug, processed.ext);
         const base64 = await blobToBase64(processed.blob);
-        let coverSha: string | null = null;
-        try {
-            coverSha = await getFileSha(token, path);
-        } catch (err) {
-            if (!(err instanceof GitHubApiError && err.status === 404)) throw err;
-        }
-        await putFile(token, path, base64, `blog: cover image for "${title}"`, coverSha);
+        changes.push({ path, content: base64 });
         cover = publicUrlFor(path);
     }
 
@@ -253,38 +237,16 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
         part: category ? part : null,
     };
 
-    const path = `src/content/posts/${slug}.json`;
-    onProgress?.('Publishing…');
-
-    let sha: string | null = null;
-    try {
-        sha = await getFileSha(token, path);
-    } catch (err) {
-        if (!(err instanceof GitHubApiError && err.status === 404)) throw err;
-    }
-
-    const message = sha ? `blog: update "${post.title}"` : `blog: publish "${post.title}"`;
-    const result = await putFile(token, path, toBase64(JSON.stringify(post, null, 4) + '\n'), message, sha);
-
-    // Only remove the old copies once the new post JSON is safely committed
-    // - if publishing the new JSON had thrown above, the old file and its
-    // images are left completely untouched, so a failed rename can never
-    // lose the post. A failure here, after the new copy already exists, is
-    // reported as a warning rather than an error: the publish itself
-    // succeeded, there's just a leftover to clean up by hand.
-    let warning: string | undefined;
+    changes.push({ path: `src/content/posts/${slug}.json`, content: toBase64(JSON.stringify(post, null, 4) + '\n') });
     if (isRename && previousSlug) {
-        onProgress?.('Cleaning up the old slug…');
-        try {
-            await move.cleanup();
-            const oldPostPath = `src/content/posts/${previousSlug}.json`;
-            const oldSha = await getFileSha(token, oldPostPath);
-            if (oldSha) await deleteFile(token, oldPostPath, oldSha, `blog: remove old file after renaming "${post.title}"`);
-        } catch (err) {
-            const detail = err instanceof GitHubApiError ? err.message : err instanceof Error ? err.message : String(err);
-            warning = `Published, but couldn't fully clean up the old slug "${previousSlug}" - please remove src/content/posts/${previousSlug}.json and any leftover files under public/images/blog/${previousSlug}/ manually. (${detail})`;
-        }
+        changes.push({ path: `src/content/posts/${previousSlug}.json`, content: null });
     }
 
-    return { post, commitSha: result.commitSha, warning };
+    onProgress?.('Publishing…');
+    const message = previousSlug
+        ? (isRename ? `blog: rename "${post.title}"` : `blog: update "${post.title}"`)
+        : `blog: publish "${post.title}"`;
+    const result = await commitFiles(token, changes, message);
+
+    return { post, commitSha: result.commitSha };
 }

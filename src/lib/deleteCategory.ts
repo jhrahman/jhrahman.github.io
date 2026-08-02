@@ -1,4 +1,4 @@
-import { getFileSha, deleteFile, listDirectory } from './github';
+import { getFileSha, listDirectory, commitFiles, type FileChange } from './github';
 import { partsOf } from '../data/categories';
 
 /**
@@ -26,14 +26,16 @@ export async function deleteCategory(
     const path = `src/content/categories/${slug}.json`;
     const sha = await getFileSha(token, path);
     if (!sha) throw new Error(`No category found at "${slug}" to delete.`);
-    await deleteFile(token, path, sha, `blog: delete category "${title}"`);
 
+    // The JSON and its cover are removed together as one commit (see
+    // commitFiles' doc comment) rather than as separate commits, each of
+    // which would trigger its own independent deploy.
+    const changes: FileChange[] = [{ path, content: null }];
     const coverDir = `public/images/blog/categories/${slug}`;
     const files = await listDirectory(token, coverDir);
-    if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-            onProgress?.(`Removing image ${i + 1} of ${files.length}…`);
-            await deleteFile(token, files[i].path, files[i].sha, `blog: remove cover for deleted category "${title}"`);
-        }
+    if (files) {
+        for (const file of files) changes.push({ path: file.path, content: null });
     }
+
+    await commitFiles(token, changes, `blog: delete category "${title}"`);
 }

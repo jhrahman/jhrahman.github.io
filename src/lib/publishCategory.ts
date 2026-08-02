@@ -3,7 +3,7 @@
 // rather than pulling the syntax-highlighting engine into every route that
 // touches categories.
 import type { Category } from '../types/blog';
-import { toBase64, blobToBase64, getFileSha, getFileContent, putFile, deleteFile, listDirectory, GitHubApiError } from './github';
+import { toBase64, blobToBase64, getFileContent, listDirectory, commitFiles, type FileChange } from './github';
 import { processImage, buildCategoryCoverPath, buildCategoryImageDir, publicUrlFor } from './images';
 
 export interface PublishCategoryInput {
@@ -23,36 +23,29 @@ export interface PublishCategoryInput {
 export interface PublishCategoryResult {
     category: Category;
     commitSha: string;
-    /** Set when the category itself saved fine but a rename's cleanup step didn't fully complete. */
-    warning?: string;
 }
 
-/** Moves the category's cover folder to a new slug, same move-before-delete safety as publish.ts's moveImageFolder. */
-async function moveCategoryFolder(
+/** Reads the category's cover folder so it can be re-staged at the new slug's path within the same commit - a move has to be an add-at-new-path + delete-at-old-path together, not two separate commits (see commitFiles' doc comment for why). */
+async function planCategoryFolderMove(
     token: string,
     oldSlug: string,
     newSlug: string
-): Promise<{ replacedCover: string | null; cleanup: () => Promise<void> }> {
+): Promise<{ replacedCover: string | null; changes: FileChange[] }> {
     const files = await listDirectory(token, buildCategoryImageDir(oldSlug));
-    if (!files || files.length === 0) return { replacedCover: null, cleanup: async () => {} };
+    if (!files || files.length === 0) return { replacedCover: null, changes: [] };
 
     let replacedCover: string | null = null;
+    const changes: FileChange[] = [];
     for (const file of files) {
         const content = await getFileContent(token, file.path);
         if (!content) continue;
         const newPath = `${buildCategoryImageDir(newSlug)}/${file.name}`;
-        await putFile(token, newPath, content.base64Content, `blog: move cover for category "${newSlug}" (renamed from "${oldSlug}")`);
+        changes.push({ path: newPath, content: content.base64Content });
+        changes.push({ path: file.path, content: null });
         replacedCover = publicUrlFor(newPath);
     }
 
-    const cleanup = async () => {
-        for (const file of files) {
-            const sha = await getFileSha(token, file.path);
-            if (sha) await deleteFile(token, file.path, sha, `blog: remove cover after renaming category to "${newSlug}"`);
-        }
-    };
-
-    return { replacedCover, cleanup };
+    return { replacedCover, changes };
 }
 
 export async function publishCategory(input: PublishCategoryInput): Promise<PublishCategoryResult> {
@@ -62,26 +55,20 @@ export async function publishCategory(input: PublishCategoryInput): Promise<Publ
     if (!title.trim()) throw new Error('A category needs a title before it can be saved.');
 
     const isRename = previousSlug !== null && previousSlug !== slug;
+    const changes: FileChange[] = [];
 
     let cover = existingCover;
-    let cleanupOldFolder: (() => Promise<void>) | null = null;
     if (isRename && previousSlug) {
-        const move = await moveCategoryFolder(token, previousSlug, slug);
+        const move = await planCategoryFolderMove(token, previousSlug, slug);
         if (move.replacedCover && cover === existingCover) cover = move.replacedCover;
-        cleanupOldFolder = move.cleanup;
+        changes.push(...move.changes);
     }
 
     if (coverFile) {
         const processed = await processImage(coverFile);
         const path = buildCategoryCoverPath(slug, processed.ext);
         const base64 = await blobToBase64(processed.blob);
-        let coverSha: string | null = null;
-        try {
-            coverSha = await getFileSha(token, path);
-        } catch (err) {
-            if (!(err instanceof GitHubApiError && err.status === 404)) throw err;
-        }
-        await putFile(token, path, base64, `blog: cover image for category "${title}"`, coverSha);
+        changes.push({ path, content: base64 });
         cover = publicUrlFor(path);
     }
 
@@ -97,32 +84,15 @@ export async function publishCategory(input: PublishCategoryInput): Promise<Publ
         updated: existingDate ? now : null,
     };
 
-    const path = `src/content/categories/${slug}.json`;
-
-    let sha: string | null = null;
-    try {
-        sha = await getFileSha(token, path);
-    } catch (err) {
-        if (!(err instanceof GitHubApiError && err.status === 404)) throw err;
-    }
-
-    const message = sha ? `blog: update category "${category.title}"` : `blog: add category "${category.title}"`;
-    const result = await putFile(token, path, toBase64(JSON.stringify(category, null, 4) + '\n'), message, sha);
-
-    // As with posts: only remove the old copies once the new category JSON
-    // is safely committed, so a failed rename can never lose the category.
-    let warning: string | undefined;
+    changes.push({ path: `src/content/categories/${slug}.json`, content: toBase64(JSON.stringify(category, null, 4) + '\n') });
     if (isRename && previousSlug) {
-        try {
-            if (cleanupOldFolder) await cleanupOldFolder();
-            const oldPath = `src/content/categories/${previousSlug}.json`;
-            const oldSha = await getFileSha(token, oldPath);
-            if (oldSha) await deleteFile(token, oldPath, oldSha, `blog: remove old file after renaming category "${category.title}"`);
-        } catch (err) {
-            const detail = err instanceof GitHubApiError ? err.message : err instanceof Error ? err.message : String(err);
-            warning = `Saved, but couldn't fully clean up the old slug "${previousSlug}" - please remove src/content/categories/${previousSlug}.json and any leftover files under public/images/blog/categories/${previousSlug}/ manually. (${detail})`;
-        }
+        changes.push({ path: `src/content/categories/${previousSlug}.json`, content: null });
     }
 
-    return { category, commitSha: result.commitSha, warning };
+    const message = previousSlug
+        ? (isRename ? `blog: rename category "${category.title}"` : `blog: update category "${category.title}"`)
+        : `blog: add category "${category.title}"`;
+    const result = await commitFiles(token, changes, message);
+
+    return { category, commitSha: result.commitSha };
 }

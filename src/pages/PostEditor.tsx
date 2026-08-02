@@ -38,7 +38,7 @@ interface DraftShape {
 type PublishState =
     | { phase: 'idle' }
     | { phase: 'working'; message: string }
-    | { phase: 'success'; commitSha: string; id: number; warning?: string }
+    | { phase: 'success'; commitSha: string; id: number }
     | { phase: 'error'; message: string; fallback: DraftShape };
 
 const PostEditor = () => {
@@ -229,7 +229,7 @@ const PostEditor = () => {
                 onProgress: (message) => setPublishState({ phase: 'working', message }),
             });
             sessionStorage.removeItem(autosaveKey);
-            setPublishState({ phase: 'success', commitSha: result.commitSha, id: result.post.id, warning: result.warning });
+            setPublishState({ phase: 'success', commitSha: result.commitSha, id: result.post.id });
         } catch (err) {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
@@ -418,11 +418,6 @@ const PostEditor = () => {
                                     Watch the deploy →
                                 </a>
                                 <Link to={`/blog/${publishState.id}`}>View post →</Link>
-                                {publishState.warning && (
-                                    <p className="editor-result-warning">
-                                        <i className="fas fa-triangle-exclamation"></i> {publishState.warning}
-                                    </p>
-                                )}
                             </div>
                         )}
 

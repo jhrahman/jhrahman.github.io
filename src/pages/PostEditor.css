@@ -329,14 +329,6 @@
     color: #f4511e;
 }
 
-.editor-result-warning {
-    color: #f4511e;
-    font-size: 0.8rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-}
-
 .editor-result a {
     color: inherit;
     font-weight: 600;
