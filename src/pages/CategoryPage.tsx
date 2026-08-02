@@ -41,33 +41,45 @@ const CategoryPage = () => {
                     <i className="fas fa-arrow-left"></i> Back to Blog
                 </Link>
 
-                <header className="category-hero glass-effect">
-                    <div
-                        className="category-hero-cover"
-                        style={cover ? { backgroundImage: `url(${cover})` } : undefined}
-                    >
-                        {cover && <img src={cover} alt="" />}
-                    </div>
-                    <div className="category-hero-content">
-                        <span className="category-hero-badge">
-                            <i className="fas fa-layer-group" aria-hidden="true"></i> Series
-                        </span>
-                        <h1 className="category-hero-title gradient-text">{category.title}</h1>
-                        <p className="category-hero-description">{category.description}</p>
-                        <div className="post-card-meta">
-                            <span>{stats.parts} part{stats.parts === 1 ? '' : 's'}</span>
-                            <span aria-hidden="true">·</span>
-                            <span>~{stats.totalReadingTime} min total</span>
+                {/* Reuses the .post-hero split layout from Blog.css (image and
+                    text in separate columns, not one overlaid on the other) -
+                    text-over-photo looked good for a solid-colored blur but
+                    broke down against a busy/light real cover image. */}
+                <header className="post-hero category-hero glass-effect">
+                    <div className="post-hero-link category-hero-link">
+                        <div
+                            className="post-hero-cover"
+                            style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+                        >
+                            {cover ? (
+                                <img src={cover} alt="" />
+                            ) : (
+                                <div className="post-hero-cover-placeholder" aria-hidden="true">
+                                    <i className="fas fa-layer-group"></i>
+                                </div>
+                            )}
                         </div>
-                        {isOwner && (
-                            <button
-                                type="button"
-                                className="edit-category-btn"
-                                onClick={() => navigate(`/blog/categories?edit=${category.id}`)}
-                            >
-                                <i className="fas fa-pen"></i> Edit category
-                            </button>
-                        )}
+                        <div className="post-hero-content">
+                            <span className="post-hero-badge">
+                                <i className="fas fa-layer-group" aria-hidden="true"></i> Series
+                            </span>
+                            <h1 className="post-hero-title gradient-text">{category.title}</h1>
+                            <p className="post-hero-excerpt">{category.description}</p>
+                            <div className="post-card-meta">
+                                <span>{stats.parts} part{stats.parts === 1 ? '' : 's'}</span>
+                                <span aria-hidden="true">·</span>
+                                <span>~{stats.totalReadingTime} min total</span>
+                            </div>
+                            {isOwner && (
+                                <button
+                                    type="button"
+                                    className="edit-category-btn"
+                                    onClick={() => navigate(`/blog/categories?edit=${category.id}`)}
+                                >
+                                    <i className="fas fa-pen"></i> Edit category
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </header>
 
