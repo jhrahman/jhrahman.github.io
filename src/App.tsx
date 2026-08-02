@@ -33,16 +33,6 @@ const getInitialTheme = (): 'dark' | 'light' =>
 const getInitialAccent = (): AccentColor =>
     (safeGetItem('accentColor') as AccentColor) || 'petrol-navy';
 
-function ScrollToTop() {
-    const { pathname } = useLocation();
-
-    useEffect(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
-    }, [pathname]);
-
-    return null;
-}
-
 function AppContent() {
     const location = useLocation();
     const [theme, setTheme] = useState<'dark' | 'light'>(getInitialTheme);
@@ -74,9 +64,19 @@ function AppContent() {
             <Navbar
                 onInfoClick={() => setShowInfoModal(true)}
             />
-            <ScrollToTop />
             <main id="main-content">
-                <AnimatePresence mode="wait">
+                {/* Resets scroll only once the outgoing page has fully faded
+                    out (mode="wait" + onExitComplete), not the instant the
+                    route changes - React Router updates `location`
+                    synchronously on navigation, well before the exit
+                    animation finishes, so scrolling on that event snapped
+                    the *still-visible outgoing* page to its own top before
+                    the destination page ever appeared. Firing here instead
+                    means the jump happens while nothing is on screen. */}
+                <AnimatePresence
+                    mode="wait"
+                    onExitComplete={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })}
+                >
                     {/* Suspense is scoped to each lazy route's element (not wrapped
                         around <Routes>) so it doesn't sit between AnimatePresence
                         and its keyed child - that would break the exit animation. */}
