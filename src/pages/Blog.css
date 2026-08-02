@@ -123,6 +123,8 @@
 .post-hero-badge {
     display: inline-flex;
     align-self: flex-start;
+    align-items: center;
+    gap: 0.4rem;
     padding: 0.3rem 0.75rem;
     border-radius: 999px;
     background: rgba(var(--accent-primary-rgb), 0.14);
