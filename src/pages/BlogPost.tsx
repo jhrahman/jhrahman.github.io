@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
 import { getPostById, getAdjacentPosts } from '../data/posts';
-import { getCategory, partsOf, getSeriesAdjacent } from '../data/categories';
+import { getCategoryById, partsOf, getSeriesAdjacent } from '../data/categories';
 import { useAuth } from '../lib/auth';
 import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
@@ -149,8 +149,8 @@ const BlogPost = () => {
 
     if (!post) return <NotFound />;
 
-    const category = post.category ? getCategory(post.category) : undefined;
-    const seriesParts = category ? partsOf(category.slug, isOwner) : [];
+    const category = post.category != null ? getCategoryById(post.category) : undefined;
+    const seriesParts = category ? partsOf(category.id, isOwner) : [];
     const seriesIndex = category ? seriesParts.findIndex((p) => p.slug === post.slug) : -1;
     const isLastInSeries = category && seriesIndex !== -1 && seriesIndex === seriesParts.length - 1;
 
@@ -233,7 +233,7 @@ const BlogPost = () => {
                 <header className="post-header">
                     {post.draft && <span className="draft-badge post-header-draft">Draft</span>}
                     {category && (
-                        <Link to={`/blog/category/${category.slug}`} className="post-category-pill">
+                        <Link to={`/blog/category/${category.id}`} className="post-category-pill">
                             <i className="fas fa-layer-group" aria-hidden="true"></i>
                             {category.title}
                             {seriesIndex !== -1 && <span> · Part {post.part ?? seriesIndex + 1} of {seriesParts.length}</span>}
@@ -254,7 +254,7 @@ const BlogPost = () => {
                     )}
                     {isOwner && (
                         <div className="post-owner-actions">
-                            <button className="edit-post-btn" onClick={() => navigate(`/blog/edit/${post.slug}`)}>
+                            <button className="edit-post-btn" onClick={() => navigate(`/blog/edit/${post.id}`)}>
                                 <i className="fas fa-pen"></i> Edit post
                             </button>
                             <button className="delete-post-btn" onClick={handleDelete} disabled={deleting}>
@@ -322,14 +322,14 @@ const BlogPost = () => {
                 )}
 
                 {category && isLastInSeries && (
-                    <Link to={`/blog/category/${category.slug}`} className="series-complete-card glass-effect">
+                    <Link to={`/blog/category/${category.id}`} className="series-complete-card glass-effect">
                         <i className="fas fa-flag-checkered" aria-hidden="true"></i>
                         <span>You've finished <strong>{category.title}</strong> — revisit the full series</span>
                         <i className="fas fa-arrow-right" aria-hidden="true"></i>
                     </Link>
                 )}
 
-                <Comments slug={post.slug} theme={theme} />
+                <Comments id={post.id} theme={theme} />
             </div>
 
             {lightboxSrc && (

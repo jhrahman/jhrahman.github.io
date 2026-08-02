@@ -20,7 +20,7 @@ export function buildFeed(visiblePosts: Post[], includeDrafts = false): FeedEntr
 
     const categoryEntries: FeedEntry[] = categories
         .map((category) => {
-            const stats = categoryStats(category.slug, includeDrafts);
+            const stats = categoryStats(category.id, includeDrafts);
             // A category with zero visible parts (e.g. every part is still a
             // draft and the viewer isn't the owner) has nothing to show.
             if (stats.parts === 0) return null;
@@ -40,5 +40,5 @@ export function pickFeaturedEntries(entries: FeedEntry[]): FeedEntry[] {
 }
 
 export function entryKey(entry: FeedEntry): string {
-    return entry.kind === 'post' ? `post-${entry.post.slug}` : `category-${entry.category.slug}`;
+    return entry.kind === 'post' ? `post-${entry.post.slug}` : `category-${entry.category.id}`;
 }

@@ -19,7 +19,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
 import { useAuth } from '../lib/auth';
-import { getPost, slugify, allTags, nextPostId } from '../data/posts';
+import { getPost, getPostById, slugify, allTags, nextPostId } from '../data/posts';
 import { categories, nextPartNumber } from '../data/categories';
 import { publishPost } from '../lib/publish';
 import { deletePost } from '../lib/deletePost';
@@ -32,34 +32,42 @@ const AUTOSAVE_KEY_PREFIX = 'blog_editor_draft_';
 
 interface DraftShape {
     title: string; excerpt: string; tags: string[]; featured: boolean; draft: boolean; html: string; slug: string;
-    category: string | null; part: number | null;
+    category: number | null; part: number | null;
 }
 
 type PublishState =
     | { phase: 'idle' }
     | { phase: 'working'; message: string }
-    | { phase: 'success'; commitSha: string; id: number }
+    | { phase: 'success'; commitSha: string; id: number; warning?: string }
     | { phase: 'error'; message: string; fallback: DraftShape };
 
 const PostEditor = () => {
-    const { slug: routeSlug } = useParams<{ slug: string }>();
+    // Identified by the post's stable numeric id, not its slug - the slug
+    // is now a live, renamable field (see the Slug input below), so
+    // anything used to *find* the post being edited has to survive that
+    // field changing out from under it.
+    const { id: routeId } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { isOwner, getToken } = useAuth();
-    const isEditing = Boolean(routeSlug);
-    const existingPost = isEditing ? getPost(routeSlug!, true) : undefined;
+    const isEditing = Boolean(routeId);
+    const numericRouteId = routeId ? Number(routeId) : null;
+    const existingPost = isEditing && numericRouteId !== null ? getPostById(numericRouteId, true) : undefined;
 
-    const autosaveKey = AUTOSAVE_KEY_PREFIX + (routeSlug ?? 'new');
+    const autosaveKey = AUTOSAVE_KEY_PREFIX + (numericRouteId ?? 'new');
     const pendingImages = useRef<Map<string, File>>(new Map());
 
     const [title, setTitle] = useState(existingPost?.title ?? '');
     const [slug, setSlug] = useState(existingPost?.slug ?? '');
-    const [slugTouched, setSlugTouched] = useState(isEditing);
+    // Always starts un-touched, for new posts *and* edits alike, so the
+    // slug auto-follows the title live in both cases - typing directly
+    // into the Slug field below still flips this and takes over.
+    const [slugTouched, setSlugTouched] = useState(false);
     const [excerpt, setExcerpt] = useState(existingPost?.excerpt ?? '');
     const [tags, setTags] = useState<string[]>(existingPost?.tags ?? []);
     const [tagInput, setTagInput] = useState('');
     const [featured, setFeatured] = useState(existingPost?.featured ?? false);
     const [draft, setDraft] = useState(existingPost?.draft ?? true);
-    const [category, setCategory] = useState<string | null>(existingPost?.category ?? null);
+    const [category, setCategory] = useState<number | null>(existingPost?.category ?? null);
     const [part, setPart] = useState<number | null>(existingPost?.part ?? null);
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(existingPost?.cover ?? null);
@@ -95,7 +103,7 @@ const PostEditor = () => {
         if (!isOwner) navigate('/blog', { replace: true });
     }, [isOwner, navigate]);
 
-    // Editing a slug that doesn't exist.
+    // Editing an id that doesn't exist (or isn't numeric).
     useEffect(() => {
         if (isEditing && isOwner && !existingPost) navigate('/blog', { replace: true });
     }, [isEditing, isOwner, existingPost, navigate]);
@@ -146,10 +154,14 @@ const PostEditor = () => {
         if (!slugTouched) setSlug(slugify(title));
     }, [title, slugTouched]);
 
+    // A collision is any *other* post already sitting at this slug - not
+    // the post being edited itself, which naturally still occupies its own
+    // current slug until the rename actually goes through.
     const slugCollision = useMemo(() => {
-        if (isEditing) return false;
-        return Boolean(getPost(slug, true));
-    }, [slug, isEditing]);
+        const match = getPost(slug, true);
+        if (!match) return false;
+        return match.id !== existingPost?.id;
+    }, [slug, existingPost]);
 
     const handleInsertImage = (file: File) => {
         if (!editor) return;
@@ -201,6 +213,7 @@ const PostEditor = () => {
                 token,
                 id: existingPost?.id ?? nextPostId(),
                 slug,
+                previousSlug: existingPost?.slug ?? null,
                 title,
                 excerpt,
                 tags,
@@ -216,7 +229,7 @@ const PostEditor = () => {
                 onProgress: (message) => setPublishState({ phase: 'working', message }),
             });
             sessionStorage.removeItem(autosaveKey);
-            setPublishState({ phase: 'success', commitSha: result.commitSha, id: result.post.id });
+            setPublishState({ phase: 'success', commitSha: result.commitSha, id: result.post.id, warning: result.warning });
         } catch (err) {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
@@ -293,9 +306,13 @@ const PostEditor = () => {
                                 <input
                                     value={slug}
                                     onChange={(e) => { setSlug(slugify(e.target.value)); setSlugTouched(true); }}
-                                    disabled={isEditing}
                                 />
                                 {slugCollision && <span className="editor-field-error">A post with this slug already exists.</span>}
+                                {isEditing && slug !== existingPost?.slug && (
+                                    <span className="editor-field-hint">
+                                        Renaming from "{existingPost?.slug}" - the post's file and images move automatically on save.
+                                    </span>
+                                )}
                             </label>
 
                             <label className="editor-field">
@@ -338,16 +355,16 @@ const PostEditor = () => {
                                 <select
                                     value={category ?? ''}
                                     onChange={(e) => {
-                                        const next = e.target.value || null;
+                                        const next = e.target.value ? Number(e.target.value) : null;
                                         setCategory(next);
                                         // Prefill the next free slot in that series; the
                                         // owner can still override it below.
-                                        setPart(next ? nextPartNumber(next) : null);
+                                        setPart(next !== null ? nextPartNumber(next) : null);
                                     }}
                                 >
                                     <option value="">None</option>
                                     {categories.map((c) => (
-                                        <option key={c.slug} value={c.slug}>{c.title}</option>
+                                        <option key={c.id} value={c.id}>{c.title}</option>
                                     ))}
                                 </select>
                                 <Link to="/blog/categories" className="manage-categories-link">Manage categories →</Link>
@@ -401,6 +418,11 @@ const PostEditor = () => {
                                     Watch the deploy →
                                 </a>
                                 <Link to={`/blog/${publishState.id}`}>View post →</Link>
+                                {publishState.warning && (
+                                    <p className="editor-result-warning">
+                                        <i className="fas fa-triangle-exclamation"></i> {publishState.warning}
+                                    </p>
+                                )}
                             </div>
                         )}
 

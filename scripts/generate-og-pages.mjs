@@ -135,7 +135,8 @@ for (const post of allPosts) {
 }
 
 // 5. Per-category ("series") shells, same treatment as posts but keyed on
-// slug and with og:type "website" instead of "article" - a series is a
+// the category's stable id (its public URL, like a post's) rather than its
+// slug, and with og:type "website" instead of "article" - a series is a
 // collection, not a single piece of writing.
 let categoryCount = 0;
 if (existsSync(CATEGORIES_DIR)) {
@@ -147,7 +148,7 @@ if (existsSync(CATEGORIES_DIR)) {
         // in part order, mirroring src/data/categories.ts so the OG shell
         // agrees with what the client app actually renders.
         const parts = allPosts
-            .filter((p) => !p.draft && p.category === category.slug)
+            .filter((p) => !p.draft && p.category === category.id)
             .sort((a, b) => {
                 if (a.part != null && b.part != null) return a.part - b.part;
                 if (a.part != null) return -1;
@@ -158,8 +159,13 @@ if (existsSync(CATEGORIES_DIR)) {
 
         const title = escapeHtml(`${category.title} — Jahidur Rahman`);
         const description = escapeHtml(category.description || `A ${parts.length}-part series.`);
-        const canonical = `${SITE_ORIGIN}/blog/category/${category.slug}`;
+        const canonical = `${SITE_ORIGIN}/blog/category/${category.id}`;
 
+        // The cover image itself is still read from/written to the current
+        // slug's folder - that's just where the file happens to live right
+        // now (kept in sync by the rename migration in publishCategory.ts),
+        // not a persisted reference, so it's fine for this build-time-only
+        // cache to use it.
         const coverSource = category.cover || parts[0].cover;
         let image = DEFAULT_IMAGE;
         if (coverSource) {
@@ -175,7 +181,7 @@ if (existsSync(CATEGORIES_DIR)) {
         const html = withPostMeta(template, { title, description, image, canonical })
             .replace('<meta property="og:type" content="article" />', '<meta property="og:type" content="website" />');
 
-        const dir = join(DIST_DIR, 'blog', 'category', category.slug);
+        const dir = join(DIST_DIR, 'blog', 'category', String(category.id));
         mkdirSync(dir, { recursive: true });
         writeFileSync(join(dir, 'index.html'), html);
         categoryCount++;

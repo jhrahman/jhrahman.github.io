@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import './CategoryDropdown.css';
 
 export interface CategoryOption {
-    slug: string;
+    id: string; // stringified Category.id - URL search params (the caller's source of truth) are always strings
     title: string;
     count: number;
 }
@@ -10,7 +10,7 @@ export interface CategoryOption {
 interface CategoryDropdownProps {
     options: CategoryOption[];
     value: string | null;
-    onChange: (slug: string | null) => void;
+    onChange: (id: string | null) => void;
 }
 
 /**
@@ -30,8 +30,8 @@ const CategoryDropdown = ({ options, value, onChange }: CategoryDropdownProps) =
     const listRef = useRef<HTMLUListElement | null>(null);
 
     const rows: (CategoryOption | null)[] = [null, ...options]; // null = "All categories"
-    const selectedIndex = value ? options.findIndex((o) => o.slug === value) + 1 : 0;
-    const selected = value ? options.find((o) => o.slug === value) : null;
+    const selectedIndex = value ? options.findIndex((o) => o.id === value) + 1 : 0;
+    const selected = value ? options.find((o) => o.id === value) : null;
 
     useEffect(() => {
         if (!open) return;
@@ -55,7 +55,7 @@ const CategoryDropdown = ({ options, value, onChange }: CategoryDropdownProps) =
     }, [open, activeIndex]);
 
     const commit = (row: CategoryOption | null) => {
-        onChange(row?.slug ?? null);
+        onChange(row?.id ?? null);
         setOpen(false);
         triggerRef.current?.focus();
     };
@@ -133,7 +133,7 @@ const CategoryDropdown = ({ options, value, onChange }: CategoryDropdownProps) =
                 >
                     {rows.map((row, i) => (
                         <li
-                            key={row?.slug ?? 'all'}
+                            key={row?.id ?? 'all'}
                             data-index={i}
                             role="option"
                             aria-selected={i === selectedIndex}

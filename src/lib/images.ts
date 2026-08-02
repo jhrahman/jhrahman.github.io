@@ -72,19 +72,29 @@ export function safeFileSlug(name: string): string {
         .slice(0, 40) || 'image';
 }
 
+/** The directory a post's images live in - shared by buildImagePath/buildCoverPath and by the slug-rename migration, which needs to list/move the whole folder. */
+export function buildImageDir(postSlug: string): string {
+    return `public/images/blog/${postSlug}`;
+}
+
 export function buildImagePath(postSlug: string, originalName: string, ext: string): string {
     const stamp = Date.now();
-    return `public/images/blog/${postSlug}/${stamp}-${safeFileSlug(originalName)}.${ext}`;
+    return `${buildImageDir(postSlug)}/${stamp}-${safeFileSlug(originalName)}.${ext}`;
 }
 
 /** Cover images get a stable, un-timestamped filename so re-publishing overwrites in place. */
 export function buildCoverPath(postSlug: string, ext: string): string {
-    return `public/images/blog/${postSlug}/cover.${ext}`;
+    return `${buildImageDir(postSlug)}/cover.${ext}`;
+}
+
+/** Same convention as buildImageDir, namespaced under categories/ so slugs can't collide with post slugs. */
+export function buildCategoryImageDir(categorySlug: string): string {
+    return `public/images/blog/categories/${categorySlug}`;
 }
 
 /** Same convention as buildCoverPath, namespaced under categories/ so slugs can't collide with post slugs. */
 export function buildCategoryCoverPath(categorySlug: string, ext: string): string {
-    return `public/images/blog/categories/${categorySlug}/cover.${ext}`;
+    return `${buildCategoryImageDir(categorySlug)}/cover.${ext}`;
 }
 
 export function publicUrlFor(repoPath: string): string {

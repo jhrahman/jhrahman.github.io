@@ -11,12 +11,13 @@ export interface Post {
     featured: boolean; // pins to the hero slot on the Blog list page
     draft: boolean; // hidden from visitors, visible to the signed-in owner
     html: string; // sanitized TipTap output
-    category: string | null; // Category.slug this post belongs to; null = standalone post
+    category: number | null; // Category.id this post belongs to; null = standalone post. A stable numeric FK (not the slug) so renaming a category can never orphan its parts.
     part: number | null; // 1-based position within the category; null when uncategorised
 }
 
 export interface Category {
-    slug: string; // URL segment, e.g. "playwright-series"
+    id: number; // stable, assigned once at creation - used for the public URL and as the FK from Post.category
+    slug: string; // URL segment, e.g. "playwright-series" - a renamable display attribute, not an identifier
     title: string; // display name, e.g. "Playwright with TypeScript"
     description: string; // blurb shown on the card and the category hero
     cover: string | null;

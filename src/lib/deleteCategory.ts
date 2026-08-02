@@ -10,11 +10,12 @@ import { partsOf } from '../data/categories';
  */
 export async function deleteCategory(
     token: string,
+    id: number,
     slug: string,
     title: string,
     onProgress?: (message: string) => void
 ): Promise<void> {
-    const parts = partsOf(slug, true);
+    const parts = partsOf(id, true);
     if (parts.length > 0) {
         throw new Error(
             `"${title}" still has ${parts.length} post${parts.length === 1 ? '' : 's'} assigned to it. Unassign or delete ${parts.length === 1 ? 'it' : 'them'} first.`

@@ -166,6 +166,12 @@
     font-size: 0.78rem;
 }
 
+.editor-field-hint {
+    color: var(--accent-primary);
+    font-weight: 500;
+    font-size: 0.78rem;
+}
+
 .editor-tag-input-row {
     display: flex;
     gap: 0.5rem;
@@ -321,6 +327,14 @@
 .editor-result.error {
     background: rgba(244, 81, 30, 0.1);
     color: #f4511e;
+}
+
+.editor-result-warning {
+    color: #f4511e;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
 }
 
 .editor-result a {

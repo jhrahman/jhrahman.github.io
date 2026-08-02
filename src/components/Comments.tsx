@@ -10,11 +10,11 @@ import './Comments.css';
 const COMMENTBOX_PROJECT_ID = '5720489884385280-proj';
 
 interface CommentsProps {
-    slug: string;
+    id: number;
     theme: 'dark' | 'light';
 }
 
-const Comments = ({ slug, theme }: CommentsProps) => {
+const Comments = ({ id, theme }: CommentsProps) => {
     // theme is in the dep array so the widget re-initializes on dark/light
     // toggle - CommentBox takes literal color strings, not CSS vars, so it
     // can't react to a `data-theme` attribute change on its own.
@@ -22,18 +22,20 @@ const Comments = ({ slug, theme }: CommentsProps) => {
         const css = getComputedStyle(document.documentElement);
         const removeCommentBox = commentBox(COMMENTBOX_PROJECT_ID, {
             className: 'commentbox',
-            defaultBoxId: `commentbox-${slug}`,
-            // Keyed on the post's stable slug rather than the page location,
-            // matching the giscus `term` this replaces, so a thread survives
-            // any future change to the URL scheme.
-            createBoxUrl: () => `${window.location.origin}/blog/${slug}`,
+            defaultBoxId: `commentbox-${id}`,
+            // Keyed on the post's stable numeric id - the one thing about a
+            // post that's guaranteed to never change - rather than its slug
+            // or the page location, so a comment thread can never be
+            // orphaned by a title/slug rename. This also happens to be the
+            // real canonical post URL (/blog/:id), unlike slug ever was.
+            createBoxUrl: () => `${window.location.origin}/blog/${id}`,
             sortOrder: 'newest',
             backgroundColor: css.getPropertyValue('--bg-secondary').trim() || null,
             textColor: css.getPropertyValue('--text-primary').trim() || null,
             subtextColor: css.getPropertyValue('--text-secondary').trim() || null,
         });
         return removeCommentBox;
-    }, [slug, theme]);
+    }, [id, theme]);
 
     return (
         <section className="comments-section" aria-label="Comments">

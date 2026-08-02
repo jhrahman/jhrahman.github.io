@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { posts, allPostsIncludingDrafts, allTags } from '../data/posts';
-import { partsOf, categories, categoryStats, getCategory } from '../data/categories';
+import { partsOf, categories, categoryStats, getCategoryById } from '../data/categories';
 import { buildFeed, pickFeaturedEntries, entryKey, type FeedEntry } from '../data/blogFeed';
 import { useAuth } from '../lib/auth';
 import { useBlogFilters } from '../hooks/useBlogFilters';
@@ -89,12 +89,15 @@ const Blog = () => {
 
     const categoryOptions = useMemo(
         () => categories
-            .map((c) => ({ slug: c.slug, title: c.title, count: categoryStats(c.slug, isOwner).parts }))
+            // CategoryDropdown/URL params deal in strings, so the id is
+            // stringified at this boundary - it's still the numeric id
+            // underneath, not the slug.
+            .map((c) => ({ id: String(c.id), title: c.title, count: categoryStats(c.id, isOwner).parts }))
             .filter((c) => c.count > 0),
         [isOwner]
     );
 
-    const activeCategoryRecord = activeCategory ? getCategory(activeCategory) : undefined;
+    const activeCategoryRecord = activeCategory ? getCategoryById(Number(activeCategory)) : undefined;
     const hasFilters = Boolean(activeCategory || activeTag || search.trim());
     const showFeatured = featuredEntries.length > 0 && !hasFilters;
 
@@ -111,7 +114,7 @@ const Blog = () => {
                 const haystack = `${post.title} ${post.excerpt} ${post.tags.join(' ')} ${stripHtml(post.html)}`.toLowerCase();
                 return haystack.includes(q);
             }
-            const parts = partsOf(entry.category.slug, isOwner);
+            const parts = partsOf(entry.category.id, isOwner);
             if (activeTag && !parts.some((p) => p.tags.includes(activeTag))) return false;
             if (!q) return true;
             const haystack = `${entry.category.title} ${entry.category.description} ${parts.map((p) => `${p.title} ${p.excerpt} ${p.tags.join(' ')} ${stripHtml(p.html)}`).join(' ')}`.toLowerCase();
@@ -122,8 +125,8 @@ const Blog = () => {
 
     const gridEntries = filtered.filter((entry) => hasFilters || !featuredKeys.has(entryKey(entry)));
 
-    const seriesParts = activeCategoryRecord ? partsOf(activeCategoryRecord.slug, isOwner) : [];
-    const seriesStats = activeCategoryRecord ? categoryStats(activeCategoryRecord.slug, isOwner) : null;
+    const seriesParts = activeCategoryRecord ? partsOf(activeCategoryRecord.id, isOwner) : [];
+    const seriesStats = activeCategoryRecord ? categoryStats(activeCategoryRecord.id, isOwner) : null;
 
     return (
         <motion.div
@@ -220,7 +223,7 @@ const Blog = () => {
                                 <h2>{activeCategoryRecord.title}</h2>
                                 <span className="series-count">{seriesStats.parts} part{seriesStats.parts === 1 ? '' : 's'} · ~{seriesStats.totalReadingTime} min total</span>
                             </div>
-                            <Link to={`/blog/category/${activeCategoryRecord.slug}`} className="view-series-link">
+                            <Link to={`/blog/category/${activeCategoryRecord.id}`} className="view-series-link">
                                 View the full series <i className="fas fa-arrow-right"></i>
                             </Link>
                         </div>

@@ -100,6 +100,25 @@ export async function getFileSha(token: string, path: string): Promise<string | 
     return body.sha as string;
 }
 
+export interface FileContent {
+    base64Content: string;
+    sha: string;
+}
+
+/** Downloads a file's raw (still base64-encoded) content and sha - used to move a file to a new path (download old, putFile new, delete old), since the Contents API has no rename/move endpoint. */
+export async function getFileContent(token: string, path: string): Promise<FileContent | null> {
+    const res = await fetch(
+        `${API_BASE}/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`,
+        { headers: headers(token) }
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) return readError(res);
+    const body = await res.json();
+    // GitHub returns base64 content with embedded newlines every 60 chars -
+    // strip them so it round-trips cleanly through putFile's body.content.
+    return { base64Content: (body.content as string).replace(/\n/g, ''), sha: body.sha as string };
+}
+
 export interface PutFileResult {
     commitSha: string;
     contentSha: string;

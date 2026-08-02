@@ -88,9 +88,9 @@ function AppContent() {
                         <Route path="/blog" element={<Blog />} />
                         {/* Must precede /blog/:id so these segments aren't parsed as an id */}
                         <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
-                        <Route path="/blog/edit/:slug" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                        <Route path="/blog/edit/:id" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
                         <Route path="/blog/categories" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><CategoryManager /></Suspense></RequireOwner>} />
-                        <Route path="/blog/category/:slug" element={<CategoryPage />} />
+                        <Route path="/blog/category/:id" element={<CategoryPage />} />
                         <Route path="/blog/:id" element={<BlogPost />} />
                         <Route path="*" element={<NotFound />} />
                     </Routes>

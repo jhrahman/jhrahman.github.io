@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getCategory, partsOf, categoryStats, coverFor } from '../data/categories';
+import { getCategoryById, partsOf, categoryStats, coverFor } from '../data/categories';
 import { useAuth } from '../lib/auth';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ScrollButtons from '../components/ScrollButtons';
@@ -12,13 +12,14 @@ function formatDate(iso: string): string {
 }
 
 const CategoryPage = () => {
-    const { slug } = useParams<{ slug: string }>();
+    const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { isOwner } = useAuth();
-    const category = slug ? getCategory(slug) : undefined;
+    const numericId = id ? Number(id) : null;
+    const category = numericId !== null ? getCategoryById(numericId) : undefined;
 
-    const parts = category ? partsOf(category.slug, isOwner) : [];
-    const stats = category ? categoryStats(category.slug, isOwner) : null;
+    const parts = category ? partsOf(category.id, isOwner) : [];
+    const stats = category ? categoryStats(category.id, isOwner) : null;
     const cover = category ? coverFor(category) : null;
 
     useDocumentMeta(category?.title, category?.description, cover ?? undefined);
@@ -40,10 +41,13 @@ const CategoryPage = () => {
                     <i className="fas fa-arrow-left"></i> Back to Blog
                 </Link>
 
-                <header
-                    className="category-hero glass-effect"
-                    style={cover ? { backgroundImage: `url(${cover})` } : undefined}
-                >
+                <header className="category-hero glass-effect">
+                    <div
+                        className="category-hero-cover"
+                        style={cover ? { backgroundImage: `url(${cover})` } : undefined}
+                    >
+                        {cover && <img src={cover} alt="" />}
+                    </div>
                     <div className="category-hero-content">
                         <span className="category-hero-badge">
                             <i className="fas fa-layer-group" aria-hidden="true"></i> Series
@@ -59,7 +63,7 @@ const CategoryPage = () => {
                             <button
                                 type="button"
                                 className="edit-category-btn"
-                                onClick={() => navigate(`/blog/categories?edit=${category.slug}`)}
+                                onClick={() => navigate(`/blog/categories?edit=${category.id}`)}
                             >
                                 <i className="fas fa-pen"></i> Edit category
                             </button>

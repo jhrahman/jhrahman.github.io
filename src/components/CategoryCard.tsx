@@ -16,7 +16,7 @@ interface CategoryCardProps {
 
 /** Featurable "series" card - same visual language as PostCard/featured-card so it sits naturally in the same grid. */
 const CategoryCard = ({ category, variant = 'grid', includeDrafts = false }: CategoryCardProps) => {
-    const stats = categoryStats(category.slug, includeDrafts);
+    const stats = categoryStats(category.id, includeDrafts);
     const cover = coverFor(category);
     const linkClass = variant === 'featured' ? 'featured-card-link' : 'post-card-link';
     const coverClass = variant === 'featured' ? 'featured-card-cover' : 'post-card-cover';
@@ -29,7 +29,7 @@ const CategoryCard = ({ category, variant = 'grid', includeDrafts = false }: Cat
             variants={itemVariants}
             whileHover={{ y: -8 }}
         >
-            <Link to={`/blog/category/${category.slug}`} className={linkClass} aria-label={category.title}>
+            <Link to={`/blog/category/${category.id}`} className={linkClass} aria-label={category.title}>
                 <div className={coverClass} style={cover ? { backgroundImage: `url(${cover})` } : undefined}>
                     {cover ? (
                         <img src={cover} alt="" loading="lazy" />
