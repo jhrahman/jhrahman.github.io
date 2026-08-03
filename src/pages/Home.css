@@ -6,7 +6,7 @@
 
 .home-page {
     position: relative;
-    overflow-x: clip;
+    overflow: clip;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 

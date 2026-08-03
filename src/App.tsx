@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, MotionConfig } from 'framer-motion';
-import { useState, useEffect, lazy, Suspense, type ReactNode } from 'react';
+import { useState, useEffect, useLayoutEffect, lazy, Suspense, type ReactNode } from 'react';
 import Navbar from './components/Navbar';
 import InfoModal from './components/InfoModal';
 import Home from './pages/Home';
@@ -13,6 +13,7 @@ import CategoryPage from './pages/CategoryPage';
 import NotFound from './pages/NotFound';
 import { AuthProvider, useAuth } from './lib/auth';
 import { safeGetItem, safeSetItem } from './lib/storage';
+import { useScrollRestoration } from './hooks/useScrollRestoration';
 
 const PostEditor = lazy(() => import('./pages/PostEditor'));
 const CategoryManager = lazy(() => import('./pages/CategoryManager'));
@@ -22,6 +23,21 @@ const CategoryManager = lazy(() => import('./pages/CategoryManager'));
 function RequireOwner({ children }: { children: ReactNode }) {
     const { isOwner } = useAuth();
     if (!isOwner) return <Navigate to="/blog" replace />;
+    return <>{children}</>;
+}
+
+// Mounts fresh on every route change (it shares its parent's key), so its
+// layout effect fires at the exact moment the new page's DOM lands - which,
+// thanks to AnimatePresence's mode="wait", is only after the previous page
+// has fully exited. That timing matters: restoring scroll any earlier (e.g.
+// via onExitComplete) runs against a document that doesn't contain the new
+// page's content yet, so the browser clamps any restored position taller
+// than the still-empty page back to ~0.
+function RouteScrollRestorer({ onMount, children }: { onMount: () => void; children: ReactNode }) {
+    useLayoutEffect(() => {
+        onMount();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     return <>{children}</>;
 }
 
@@ -38,6 +54,7 @@ function AppContent() {
     const [theme, setTheme] = useState<'dark' | 'light'>(getInitialTheme);
     const [accentColor, setAccentColor] = useState<AccentColor>(getInitialAccent);
     const [showInfoModal, setShowInfoModal] = useState(false);
+    const { restoreScroll } = useScrollRestoration();
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -65,35 +82,32 @@ function AppContent() {
                 onInfoClick={() => setShowInfoModal(true)}
             />
             <main id="main-content">
-                {/* Resets scroll only once the outgoing page has fully faded
-                    out (mode="wait" + onExitComplete), not the instant the
-                    route changes - React Router updates `location`
-                    synchronously on navigation, well before the exit
-                    animation finishes, so scrolling on that event snapped
-                    the *still-visible outgoing* page to its own top before
-                    the destination page ever appeared. Firing here instead
-                    means the jump happens while nothing is on screen. */}
-                <AnimatePresence
-                    mode="wait"
-                    onExitComplete={() => window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })}
-                >
+                {/* mode="wait" holds the outgoing page mounted until its exit
+                    animation finishes, then mounts the new page. RouteScrollRestorer
+                    shares the Routes key, so its layout effect fires exactly
+                    once the new page's DOM lands - before paint, so the jump
+                    (or restore) is invisible - and only once that page's
+                    content actually exists to scroll into. */}
+                <AnimatePresence mode="wait">
                     {/* Suspense is scoped to each lazy route's element (not wrapped
                         around <Routes>) so it doesn't sit between AnimatePresence
                         and its keyed child - that would break the exit animation. */}
-                    <Routes location={location} key={location.pathname}>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/activities" element={<Activities />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/blog" element={<Blog />} />
-                        {/* Must precede /blog/:id so these segments aren't parsed as an id */}
-                        <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
-                        <Route path="/blog/edit/:id" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
-                        <Route path="/blog/categories" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><CategoryManager /></Suspense></RequireOwner>} />
-                        <Route path="/blog/category/:id" element={<CategoryPage />} />
-                        <Route path="/blog/:id" element={<BlogPost />} />
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
+                    <RouteScrollRestorer key={location.pathname} onMount={restoreScroll}>
+                        <Routes location={location} key={location.pathname}>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/activities" element={<Activities />} />
+                            <Route path="/contact" element={<Contact />} />
+                            <Route path="/blog" element={<Blog />} />
+                            {/* Must precede /blog/:id so these segments aren't parsed as an id */}
+                            <Route path="/blog/new" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                            <Route path="/blog/edit/:id" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><PostEditor /></Suspense></RequireOwner>} />
+                            <Route path="/blog/categories" element={<RequireOwner><Suspense fallback={<div className="page-loading" aria-busy="true" />}><CategoryManager /></Suspense></RequireOwner>} />
+                            <Route path="/blog/category/:id" element={<CategoryPage />} />
+                            <Route path="/blog/:id" element={<BlogPost />} />
+                            <Route path="*" element={<NotFound />} />
+                        </Routes>
+                    </RouteScrollRestorer>
                 </AnimatePresence>
             </main>
             <InfoModal
