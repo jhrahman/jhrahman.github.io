@@ -28,13 +28,24 @@
 .comment-form {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1rem;
     margin-bottom: 1.5rem;
     transition: opacity 0.2s ease;
+}
+
+/* Vertical rhythm between the form's direct children. Not a flex `gap`
+   because the collapsible blocks below need to own their own spacing so it
+   can shrink to 0 alongside their height when collapsed - a `gap` would
+   keep reserving space around them even at zero height. */
+.comment-form > * {
+    margin-bottom: 0.85rem;
+}
+
+.comment-form > *:last-child {
+    margin-bottom: 0;
 }
 
 .comment-form--busy {
@@ -51,6 +62,33 @@
 .comment-form--edit {
     margin: 0.75rem 0 0;
     padding: 0.85rem;
+}
+
+.comment-form-collapsible {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-bottom: 0;
+    transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+        margin-bottom 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comment-form-collapsible.is-expanded {
+    grid-template-rows: 1fr;
+    margin-bottom: 0.85rem;
+}
+
+.comment-form-collapsible-inner {
+    overflow: hidden;
+    min-height: 0;
+    box-sizing: border-box;
+    margin: -3px;
+    padding: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comment-form-collapsible {
+        transition: none;
+    }
 }
 
 .comment-form-row {
@@ -90,6 +128,12 @@
     resize: vertical;
     min-height: 5rem;
     line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comment-form-field textarea {
+        transition: none;
+    }
 }
 
 .comment-form-field input:disabled,
@@ -143,7 +187,7 @@
 .comment-form-error {
     color: #ef4444;
     font-size: 0.85rem;
-    margin: 0;
+    margin-top: 0;
 }
 
 .comment-form-actions {
@@ -207,9 +251,27 @@
 }
 
 .comment-item {
+    display: block;
+}
+
+.comment-item-live {
     display: flex;
     gap: 0.75rem;
     align-items: flex-start;
+    width: 100%;
+    transition: opacity 0.3s ease;
+}
+
+/* Optimistic comments (not yet confirmed by the server) read as "in
+   flight" rather than fully posted - a subtle dimming, not a spinner. */
+.comment-item-live--pending {
+    opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comment-item-live {
+        transition: none;
+    }
 }
 
 .comment-avatar {

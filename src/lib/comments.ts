@@ -131,10 +131,11 @@ export async function updateComment(id: string, body: string): Promise<{ body: s
     return result.comment;
 }
 
-export async function deleteComment(id: string): Promise<void> {
+export async function deleteComment(id: string): Promise<{ deletedReplyIds: string[] }> {
     const authorKey = getOrCreateAuthorKey();
-    await postJson<{ ok: true }>({ action: 'delete', id, authorKey });
+    const result = await postJson<{ ok: true; deletedReplyIds?: string[] }>({ action: 'delete', id, authorKey });
     forgetOwnComment(id);
+    return { deletedReplyIds: result.deletedReplyIds ?? [] };
 }
 
 // ---- Local identity -------------------------------------------------------

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
     fetchComments, createComment, updateComment, deleteComment,
-    CommentsApiError, Comment,
+    CommentsApiError,
 } from '../lib/comments';
 import CommentForm, { CommentFormValues } from './CommentForm';
-import CommentItem from './CommentItem';
+import CommentItem, { LocalComment } from './CommentItem';
 import './Comments.css';
 
 interface CommentsProps {
@@ -13,20 +13,25 @@ interface CommentsProps {
 }
 
 const Comments = ({ id }: CommentsProps) => {
-    const [comments, setComments] = useState<Comment[]>([]);
+    const [comments, setComments] = useState<LocalComment[]>([]);
     const [ticket, setTicket] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState<string | null>(null);
     const [submitError, setSubmitError] = useState<string | null>(null);
-    const [submitting, setSubmitting] = useState(false);
+    // Surfaces failures from optimistic actions (reply/edit/delete) that
+    // have already closed their own form and can no longer show an inline
+    // error themselves.
+    const [actionError, setActionError] = useState<string | null>(null);
     const renderedAtRef = useRef(Date.now());
+
+    const genTempId = () => `temp-${crypto.randomUUID()}`;
 
     const load = useCallback(async () => {
         setLoading(true);
         setLoadError(null);
         try {
             const result = await fetchComments(id);
-            setComments(result.comments);
+            setComments(result.comments.map((c) => ({ ...c, clientId: c.id })));
             setTicket(result.ticket);
             renderedAtRef.current = Date.now();
         } catch (err) {
@@ -41,8 +46,8 @@ const Comments = ({ id }: CommentsProps) => {
     }, [load]);
 
     const { topLevel, repliesByParent } = useMemo(() => {
-        const top: Comment[] = [];
-        const byParent = new Map<string, Comment[]>();
+        const top: LocalComment[] = [];
+        const byParent = new Map<string, LocalComment[]>();
         for (const c of comments) {
             if (c.parentId) {
                 // A deleted reply can't have replies of its own (one level
@@ -110,32 +115,95 @@ const Comments = ({ id }: CommentsProps) => {
         [id, ticket, load]
     );
 
+    // Every handler below applies its change to local state immediately and
+    // resolves right away, so the calling form can clear/collapse without
+    // waiting on the network - the real request (a Google Apps Script round
+    // trip, typically several seconds) runs in the background. A failure
+    // rolls the optimistic change back and surfaces `actionError`.
+
     const handleNewComment = async (values: CommentFormValues) => {
-        setSubmitting(true);
         setSubmitError(null);
-        try {
-            const created = await submitWithTicketRetry(null, values);
-            setComments((prev) => [...prev, created]);
-        } catch (err) {
-            setSubmitError(err instanceof Error ? err.message : 'Something went wrong.');
-        } finally {
-            setSubmitting(false);
-        }
+        const tempId = genTempId();
+        const optimistic: LocalComment = {
+            id: tempId,
+            clientId: tempId,
+            postId: id,
+            parentId: null,
+            name: values.anonymous ? null : values.name || null,
+            anonymous: values.anonymous,
+            body: values.body,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            deleted: false,
+        };
+        setComments((prev) => [...prev, optimistic]);
+
+        void submitWithTicketRetry(null, values)
+            .then((created) => {
+                setComments((prev) => prev.map((c) => (c.clientId === tempId ? { ...created, clientId: tempId } : c)));
+            })
+            .catch((err) => {
+                setComments((prev) => prev.filter((c) => c.clientId !== tempId));
+                setSubmitError(err instanceof Error ? err.message : 'Could not post your comment - please try again.');
+            });
     };
 
     const handleReply = async (parentId: string, values: CommentFormValues) => {
-        const created = await submitWithTicketRetry(parentId, values);
-        setComments((prev) => [...prev, created]);
+        const tempId = genTempId();
+        const optimistic: LocalComment = {
+            id: tempId,
+            clientId: tempId,
+            postId: id,
+            parentId,
+            name: values.anonymous ? null : values.name || null,
+            anonymous: values.anonymous,
+            body: values.body,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            deleted: false,
+        };
+        setComments((prev) => [...prev, optimistic]);
+
+        void submitWithTicketRetry(parentId, values)
+            .then((created) => {
+                setComments((prev) => prev.map((c) => (c.clientId === tempId ? { ...created, clientId: tempId } : c)));
+            })
+            .catch((err) => {
+                setComments((prev) => prev.filter((c) => c.clientId !== tempId));
+                setActionError(err instanceof Error ? err.message : 'Could not post your reply - please try again.');
+            });
     };
 
     const handleUpdate = async (commentId: string, body: string) => {
-        const result = await updateComment(commentId, body);
-        setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, body: result.body, updatedAt: result.updatedAt } : c)));
+        const previousBody = comments.find((c) => c.id === commentId)?.body;
+        setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, body } : c)));
+
+        void updateComment(commentId, body)
+            .then((result) => {
+                setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, body: result.body, updatedAt: result.updatedAt } : c)));
+            })
+            .catch((err) => {
+                setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, body: previousBody ?? c.body } : c)));
+                setActionError(err instanceof Error ? err.message : 'Could not save your edit - please try again.');
+            });
     };
 
     const handleDelete = async (commentId: string) => {
-        await deleteComment(commentId);
+        const previous = comments.find((c) => c.id === commentId);
         setComments((prev) => prev.map((c) => (c.id === commentId ? { ...c, deleted: true, body: '', name: null } : c)));
+
+        void deleteComment(commentId)
+            .then(({ deletedReplyIds }) => {
+                if (deletedReplyIds.length === 0) return;
+                const idsToMark = new Set(deletedReplyIds);
+                setComments((prev) => prev.map((c) => (idsToMark.has(c.id) ? { ...c, deleted: true, body: '', name: null } : c)));
+            })
+            .catch((err) => {
+                if (previous) {
+                    setComments((prev) => prev.map((c) => (c.id === commentId ? previous : c)));
+                }
+                setActionError(err instanceof Error ? err.message : 'Could not delete your comment - please try again.');
+            });
     };
 
     return (
@@ -146,10 +214,27 @@ const Comments = ({ id }: CommentsProps) => {
                 variant="new"
                 submitLabel="Post comment"
                 busyLabel="Posting…"
-                busy={submitting}
                 error={submitError}
                 onSubmit={handleNewComment}
             />
+
+            <AnimatePresence initial={false}>
+                {actionError && (
+                    <motion.div
+                        key="action-error"
+                        className="comments-status comments-status--error"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                    >
+                        <p>{actionError}</p>
+                        <button type="button" className="comment-btn comment-btn-ghost" onClick={() => setActionError(null)}>
+                            Dismiss
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <AnimatePresence mode="wait" initial={false}>
                 {loading && (
@@ -206,7 +291,7 @@ const Comments = ({ id }: CommentsProps) => {
                         <AnimatePresence initial={false}>
                             {topLevel.map((comment) => (
                                 <CommentItem
-                                    key={comment.id}
+                                    key={comment.clientId}
                                     comment={comment}
                                     replies={repliesByParent.get(comment.id) ?? []}
                                     onReply={handleReply}

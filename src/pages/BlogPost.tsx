@@ -98,9 +98,12 @@ const BlogPost = () => {
             const codeEl = pre.querySelector('code');
             const lang = codeEl?.className.match(/language-([\w-]+)/)?.[1];
 
+            const originalParent = pre.parentNode;
+            const originalNextSibling = pre.nextSibling;
+
             const wrapper = document.createElement('div');
             wrapper.className = 'code-block';
-            pre.parentNode?.insertBefore(wrapper, pre);
+            originalParent?.insertBefore(wrapper, pre);
 
             const header = document.createElement('div');
             header.className = 'code-block-header';
@@ -127,7 +130,15 @@ const BlogPost = () => {
 
             wrapper.appendChild(header);
             wrapper.appendChild(pre);
-            cleanups.push(() => btn.removeEventListener('click', onClick));
+            cleanups.push(() => {
+                btn.removeEventListener('click', onClick);
+                // Undo the wrap too, not just the listener - otherwise a
+                // second effect run (React StrictMode's dev-only double
+                // mount, or any future re-run) sees the <pre> as already
+                // wrapped and skips it, leaving the button with no listener.
+                originalParent?.insertBefore(pre, originalNextSibling);
+                wrapper.remove();
+            });
         });
 
         return () => cleanups.forEach((fn) => fn());
