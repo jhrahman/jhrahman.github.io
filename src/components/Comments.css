@@ -1,44 +1,357 @@
 .comments-section {
     max-width: var(--post-measure, 68ch);
-    margin: 4rem auto 0;
-    padding-top: 2.5rem;
+    margin: 3rem auto 0;
+    padding-top: 2rem;
     border-top: 1px solid var(--border-color);
 }
 
 .comments-heading {
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
 }
 
-.commentbox {
-    width: 100%;
-    min-height: 150px;
+.comments-status {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
 }
 
-/* The widget's own panel (header, sort control) already picks up the dark
-   colors passed into commentBox(), but its compose row (avatar, input,
-   button, footer) is fixed light styling inside a cross-origin iframe from
-   app.commentbox.io - CSS from this page can't reach into that document at
-   all. Framing the iframe itself as a deliberate card (rounded corners,
-   border, shadow matching the site's other cards) is the one lever left:
-   it can't recolor the white compose area, but it stops the transition
-   into it from reading as an unstyled, broken edge. */
-.commentbox iframe {
-    display: block;
-    width: 100%;
+.comments-status--error {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ---- Form ---------------------------------------------------------- */
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: var(--shadow-md);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.2s ease;
 }
 
-@media (max-width: 768px) {
+.comment-form--busy {
+    opacity: 0.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comment-form {
+        transition: none;
+    }
+}
+
+.comment-form--reply,
+.comment-form--edit {
+    margin: 0.75rem 0 0;
+    padding: 0.85rem;
+}
+
+.comment-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.comment-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.comment-form-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.comment-form-field input,
+.comment-form-field textarea {
+    width: 100%;
+    /* >=16px keeps iOS Safari from zooming the page on focus. */
+    font-size: 16px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    box-sizing: border-box;
+}
+
+.comment-form-field textarea {
+    resize: vertical;
+    min-height: 5rem;
+    line-height: 1.5;
+}
+
+.comment-form-field input:disabled,
+.comment-form-field textarea:disabled {
+    opacity: 0.55;
+}
+
+.comment-form-field input:focus,
+.comment-form-field textarea:focus {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 1px;
+}
+
+.comment-form-hint {
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+}
+
+.comment-form-counter {
+    align-self: flex-end;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    min-height: 1em;
+}
+
+.comment-form-anonymous {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.comment-form-anonymous input {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+/* Honeypot: visually and semantically absent - CSS hiding alone isn't
+   enough for some crawlers, so these are also outside tab order and
+   never announced to assistive tech. */
+.comment-form-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.comment-form-error {
+    color: #ef4444;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.comment-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+.comment-btn {
+    min-height: 44px;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.15s ease, background-color 0.15s ease;
+    width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comment-btn {
+        transition: none;
+    }
+}
+
+.comment-btn-primary {
+    background: var(--accent-gradient, var(--accent-primary));
+    color: #fff;
+}
+
+.comment-btn-primary:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+.comment-btn-ghost {
+    background: transparent;
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.comment-btn-ghost:hover:not(:disabled) {
+    background: var(--bg-tertiary, var(--bg-primary));
+}
+
+.comment-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ---- Comment list --------------------------------------------------- */
+
+.comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.comment-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.comment-avatar {
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    background: var(--accent-primary);
+}
+
+.comment-body-col {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.comment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+.comment-time,
+.comment-edited {
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+}
+
+.comment-text {
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.comment-tombstone {
+    margin: 0;
+    padding: 0.6rem 0;
+    font-style: italic;
+    color: var(--text-tertiary);
+}
+
+.comment-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.4rem;
+}
+
+.comment-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0.6rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+}
+
+.comment-action-btn:hover {
+    color: var(--accent-primary);
+    background: var(--bg-secondary);
+}
+
+.comment-action-btn--danger {
+    color: #ef4444;
+}
+
+.comment-confirm-delete {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.comment-replies {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0 0 0 0.75rem;
+    border-left: 2px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ---- Wider viewports -------------------------------------------------- */
+
+@media (min-width: 600px) {
     .comments-section {
-        margin-top: 3rem;
-        padding-top: 2rem;
+        margin-top: 4rem;
+        padding-top: 2.5rem;
     }
 
     .comments-heading {
-        font-size: 1.15rem;
-        margin-bottom: 1rem;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .comment-form {
+        padding: 1.25rem;
+    }
+
+    .comment-form-row {
+        flex-direction: row;
+    }
+
+    .comment-form-actions {
+        justify-content: flex-end;
+    }
+
+    .comment-btn {
+        width: auto;
+    }
+
+    .comment-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .comment-replies {
+        margin-left: 0.25rem;
+        padding-left: 2rem;
     }
 }

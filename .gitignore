@@ -74,6 +74,10 @@ typings/
 .env.test
 .env.production
 
+# Comments backend source - kept local only, not exposed in the public repo.
+# Source of truth lives in the Apps Script editor / its own version history.
+google-apps-script/
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

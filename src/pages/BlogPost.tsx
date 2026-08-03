@@ -20,10 +20,6 @@ function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function getStoredTheme(): 'dark' | 'light' {
-    return (document.documentElement.getAttribute('data-theme') as 'dark' | 'light') || 'dark';
-}
-
 const LANG_LABELS: Record<string, string> = {
     js: 'JavaScript', javascript: 'JavaScript',
     ts: 'TypeScript', typescript: 'TypeScript',
@@ -51,20 +47,12 @@ const BlogPost = () => {
     const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
-    const [theme, setTheme] = useState<'dark' | 'light'>(getStoredTheme);
     const [deleting, setDeleting] = useState(false);
     const [deleteMessage, setDeleteMessage] = useState('Deleting…');
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const numericId = Number(id);
     const post = Number.isInteger(numericId) ? getPostById(numericId, isOwner) : undefined;
-
-    // Track theme changes for the CommentBox widget, which can't read CSS vars.
-    useEffect(() => {
-        const observer = new MutationObserver(() => setTheme(getStoredTheme()));
-        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-        return () => observer.disconnect();
-    }, []);
 
     const sanitizedHtml = useMemo(
         () => (post ? DOMPurify.sanitize(post.html, { ADD_ATTR: ['target', 'rel'] }) : ''),
@@ -329,7 +317,7 @@ const BlogPost = () => {
                     </Link>
                 )}
 
-                <Comments id={post.id} theme={theme} />
+                <Comments id={post.id} />
             </div>
 
             {lightboxSrc && (
