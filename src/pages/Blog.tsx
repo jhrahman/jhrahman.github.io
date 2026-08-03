@@ -9,7 +9,7 @@ import { useBlogFilters } from '../hooks/useBlogFilters';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import CategoryDropdown from '../components/CategoryDropdown';
 import CategoryCard from '../components/CategoryCard';
-import type { Post } from '../types/blog';
+import PostCard from '../components/PostCard';
 import './Blog.css';
 
 const containerVariants = {
@@ -24,46 +24,6 @@ const itemVariants = {
 
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-function PostCard({ post }: { post: Post }) {
-    return (
-        <motion.article className="post-card glass-effect" variants={itemVariants} whileHover={{ y: -8 }}>
-            <Link to={`/blog/${post.id}`} className="post-card-link" aria-label={post.title}>
-                <div
-                    className="post-card-cover"
-                    style={post.cover ? { backgroundImage: `url(${post.cover})` } : undefined}
-                >
-                    {post.cover ? (
-                        <img src={post.cover} alt="" loading="lazy" />
-                    ) : (
-                        <div className="post-card-cover-placeholder" aria-hidden="true">
-                            <i className="fas fa-feather-alt"></i>
-                        </div>
-                    )}
-                </div>
-                <div className="post-card-content">
-                    <div className="post-card-meta">
-                        <span>{formatDate(post.date)}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>{post.readingTime} min read</span>
-                    </div>
-                    <h3 className="post-card-title">
-                        {post.title}
-                        {post.draft && <span className="draft-badge">Draft</span>}
-                    </h3>
-                    <p className="post-card-excerpt">{post.excerpt}</p>
-                    {post.tags.length > 0 && (
-                        <div className="post-card-tags">
-                            {post.tags.slice(0, 3).map((tag) => (
-                                <span key={tag} className="post-tag-pill">{tag}</span>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </Link>
-        </motion.article>
-    );
 }
 
 function FeedCard({ entry, isOwner }: { entry: FeedEntry; isOwner: boolean }) {
