@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Comment } from '../lib/comments';
 import { isOwnComment } from '../lib/comments';
+import Avatar from './Avatar';
 import CommentForm, { CommentFormValues } from './CommentForm';
 
 // A comment as held in local state, carrying a `clientId` that stays fixed
@@ -29,11 +30,6 @@ function relativeTime(iso: string): string {
     }
     if (unit === 'second' && value < 10) return 'just now';
     return `${value} ${unit}${value === 1 ? '' : 's'} ago`;
-}
-
-function initialFor(name: string | null): string {
-    if (!name) return '?';
-    return name.trim().charAt(0).toUpperCase() || '?';
 }
 
 const itemMotion = {
@@ -126,7 +122,7 @@ const CommentItem = ({ comment, replies = [], isReply = false, onReply, onUpdate
                         className={`comment-item-live ${isPending ? 'comment-item-live--pending' : ''}`}
                         {...swapMotion}
                     >
-                        <div className="comment-avatar" aria-hidden="true">{initialFor(comment.name)}</div>
+                        <Avatar name={comment.name} anonymous={comment.anonymous} />
                         <div className="comment-body-col">
                             <div className="comment-meta">
                                 <span className="comment-author">{comment.name ?? 'Anonymous'}</span>

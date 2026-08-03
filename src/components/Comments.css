@@ -282,10 +282,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 0.95rem;
+    overflow: hidden;
+    /* Identicon SVGs draw their own gradient fill - this only shows as a
+       flash before the SVG paints, and behind the anonymous icon below. */
+    background: var(--bg-tertiary, var(--bg-primary));
+    box-shadow: 0 0 0 1px var(--border-color) inset;
+}
+
+.comment-avatar svg {
+    display: block;
+}
+
+.comment-avatar--anonymous {
+    font-size: 1rem;
     color: #fff;
-    background: var(--accent-primary);
+    background: var(--accent-gradient, var(--accent-primary));
+    box-shadow: none;
 }
 
 .comment-body-col {
