@@ -6,10 +6,13 @@ import type { Post } from '../types/blog';
 // support for visitors.
 const modules = import.meta.glob<{ default: Post }>('../content/posts/*.json', { eager: true });
 
+/** Sole author of every post on this site - see the "Posted By" field in PostEditor. */
+export const DEFAULT_AUTHOR = 'Jahidur Rahman';
+
 const allPosts: Post[] = Object.values(modules)
-    // category/part are newer fields - default them for any post JSON saved
-    // before they existed, rather than requiring a one-time file migration.
-    .map((m) => ({ ...m.default, category: m.default.category ?? null, part: m.default.part ?? null }))
+    // category/part/author are newer fields - default them for any post JSON
+    // saved before they existed, rather than requiring a one-time file migration.
+    .map((m) => ({ ...m.default, category: m.default.category ?? null, part: m.default.part ?? null, author: m.default.author || DEFAULT_AUTHOR }))
     .sort((a, b) => b.date.localeCompare(a.date));
 
 /** Published posts only, newest first - what visitors see. */

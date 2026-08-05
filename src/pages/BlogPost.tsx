@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DOMPurify from 'dompurify';
@@ -7,6 +7,7 @@ import { getCategoryById, partsOf, getSeriesAdjacent } from '../data/categories'
 import { useAuth } from '../lib/auth';
 import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
+import { attachCustomScrollbar } from '../lib/codeScrollbar';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ReadingProgress from '../components/ReadingProgress';
 import TableOfContents, { useToc } from '../components/TableOfContents';
@@ -86,8 +87,16 @@ const BlogPost = () => {
 
     // Wraps each code block in a header (language + copy button) above the
     // <pre>, injected after the sanitized HTML has rendered since the saved
-    // HTML itself only has a bare <pre><code>.
-    useEffect(() => {
+    // HTML itself only has a bare <pre><code>. useLayoutEffect, not useEffect
+    // - this adds real height to the page (a header bar per code block,
+    // multiplied across a post that has many), and useScrollRestoration's
+    // restoreScroll() runs in a useLayoutEffect on mount too. Layout effects
+    // fire child-before-parent, and BlogPost is a child of the component
+    // that calls restoreScroll, so as a useLayoutEffect this now runs first
+    // - restoreScroll sees the final, already-wrapped page height instead of
+    // scrolling to a saved pixel offset just before the page grows
+    // underneath it and drifts the viewport into a different section.
+    useLayoutEffect(() => {
         const el = bodyRef.current;
         if (!el) return;
         const blocks = Array.from(el.querySelectorAll('pre'));
@@ -139,9 +148,21 @@ const BlogPost = () => {
 
             wrapper.appendChild(header);
             wrapper.appendChild(pre);
+
+            // Custom horizontal scrollbar (see codeScrollbar.ts for why) -
+            // scoped to whichever element actually scrolls. code.hljs has
+            // its own independent overflow-x from the <pre> around it (see
+            // hljs-theme.css), so that's the real scroll target when present.
+            const scrollTarget = codeEl ?? pre;
+            const track = document.createElement('div');
+            track.className = 'code-scrollbar-track';
+            wrapper.appendChild(track);
+            const detachScrollbar = attachCustomScrollbar(scrollTarget, track);
+
             cleanups.push(() => {
                 btn.removeEventListener('click', onClick);
-                // Undo the wrap too, not just the listener - otherwise a
+                detachScrollbar();
+                // Undo the wrap too, not just the listeners - otherwise a
                 // second effect run (React StrictMode's dev-only double
                 // mount, or any future re-run) sees the <pre> as already
                 // wrapped and skips it, leaving the button with no listener.
@@ -249,7 +270,16 @@ const BlogPost = () => {
                     )}
                     <h1 className="post-title gradient-text">{post.title}</h1>
                     <div className="post-header-meta">
-                        <span>{formatDate(post.date)}</span>
+                        <span className="post-author">
+                            <img
+                                src={`${import.meta.env.BASE_URL}images/myphoto.png`}
+                                alt=""
+                                className="post-author-avatar"
+                                loading="lazy"
+                            />
+                            {post.author}
+                        </span>
+                        <span>· {formatDate(post.date)}</span>
                         {post.updated && <span>· Updated {formatDate(post.updated)}</span>}
                         <span>· {post.readingTime} min read</span>
                     </div>

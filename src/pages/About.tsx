@@ -4,6 +4,22 @@ import { Link } from 'react-router-dom';
 import './About.css';
 import RecommendationsCarousel from '../components/RecommendationsCarousel';
 
+// Staggered reveal for the hero intro (greeting, then the bio paragraph) -
+// runs on every mount, so it plays the same whether this is a fresh visit
+// or a client-side navigation back to /about. delayChildren starts it just
+// after the hero card itself begins fading in (that one's delayed 0.2s),
+// so the two overlap into one continuous cascade instead of a dead pause
+// followed by a second, disconnected-feeling animation.
+const heroTextContainerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.15, delayChildren: 0.3 } },
+};
+
+const heroTextItemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
+};
+
 const identityTags = [
     { icon: 'fa-vial', label: 'QA Engineer' },
     { icon: 'fa-robot', label: 'Automation Builder' },
@@ -267,12 +283,19 @@ const About = () => {
                         </span>
                     </div>
 
-                    <div className="about-hero-text">
-                        <span className="about-greeting">Hi, I&apos;m Jahid</span>
-                        <p className="about-intro">
+                    <motion.div
+                        className="about-hero-text"
+                        variants={heroTextContainerVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        <motion.span className="about-greeting" variants={heroTextItemVariants}>
+                            Hi, I&apos;m Jahid
+                        </motion.span>
+                        <motion.p className="about-intro" variants={heroTextItemVariants}>
                             QA and Technical Support professional who crafts testing strategies that drive real business outcomes. Built automated regression suites that cut testing time from 5 days to 2 while reaching about 90% coverage, validated REST APIs to keep cloud-based SaaS releases reliable, and traced production issues to root cause using Datadog and AWS CloudWatch to protect uptime for end users. Comfortable testing across Web, Android, iOS, and TV platforms, with hands-on experience building Playwright automation frameworks wired into CI/CD pipelines with Docker.
-                        </p>
-                    </div>
+                        </motion.p>
+                    </motion.div>
                 </motion.div>
 
                 {/* Basic Info - New Icon Grid Design */}

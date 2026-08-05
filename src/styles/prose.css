@@ -120,13 +120,14 @@
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* Tells the browser's touch compositor to commit a horizontal swipe
-       starting on this element to panning it, rather than leaving the
-       direction ambiguous and resolving in favor of the page's vertical
-       scroll (Lenis's page-level scroll listener made that ambiguous
-       resolution more likely to go vertical on mobile than it did before
-       Lenis was added). */
-    touch-action: pan-x;
+    /* Deliberately no touch-action: pan-x here (tried it, reverted it) -
+       pan-x doesn't just prefer horizontal panning, it *disables* vertical
+       panning for any touch gesture starting on this element, which broke
+       vertical page-scrolling on mobile whenever a swipe began over a code
+       block. Left at the default 'auto': the browser's own per-axis
+       overflow detection already resolves this correctly on its own - this
+       element has real horizontal overflow to pan, and no real vertical
+       overflow, so a vertical swipe correctly falls through to the page. */
     font-family: var(--font-mono);
     font-size: 0.9rem;
     line-height: 1.6;
@@ -172,13 +173,48 @@
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    /* See .editor-canvas pre above - commits an ambiguous touch swipe over
-       a code block to horizontal panning instead of it possibly resolving
-       to the page's vertical scroll on mobile. */
-    touch-action: pan-x;
+    /* See .editor-canvas pre above - no touch-action override; it broke
+       vertical scrolling on mobile. */
     font-family: var(--font-mono);
     font-size: 0.9rem;
     line-height: 1.6;
+}
+
+/* Custom horizontal scrollbar for wide code blocks - see codeScrollbar.ts
+   for why this replaces the native one (unreliable to drag in practice).
+   Sits inside .code-block, below the <pre>, hidden via inline
+   `display:none` (set by the JS) whenever the block doesn't overflow. */
+.code-scrollbar-track {
+    position: relative;
+    height: 8px;
+    margin: 0 1.1rem 0.7rem;
+    background: rgba(var(--accent-primary-rgb), 0.08);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.code-scrollbar-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--scrollbar-thumb);
+    cursor: grab;
+    /* This tiny thumb is the one element that *should* fully claim touch
+       gestures for itself - it exists purely to be dragged, so unlike the
+       code block it sits in, disabling the browser's own touch panning
+       here is correct rather than the mistake it was on the block itself. */
+    touch-action: none;
+}
+
+.code-scrollbar-thumb:hover,
+.code-scrollbar-thumb.is-dragging {
+    background: var(--accent-primary);
+}
+
+.code-scrollbar-thumb.is-dragging {
+    cursor: grabbing;
 }
 
 .post-body .code-copy-btn {
@@ -222,8 +258,9 @@
     margin: 1.25em 0;
     border-radius: 10px;
     border: 1px solid var(--border-color);
-    /* Same mobile horizontal-swipe fix as the code blocks below. */
-    touch-action: pan-x;
+    /* No touch-action override - see the code block comments in this file
+       for why: pan-x disables vertical touch scrolling entirely, it
+       doesn't just prefer horizontal. */
 }
 
 .post-body table,

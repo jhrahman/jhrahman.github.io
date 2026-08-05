@@ -67,7 +67,7 @@
     color: var(--text-primary);
     padding: 0.5rem 0;
     margin-bottom: 1rem;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Outfit Variable', sans-serif;
 }
 
 .editor-title-input::placeholder {

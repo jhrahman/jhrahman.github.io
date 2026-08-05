@@ -3,16 +3,15 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import '@fontsource/inter/400.css'
-import '@fontsource/inter/500.css'
-import '@fontsource/inter/600.css'
-import '@fontsource/inter/700.css'
-import '@fontsource/inter/800.css'
-import '@fontsource/outfit/300.css'
-import '@fontsource/outfit/400.css'
-import '@fontsource/outfit/500.css'
-import '@fontsource/outfit/600.css'
-import '@fontsource/outfit/700.css'
+// Variable fonts instead of individual per-weight static files: each of
+// these packs every weight (and, where used, italic) into one file split
+// only by unicode-range subset, so a Latin-text page fetches ONE file per
+// family instead of five - fewer requests, smaller total transfer, and
+// weights interpolate smoothly instead of snapping between separately
+// loaded static files. Same look as before, just how it's shipped.
+import '@fontsource-variable/inter'
+import '@fontsource-variable/inter/standard-italic.css'
+import '@fontsource-variable/outfit'
 import '@fontsource/lobster/400.css'
 // Code blocks had no font-family set, so they fell back to the browser's
 // default monospace (Courier New on Windows) - a serifed, low-x-height
@@ -20,9 +19,8 @@ import '@fontsource/lobster/400.css'
 // JetBrains Mono is the modern-industry-standard coding font (built for
 // this exact purpose): larger x-height, distinct look-alike characters
 // (0/O, 1/l/I), and smooth, humanist curves instead of typewriter serifs.
-import '@fontsource/jetbrains-mono/400.css'
-import '@fontsource/jetbrains-mono/500.css'
-import '@fontsource/jetbrains-mono/600.css'
+import '@fontsource-variable/jetbrains-mono'
+import '@fontsource-variable/jetbrains-mono/wght-italic.css'
 
 import './index.css'
 import './styles/prose.css'
@@ -34,6 +32,16 @@ import './styles/hljs-theme.css'
 if (window.location.pathname === '/' && window.location.hash.startsWith('#/')) {
     const legacyPath = window.location.hash.slice(1);
     window.history.replaceState(null, '', legacyPath + window.location.search);
+}
+
+// Opt out of the browser's own scroll restoration as early as possible -
+// before React even mounts - so it never gets a chance to jump the page on
+// its own ahead of useScrollRestoration's explicit, sessionStorage-backed
+// restore (previously this was set inside a useEffect, which only runs
+// after the first paint - late enough for the native and manual restores to
+// occasionally race and land a few pixels apart on a refresh).
+if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

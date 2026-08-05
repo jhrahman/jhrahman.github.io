@@ -12,10 +12,23 @@
     /* This element - not the <pre> that wraps it - is the one that
        actually scrolls: it has its own overflow-x:auto independent of the
        <pre>'s (see prose.css), so it absorbs the horizontal overflow
-       itself and the <pre>'s box never grows past its container. Touch
-       panning has to be hinted on whichever element really scrolls, so
-       the touch-action fix in prose.css belongs here too. */
-    touch-action: pan-x;
+       itself and the <pre>'s box never grows past its container.
+       Deliberately no touch-action: pan-x - that was tried here first and
+       is exactly what broke vertical touch-scrolling over code blocks on
+       mobile: pan-x doesn't just prefer horizontal panning, it disables
+       vertical panning for gestures starting on the element entirely.
+       Left at the default 'auto', the browser correctly resolves a
+       vertical swipe here to the page's scroll on its own, since this
+       element has no real vertical overflow to consume it. */
+    /* The native scrollbar chrome is hidden - a custom, always-draggable
+       one is rendered below the code block instead (see codeScrollbar.ts).
+       This only hides the visual scrollbar; scrolling itself (wheel,
+       touch, this element's own scrollLeft) is completely unaffected. */
+    scrollbar-width: none;
+}
+
+.post-body pre code.hljs::-webkit-scrollbar {
+    display: none;
 }
 
 .hljs-comment,

@@ -4,7 +4,7 @@ import type { Root as HastRoot, Element as HastElement, Text as HastText } from 
 import type { Post } from '../types/blog';
 import { toBase64, blobToBase64, getFileContent, listDirectory, commitFiles, type FileChange } from './github';
 import { processImage, buildImagePath, buildCoverPath, buildImageDir, publicUrlFor } from './images';
-import { computeReadingTime, deriveExcerpt } from '../data/posts';
+import { computeReadingTime, deriveExcerpt, DEFAULT_AUTHOR } from '../data/posts';
 
 const lowlight = createLowlight(common);
 
@@ -26,6 +26,7 @@ export interface PublishInput {
     draft: boolean;
     category: number | null;
     part: number | null;
+    author: string;
     rawHtml: string;
     pendingImages: Map<string, File>;
     coverFile: File | null;
@@ -177,7 +178,7 @@ function wrapTables(html: string): string {
 
 export async function publishPost(input: PublishInput): Promise<PublishResult> {
     const {
-        token, id, slug, previousSlug, title, excerpt, tags, featured, draft, category, part,
+        token, id, slug, previousSlug, title, excerpt, tags, featured, draft, category, part, author,
         rawHtml, pendingImages, coverFile, existingCover, existingDate, onProgress,
     } = input;
 
@@ -235,6 +236,7 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
         category,
         // A part number is meaningless without a series to belong to.
         part: category ? part : null,
+        author: author.trim() || DEFAULT_AUTHOR,
     };
 
     changes.push({ path: `src/content/posts/${slug}.json`, content: toBase64(JSON.stringify(post, null, 4) + '\n') });

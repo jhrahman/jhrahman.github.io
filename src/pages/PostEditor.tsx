@@ -19,7 +19,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight, common } from 'lowlight';
 import { useAuth } from '../lib/auth';
-import { getPost, getPostById, slugify, allTags, nextPostId } from '../data/posts';
+import { getPost, getPostById, slugify, allTags, nextPostId, DEFAULT_AUTHOR } from '../data/posts';
 import { categories, nextPartNumber } from '../data/categories';
 import { publishPost } from '../lib/publish';
 import { deletePost } from '../lib/deletePost';
@@ -32,7 +32,7 @@ const AUTOSAVE_KEY_PREFIX = 'blog_editor_draft_';
 
 interface DraftShape {
     title: string; excerpt: string; tags: string[]; featured: boolean; draft: boolean; html: string; slug: string;
-    category: number | null; part: number | null;
+    category: number | null; part: number | null; author: string;
 }
 
 type PublishState =
@@ -69,6 +69,7 @@ const PostEditor = () => {
     const [draft, setDraft] = useState(existingPost?.draft ?? true);
     const [category, setCategory] = useState<number | null>(existingPost?.category ?? null);
     const [part, setPart] = useState<number | null>(existingPost?.part ?? null);
+    const [author, setAuthor] = useState(existingPost?.author ?? DEFAULT_AUTHOR);
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(existingPost?.cover ?? null);
     const [publishState, setPublishState] = useState<PublishState>({ phase: 'idle' });
@@ -124,6 +125,7 @@ const PostEditor = () => {
                 setDraft(saved.draft);
                 setCategory(saved.category ?? null);
                 setPart(saved.part ?? null);
+                setAuthor(saved.author || DEFAULT_AUTHOR);
                 editor.commands.setContent(saved.html);
                 setRestoredNotice(true);
             }
@@ -140,7 +142,7 @@ const PostEditor = () => {
         if (!editor) return;
         if (publishState.phase === 'success') return;
         const interval = setInterval(() => {
-            const payload: DraftShape = { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() };
+            const payload: DraftShape = { title, excerpt, tags, featured, draft, slug, category, part, author, html: editor.getHTML() };
             try {
                 sessionStorage.setItem(autosaveKey, JSON.stringify(payload));
             } catch {
@@ -148,7 +150,7 @@ const PostEditor = () => {
             }
         }, 4000);
         return () => clearInterval(interval);
-    }, [editor, title, excerpt, tags, featured, draft, category, part, slug, autosaveKey, publishState.phase]);
+    }, [editor, title, excerpt, tags, featured, draft, category, part, author, slug, autosaveKey, publishState.phase]);
 
     useEffect(() => {
         if (!slugTouched) setSlug(slugify(title));
@@ -199,11 +201,11 @@ const PostEditor = () => {
         if (!editor) return;
         const token = getToken();
         if (!token) {
-            setPublishState({ phase: 'error', message: 'You are signed out. Sign in again from the settings panel.', fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message: 'You are signed out. Sign in again from the settings panel.', fallback: { title, excerpt, tags, featured, draft, slug, category, part, author, html: editor.getHTML() } });
             return;
         }
         if (slugCollision) {
-            setPublishState({ phase: 'error', message: `A post with the slug "${slug}" already exists. Choose a different URL slug.`, fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message: `A post with the slug "${slug}" already exists. Choose a different URL slug.`, fallback: { title, excerpt, tags, featured, draft, slug, category, part, author, html: editor.getHTML() } });
             return;
         }
 
@@ -221,6 +223,7 @@ const PostEditor = () => {
                 draft,
                 category,
                 part,
+                author,
                 rawHtml: editor.getHTML(),
                 pendingImages: pendingImages.current,
                 coverFile,
@@ -234,7 +237,7 @@ const PostEditor = () => {
             const message = err instanceof GitHubApiError
                 ? `GitHub rejected this: ${err.message}`
                 : err instanceof Error ? err.message : 'Something went wrong while publishing.';
-            setPublishState({ phase: 'error', message, fallback: { title, excerpt, tags, featured, draft, slug, category, part, html: editor.getHTML() } });
+            setPublishState({ phase: 'error', message, fallback: { title, excerpt, tags, featured, draft, slug, category, part, author, html: editor.getHTML() } });
         }
     };
 
@@ -322,6 +325,15 @@ const PostEditor = () => {
                                     onChange={(e) => setExcerpt(e.target.value)}
                                     placeholder="Auto-generated if left blank"
                                     rows={3}
+                                />
+                            </label>
+
+                            <label className="editor-field">
+                                <span>Posted By</span>
+                                <input
+                                    value={author}
+                                    onChange={(e) => setAuthor(e.target.value)}
+                                    placeholder={DEFAULT_AUTHOR}
                                 />
                             </label>
 

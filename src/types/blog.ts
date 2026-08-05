@@ -13,6 +13,7 @@ export interface Post {
     html: string; // sanitized TipTap output
     category: number | null; // Category.id this post belongs to; null = standalone post. A stable numeric FK (not the slug) so renaming a category can never orphan its parts.
     part: number | null; // 1-based position within the category; null when uncategorised
+    author: string; // byline shown next to the date on the post page - see DEFAULT_AUTHOR in data/posts.ts for the fallback older posts get
 }
 
 export interface Category {

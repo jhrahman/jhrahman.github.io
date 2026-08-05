@@ -66,9 +66,31 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: 0.4rem;
     color: var(--text-tertiary);
     font-size: 0.9rem;
+}
+
+/* Byline - avatar + name read as one unbreakable unit ahead of the
+   date/reading-time, the same pattern Medium/dev.to use: the author gets
+   slightly more visual weight (text-primary, semibold) than the muted
+   metadata beside it, without breaking out into its own row. */
+.post-author {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.post-author-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+    flex-shrink: 0;
 }
 
 .post-header .post-card-tags {

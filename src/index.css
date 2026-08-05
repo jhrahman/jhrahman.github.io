@@ -36,7 +36,7 @@
        each OS's own modern coding font rather than the browser's generic
        "monospace" default (Courier New on Windows), which is what was
        reading as sharp/typewriter-ish. */
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 /* Accent Color presets - selectable via the settings panel, persisted in localStorage */
@@ -120,7 +120,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -220,6 +220,11 @@ textarea:focus-visible,
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
     width: 10px;
+    /* `width` alone only sizes vertical scrollbars - without an explicit
+       `height`, horizontal ones (code blocks, wide tables) fell back to
+       the browser's thin default, which made the thumb fiddly to grab
+       precisely for a manual left/right drag. */
+    height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -250,7 +255,7 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Outfit Variable', 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.02em;

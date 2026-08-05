@@ -4,8 +4,8 @@ import './EditorToolbar.css';
 
 const FONT_OPTIONS = [
     { label: 'Default', value: '' },
-    { label: 'Inter', value: 'Inter' },
-    { label: 'Outfit', value: 'Outfit' },
+    { label: 'Inter', value: 'Inter Variable' },
+    { label: 'Outfit', value: 'Outfit Variable' },
     { label: 'Lobster', value: 'Lobster' },
     { label: 'Serif', value: 'Georgia, serif' },
     { label: 'Monospace', value: '"Courier New", monospace' },
