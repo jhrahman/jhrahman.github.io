@@ -51,9 +51,13 @@
 .post-body p,
 .editor-canvas p {
     color: var(--text-secondary);
-    text-align: justify;
-    text-justify: inter-word;
-    hyphens: auto;
+    /* Justify + auto-hyphens was producing uneven word-spacing and
+       mid-word breaks ("docume-ntation") at this column width - left
+       alignment with balanced wrapping reads more evenly and is the
+       modern default for long-form web copy (Medium, Vercel/Linear blogs,
+       etc. all avoid justified body text for this reason). */
+    text-align: left;
+    text-wrap: pretty;
 }
 
 .post-body a,
@@ -116,6 +120,14 @@
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    /* Tells the browser's touch compositor to commit a horizontal swipe
+       starting on this element to panning it, rather than leaving the
+       direction ambiguous and resolving in favor of the page's vertical
+       scroll (Lenis's page-level scroll listener made that ambiguous
+       resolution more likely to go vertical on mobile than it did before
+       Lenis was added). */
+    touch-action: pan-x;
+    font-family: var(--font-mono);
     font-size: 0.9rem;
     line-height: 1.6;
 }
@@ -160,6 +172,11 @@
     max-width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    /* See .editor-canvas pre above - commits an ambiguous touch swipe over
+       a code block to horizontal panning instead of it possibly resolving
+       to the page's vertical scroll on mobile. */
+    touch-action: pan-x;
+    font-family: var(--font-mono);
     font-size: 0.9rem;
     line-height: 1.6;
 }
@@ -192,6 +209,7 @@
     color: var(--accent-primary);
     padding: 0.15em 0.4em;
     border-radius: 5px;
+    font-family: var(--font-mono);
     font-size: 0.88em;
 }
 
@@ -204,6 +222,8 @@
     margin: 1.25em 0;
     border-radius: 10px;
     border: 1px solid var(--border-color);
+    /* Same mobile horizontal-swipe fix as the code blocks below. */
+    touch-action: pan-x;
 }
 
 .post-body table,

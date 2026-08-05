@@ -47,9 +47,11 @@
 }
 
 .card-content {
+    /* background is already opaque, so the blur behind it was never
+       visible - just a wasted per-frame recomposite for cards that sit at
+       the bottom of every post, right where ScrollButtons/ReadingProgress
+       are also active. */
     background: var(--bg-secondary);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
     border-radius: 20px;
     padding: 3rem 2rem 2rem;

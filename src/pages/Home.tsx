@@ -5,6 +5,7 @@ import { posts } from '../data/posts';
 import { buildFeed, entryKey } from '../data/blogFeed';
 import PostCard from '../components/PostCard';
 import CategoryCard from '../components/CategoryCard';
+import { smoothScrollTo } from '../hooks/useSmoothScroll';
 import './Home.css';
 
 const containerVariants = {
@@ -21,31 +22,19 @@ const Home = () => {
 
     const latestEntries = buildFeed(posts).slice(0, 3);
 
+    // Routed through the shared Lenis instance (see useSmoothScroll) instead
+    // of the hand-rolled rAF/easeInOutCubic animation this used to run -
+    // that was itself a second animation loop writing to scrollTop on every
+    // frame, competing with Lenis's own loop the moment both were active
+    // and producing visible jitter. Lenis reduces to an instant jump on its
+    // own for prefers-reduced-motion users (it isn't mounted at all then),
+    // so no separate check is needed here.
     const scrollToLatest = (e: MouseEvent<HTMLAnchorElement>) => {
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         const target = document.getElementById('latest');
         if (!target) return;
         e.preventDefault();
-
-        const startY = window.scrollY;
-        const targetY = target.getBoundingClientRect().top + startY - 80; // matches scroll-margin-top
-        const distance = targetY - startY;
-
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            window.scrollTo(0, targetY);
-            return;
-        }
-
-        const duration = 650;
-        const startTime = performance.now();
-        const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-        const step = (now: number) => {
-            const progress = Math.min((now - startTime) / duration, 1);
-            window.scrollTo(0, startY + distance * easeInOutCubic(progress));
-            if (progress < 1) requestAnimationFrame(step);
-        };
-        requestAnimationFrame(step);
+        smoothScrollTo(target, { offset: -80 }); // matches scroll-margin-top
     };
 
     return (

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { smoothScrollTo } from '../hooks/useSmoothScroll';
 import './ScrollButtons.css';
 
 const SHOW_TOP_THRESHOLD = 400; // px scrolled down before "back to top" becomes eligible
@@ -31,11 +32,21 @@ const ScrollButtons = () => {
         };
         // A resize (or the initial mount) only updates *eligibility* - it
         // never reveals the buttons on its own, only an actual scroll does.
-        const onScroll = () => {
+        let ticking = false;
+        const handleScrollFrame = () => {
+            ticking = false;
             computeEligibility();
             setVisible(true);
             if (hideTimer.current) clearTimeout(hideTimer.current);
             hideTimer.current = setTimeout(() => setVisible(false), IDLE_HIDE_DELAY);
+        };
+        // rAF-coalesced for the same reason as ReadingProgress: Lenis fires
+        // 'scroll' on every animation frame, so this keeps the setState rate
+        // capped at one update per painted frame instead of stacking up.
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(handleScrollFrame);
         };
         computeEligibility();
         window.addEventListener('scroll', onScroll, { passive: true });
@@ -49,8 +60,13 @@ const ScrollButtons = () => {
 
     if (!showTop && !showBottom) return null;
 
-    const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-    const scrollToBottom = () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+    // Routed through the shared Lenis instance (see useSmoothScroll) rather
+    // than native `window.scrollTo({ behavior: 'smooth' })` - running the
+    // browser's own smooth-scroll animation at the same time Lenis is
+    // animating scroll produces two competing easing curves and visible
+    // jitter instead of one clean glide.
+    const scrollToTop = () => smoothScrollTo(0);
+    const scrollToBottom = () => smoothScrollTo(document.documentElement.scrollHeight);
 
     return (
         <div className={`scroll-buttons ${visible ? 'is-visible' : ''}`}>

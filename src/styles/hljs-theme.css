@@ -8,6 +8,14 @@
     overflow-x: auto;
     padding: 0;
     background: transparent;
+    font-family: var(--font-mono);
+    /* This element - not the <pre> that wraps it - is the one that
+       actually scrolls: it has its own overflow-x:auto independent of the
+       <pre>'s (see prose.css), so it absorbs the horizontal overflow
+       itself and the <pre>'s box never grows past its container. Touch
+       panning has to be hinted on whichever element really scrolls, so
+       the touch-action fix in prose.css belongs here too. */
+    touch-action: pan-x;
 }
 
 .hljs-comment,

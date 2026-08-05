@@ -6,6 +6,14 @@
     z-index: 1000;
     padding: 0.75rem 0;
     box-shadow: var(--shadow-sm);
+    /* Deliberately no forced `transform: translateZ(0)` layer promotion
+       here - it was tried to help the backdrop-filter blur cost, but a
+       forced compositor layer on a `position: fixed` element rounds its
+       position to the nearest device pixel independently of the rest of
+       the page each frame, which is what was reading as shaky/vibrating
+       text in the navbar during scroll. Fixed-position elements already
+       get their own compositor layer in modern browsers without the hack,
+       so this was pure downside. */
 }
 
 .navbar-content {

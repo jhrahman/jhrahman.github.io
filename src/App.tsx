@@ -14,6 +14,7 @@ import NotFound from './pages/NotFound';
 import { AuthProvider, useAuth } from './lib/auth';
 import { safeGetItem, safeSetItem } from './lib/storage';
 import { useScrollRestoration } from './hooks/useScrollRestoration';
+import { useSmoothScroll } from './hooks/useSmoothScroll';
 
 const PostEditor = lazy(() => import('./pages/PostEditor'));
 const CategoryManager = lazy(() => import('./pages/CategoryManager'));
@@ -55,6 +56,7 @@ function AppContent() {
     const [accentColor, setAccentColor] = useState<AccentColor>(getInitialAccent);
     const [showInfoModal, setShowInfoModal] = useState(false);
     const { restoreScroll } = useScrollRestoration();
+    useSmoothScroll();
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);

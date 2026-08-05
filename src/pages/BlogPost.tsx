@@ -95,6 +95,15 @@ const BlogPost = () => {
 
         blocks.forEach((pre) => {
             if (pre.parentElement?.classList.contains('code-block')) return;
+            // Tells the page-level Lenis instance (see useSmoothScroll) to
+            // leave horizontal-dominant gestures over this element alone -
+            // otherwise a horizontal swipe/trackpad pan across a wide code
+            // block competes with Lenis's own vertical smoothing and the
+            // block's native horizontal scrollbar stops responding.
+            // Vertical scrolling with the cursor over a code block is
+            // untouched, so this doesn't reintroduce the earlier hitch
+            // that came from disabling Lenis over code blocks entirely.
+            pre.setAttribute('data-lenis-prevent-horizontal', '');
             const codeEl = pre.querySelector('code');
             const lang = codeEl?.className.match(/language-([\w-]+)/)?.[1];
 

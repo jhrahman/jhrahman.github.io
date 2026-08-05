@@ -57,6 +57,16 @@
     transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
+/* .glass-effect's backdrop-filter still costs a per-frame blur
+   recomposite even though the solid background above already hides its
+   result - and a series list can repeat this row many times. Same fix as
+   .post-card in Blog.css: turn the filter off explicitly rather than rely
+   on it being visually moot. */
+.category-part-row.glass-effect {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
 .category-part-row:hover {
     border-color: var(--accent-primary);
     box-shadow: var(--shadow-glow);

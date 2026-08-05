@@ -7,7 +7,9 @@
 .home-page {
     position: relative;
     overflow: clip;
-    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    /* --font-mono now comes from the shared :root definition in index.css,
+       so this decorative snippet uses the same coding font as real code
+       blocks instead of its own separate system-font stack. */
 }
 
 /* Ambient background glow - low-opacity accent-colored orbs drifting slowly behind the hero content */

@@ -19,5 +19,8 @@
 .reading-progress-fill {
     height: 100%;
     background: var(--accent-gradient);
-    transition: width 0.1s linear;
+    /* No width transition: scroll itself is already smoothed by Lenis, so
+       the bar's width is already changing continuously every frame -
+       adding a CSS transition on top just delayed it ~100ms behind the
+       actual scroll position instead of tracking it in real time. */
 }

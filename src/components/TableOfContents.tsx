@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { smoothScrollTo, useNestedSmoothScroll } from '../hooks/useSmoothScroll';
 import './TableOfContents.css';
 
 export interface TocItem {
@@ -38,11 +39,27 @@ interface TableOfContentsProps {
 }
 
 const TableOfContents = ({ items, variant = 'desktop' }: TableOfContentsProps) => {
+    // Must run unconditionally (before the items.length early return below)
+    // per the rules of hooks. Gives the desktop TOC panel - the one place
+    // in the app with its own internal overflow-y: auto scroll - the same
+    // lerp-smoothed feel as the main page, via its own small Lenis
+    // instance. tocRef only ever gets attached to the desktop <nav> below;
+    // it's a no-op until that happens (mobile variant, or while items is
+    // still empty on the first render).
+    const tocRef = useNestedSmoothScroll<HTMLElement>();
+
     if (items.length === 0) return null;
 
+    // Routed through the shared Lenis instance (see useSmoothScroll) rather
+    // than native `scrollIntoView({ behavior: 'smooth' })` - two competing
+    // scroll animations (native + Lenis) running at once is what was
+    // causing visible jitter. Lenis reads `scroll-margin-top` from the
+    // heading itself, so the offset below the sticky navbar/reading-progress
+    // bar (set in prose.css) still applies exactly as before.
     const scrollTo = (id: string) => (e: React.MouseEvent) => {
         e.preventDefault();
-        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const el = document.getElementById(id);
+        if (el) smoothScrollTo(el);
     };
 
     if (variant === 'mobile') {
@@ -61,15 +78,21 @@ const TableOfContents = ({ items, variant = 'desktop' }: TableOfContentsProps) =
     }
 
     return (
-        <nav className="toc toc-desktop" aria-label="Table of contents">
-            <span className="toc-heading">On this page</span>
-            <ul>
-                {items.map((item) => (
-                    <li key={item.id} className={`toc-level-${item.level}`}>
-                        <a href={`#${item.id}`} onClick={scrollTo(item.id)}>{item.text}</a>
-                    </li>
-                ))}
-            </ul>
+        // data-lenis-prevent tells the page-level Lenis instance (see
+        // useSmoothScroll) to ignore wheel events here entirely, so this
+        // panel's own nested Lenis instance (useNestedSmoothScroll above)
+        // is the only thing driving its scroll.
+        <nav className="toc toc-desktop" aria-label="Table of contents" ref={tocRef} data-lenis-prevent>
+            <div className="toc-desktop-inner">
+                <span className="toc-heading">On this page</span>
+                <ul>
+                    {items.map((item) => (
+                        <li key={item.id} className={`toc-level-${item.level}`}>
+                            <a href={`#${item.id}`} onClick={scrollTo(item.id)}>{item.text}</a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </nav>
     );
 };

@@ -8,7 +8,11 @@
     --bg-tertiary: #1a1d22;
     --bg-elevated: #22262c;
     --text-primary: #f4f5f6;
-    --text-secondary: #a3aab5;
+    /* Lifted from #a3aab5 - the old value read as washed-out/dim against the
+       near-black canvas at body-text weight. This keeps the hierarchy under
+       --text-primary while staying comfortably legible for long-form
+       reading instead of feeling muted. */
+    --text-secondary: #bcc2cc;
     --text-tertiary: #6b7280;
     /* Accent Color - Ocean (base :root values; the actual default shown to
        visitors is Petrol Navy, applied via the [data-accent="petrol-navy"]
@@ -27,6 +31,12 @@
     --shadow-md: 0 6px 16px -4px rgba(0, 0, 0, 0.5), var(--edge-highlight);
     --shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.6), var(--edge-highlight);
     --shadow-glow: 0 0 24px rgba(var(--accent-primary-rgb), 0.22);
+    /* Shared coding font for every code block/inline snippet site-wide
+       (prose.css, hljs-theme.css) - JetBrains Mono first, falling back to
+       each OS's own modern coding font rather than the browser's generic
+       "monospace" default (Courier New on Windows), which is what was
+       reading as sharp/typewriter-ish. */
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 /* Accent Color presets - selectable via the settings panel, persisted in localStorage */
@@ -89,7 +99,10 @@
     --bg-tertiary: #e8e8ed;
     --bg-elevated: #ffffff;
     --text-primary: #1d1d1f;
-    --text-secondary: #6e6e73;
+    /* Darkened from #6e6e73 for the same reason as the dark theme's bump:
+       body copy at the old value felt flat/dim next to the near-black
+       headings rather than reading as an intentional secondary tone. */
+    --text-secondary: #55565b;
     --text-tertiary: #86868b;
     --border-color: rgba(0, 0, 0, 0.08);
     --edge-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -112,19 +125,32 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--bg-primary);
-    /* Soft ambient wash instead of a flat fill - a faint radial glow anchored
-       top-center gives the dark canvas depth without reading as a "gradient
-       background" cliche. Fixed so it doesn't scroll/repeat with content. */
-    background-image: radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(var(--accent-primary-rgb), 0.06), transparent 60%);
-    background-repeat: no-repeat;
-    background-attachment: fixed;
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
+    position: relative;
 }
 
-[data-theme="light"] body {
+/* Soft ambient wash instead of a flat fill - a faint radial glow anchored
+   top-center gives the dark canvas depth without reading as a "gradient
+   background" cliche. This used to be `background-attachment: fixed` on
+   body itself, but a fixed-attachment background forces the browser to
+   repaint it on the main thread every scroll frame - fine for the
+   occasional native scroll tick, but Lenis's smooth scroll repaints on
+   every animation frame, and that repaint was a big part of the stutter.
+   A `position: fixed` pseudo-element behind the content gets its own
+   compositor layer instead, so scrolling never touches it again. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(var(--accent-primary-rgb), 0.06), transparent 60%);
+    pointer-events: none;
+}
+
+[data-theme="light"] body::before {
     background-image: radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(var(--accent-primary-rgb), 0.04), transparent 60%);
 }
 
@@ -212,15 +238,22 @@ textarea:focus-visible,
     background-clip: padding-box;
 }
 
-/* Typography */
+/* Typography
+   Headings get their own face (Outfit - geometric, slightly condensed)
+   instead of reusing the body's Inter. A single typeface everywhere is
+   part of what read as "boring": distinguishing display text from reading
+   text is one of the most reliable ways to add character without
+   redesigning anything else. */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
+    font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
     line-height: 1.2;
+    letter-spacing: -0.02em;
     color: var(--text-primary);
 }
 

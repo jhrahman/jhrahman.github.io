@@ -14,6 +14,15 @@ import '@fontsource/outfit/500.css'
 import '@fontsource/outfit/600.css'
 import '@fontsource/outfit/700.css'
 import '@fontsource/lobster/400.css'
+// Code blocks had no font-family set, so they fell back to the browser's
+// default monospace (Courier New on Windows) - a serifed, low-x-height
+// typewriter font that reads as sharp/harsh next to the rest of the site.
+// JetBrains Mono is the modern-industry-standard coding font (built for
+// this exact purpose): larger x-height, distinct look-alike characters
+// (0/O, 1/l/I), and smooth, humanist curves instead of typewriter serifs.
+import '@fontsource/jetbrains-mono/400.css'
+import '@fontsource/jetbrains-mono/500.css'
+import '@fontsource/jetbrains-mono/600.css'
 
 import './index.css'
 import './styles/prose.css'

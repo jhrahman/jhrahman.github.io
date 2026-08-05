@@ -21,7 +21,9 @@ const ReadingProgress = ({ targetRef }: { targetRef: React.RefObject<HTMLElement
     }, []);
 
     useEffect(() => {
-        const onScroll = () => {
+        let ticking = false;
+        const measure = () => {
+            ticking = false;
             const el = targetRef.current;
             if (!el) return;
             const rect = el.getBoundingClientRect();
@@ -30,7 +32,17 @@ const ReadingProgress = ({ targetRef }: { targetRef: React.RefObject<HTMLElement
             const pct = total > 0 ? Math.min(100, Math.max(0, (scrolled / total) * 100)) : 0;
             setProgress(pct);
         };
-        onScroll();
+        // rAF-coalesced: with Lenis driving scroll, native 'scroll' fires once
+        // per animation frame already, but this guards against the handler
+        // ever running more than once per painted frame (e.g. a stray resize
+        // landing in the same frame) so the setState rate can't outpace the
+        // screen's own refresh.
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(measure);
+        };
+        measure();
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', onScroll);
         return () => {
