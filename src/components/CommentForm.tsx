@@ -155,7 +155,22 @@ const CommentForm = ({ variant, initialBody = '', submitLabel, busyLabel, busy, 
             )}
 
             <div className="comment-form-field">
-                {showIdentityFields && expanded && <label htmlFor={`comment-body-${variant}`}>Comment</label>}
+                {showIdentityFields && (
+                    <AnimatePresence initial={false}>
+                        {expanded && (
+                            <motion.label
+                                key="comment-label"
+                                htmlFor={`comment-body-${variant}`}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.18 }}
+                            >
+                                Comment
+                            </motion.label>
+                        )}
+                    </AnimatePresence>
+                )}
                 <textarea
                     id={`comment-body-${variant}`}
                     ref={bodyRef}

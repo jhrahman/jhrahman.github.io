@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Category, Post } from '../types/blog';
+import { useNestedSmoothScroll } from '../hooks/useSmoothScroll';
 import './SeriesNav.css';
 
 interface SeriesNavProps {
@@ -17,6 +18,15 @@ interface SeriesNavProps {
  * collapsed <details> card under the header on mobile.
  */
 const SeriesNav = ({ category, parts, currentSlug, variant = 'desktop' }: SeriesNavProps) => {
+    // Same nested-scroll issue TableOfContents had: this panel has its own
+    // internal overflow-y: auto (see max-height in SeriesNav.css), so without
+    // this it either scrolls natively with zero smoothing or - worse - the
+    // page-level Lenis instance eats the wheel input over it and the panel
+    // never scrolls at all. Must run before the parts.length early return
+    // per the rules of hooks; it's a no-op until the desktop <nav> ref
+    // below actually attaches.
+    const navRef = useNestedSmoothScroll<HTMLElement>();
+
     if (parts.length === 0) return null;
 
     const currentIndex = parts.findIndex((p) => p.slug === currentSlug);
@@ -60,11 +70,16 @@ const SeriesNav = ({ category, parts, currentSlug, variant = 'desktop' }: Series
     }
 
     return (
-        <nav className="series-nav series-nav-desktop" aria-label="Parts in this series">
-            <span className="series-nav-heading">
-                <i className="fas fa-layer-group" aria-hidden="true"></i> {category.title}
-            </span>
-            {list}
+        // data-lenis-prevent tells the page-level Lenis instance to ignore
+        // wheel events here entirely, so the nested instance above is the
+        // only thing driving this panel's scroll (mirrors TableOfContents).
+        <nav className="series-nav series-nav-desktop" aria-label="Parts in this series" ref={navRef} data-lenis-prevent>
+            <div className="series-nav-inner">
+                <span className="series-nav-heading">
+                    <i className="fas fa-layer-group" aria-hidden="true"></i> {category.title}
+                </span>
+                {list}
+            </div>
         </nav>
     );
 };

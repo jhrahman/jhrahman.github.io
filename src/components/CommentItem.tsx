@@ -68,6 +68,7 @@ const CommentItem = ({ comment, replies = [], isReply = false, onReply, onUpdate
     const [editing, setEditing] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
     const [busy, setBusy] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [formError, setFormError] = useState<string | null>(null);
 
     const isPending = comment.id.startsWith('temp-');
@@ -101,11 +102,22 @@ const CommentItem = ({ comment, replies = [], isReply = false, onReply, onUpdate
 
     const handleDelete = async () => {
         setBusy(true);
+        setDeleting(true);
         try {
+            // onDelete resolves as soon as the optimistic local update lands
+            // (the real network call runs in the background) - near
+            // instantly. Without this brief pause the comment would swap
+            // straight to its tombstone the moment "Yes, delete" is
+            // clicked, giving no visible sense that anything was happening.
+            // The dim/scale transition below plays during this window, then
+            // the existing fade-to-tombstone takes over once it commits.
+            await new Promise((resolve) => setTimeout(resolve, 420));
             await onDelete(comment.id);
         } catch {
             setBusy(false);
             setConfirmingDelete(false);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -119,7 +131,7 @@ const CommentItem = ({ comment, replies = [], isReply = false, onReply, onUpdate
                 ) : (
                     <motion.div
                         key="live"
-                        className={`comment-item-live ${isPending ? 'comment-item-live--pending' : ''}`}
+                        className={`comment-item-live ${isPending ? 'comment-item-live--pending' : ''} ${deleting ? 'comment-item-live--deleting' : ''}`}
                         {...swapMotion}
                     >
                         <Avatar name={comment.name} anonymous={comment.anonymous} />

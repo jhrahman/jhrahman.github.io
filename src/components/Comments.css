@@ -83,10 +83,27 @@
     box-sizing: border-box;
     margin: -3px;
     padding: 3px;
+    /* Content fades in only once the box has started growing (delay), and
+       fades out immediately on collapse (no delay) so the fields don't sit
+       there fully visible while the box is still shrinking around them -
+       that pop/snap was the "instant" feeling. Keeps the two fields (name/
+       email) visually choreographed with the height animation instead of
+       appearing/disappearing as a hard cut. */
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.comment-form-collapsible.is-expanded .comment-form-collapsible-inner {
+    opacity: 1;
+    transition: opacity 0.28s ease 0.14s;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .comment-form-collapsible {
+        transition: none;
+    }
+
+    .comment-form-collapsible-inner {
         transition: none;
     }
 }
@@ -268,9 +285,24 @@
     opacity: 0.6;
 }
 
+/* Plays for the brief pause in CommentItem's handleDelete between "Yes,
+   delete" and the comment actually swapping to its tombstone - reads as
+   "working" rather than the row just vanishing. transform is relative
+   (scale, not px), so it holds up at any viewport/zoom level. */
+.comment-item-live--deleting {
+    opacity: 0.45;
+    transform: scale(0.98);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .comment-item-live {
         transition: none;
+    }
+
+    .comment-item-live--deleting {
+        transform: none;
     }
 }
 
