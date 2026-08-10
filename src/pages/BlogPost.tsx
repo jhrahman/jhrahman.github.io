@@ -117,7 +117,6 @@ const BlogPost = () => {
             const lang = codeEl?.className.match(/language-([\w-]+)/)?.[1];
 
             const originalParent = pre.parentNode;
-            const originalNextSibling = pre.nextSibling;
 
             const wrapper = document.createElement('div');
             wrapper.className = 'code-block';
