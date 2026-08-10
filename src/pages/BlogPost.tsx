@@ -166,7 +166,13 @@ const BlogPost = () => {
                 // second effect run (React StrictMode's dev-only double
                 // mount, or any future re-run) sees the <pre> as already
                 // wrapped and skips it, leaving the button with no listener.
-                originalParent?.insertBefore(pre, originalNextSibling);
+                // Use the wrapper's current parent rather than the original
+                // nextSibling, since the DOM may have changed between mounts.
+                if (wrapper.parentNode) {
+                    wrapper.parentNode.insertBefore(pre, wrapper);
+                } else {
+                    originalParent?.appendChild(pre);
+                }
                 wrapper.remove();
             });
         });
