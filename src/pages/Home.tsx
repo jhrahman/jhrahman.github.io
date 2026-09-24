@@ -80,6 +80,15 @@ const Home = () => {
                                 <span className="gradient-text">Jahidur Rahman</span>
                             </motion.h1>
 
+                            <motion.p
+                                className="hero-role"
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.55, duration: 0.6 }}
+                            >
+                                Senior SQA Engineer
+                            </motion.p>
+
                             <motion.div
                                 className="hero-capabilities"
                                 initial={{ opacity: 0 }}

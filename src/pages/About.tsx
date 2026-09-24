@@ -21,7 +21,7 @@ const heroTextItemVariants = {
 };
 
 const identityTags = [
-    { icon: 'fa-vial', label: 'QA Engineer' },
+    { icon: 'fa-vial', label: 'Sr SQA Engineer' },
     { icon: 'fa-robot', label: 'Automation Builder' },
     { icon: 'fa-diagram-project', label: 'DevOps Enthusiast' },
     { icon: 'fa-headset', label: 'Support Specialist' },
