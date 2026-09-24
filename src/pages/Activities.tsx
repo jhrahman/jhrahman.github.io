@@ -36,6 +36,15 @@ const Activities = () => {
             graphicPreview: true
         },
         {
+            title: 'PostgreSQL Database Testing',
+            tech: 'PostgreSQL, SQL, psql, Data Validation, Referential Integrity, GitHub Actions, GitHub Pages',
+            demo: 'https://github.com/jhrahman/postgresql-database-testing',
+            demoLabel: 'View on GitHub →',
+            image: `${import.meta.env.BASE_URL}images/tech-postgresql-testing.svg`,
+            description: '11 SQL test cases on an e-commerce schema checking integrity, business rules, duplicates, and payment reconciliation.',
+            graphicPreview: true
+        },
+        {
             title: 'AI-Automated Testing for Peoplix',
             tech: 'Playwright MCP, Playwright Agents, Claude Code, RBAC, CRUD Testing',
             demo: 'https://github.com/jhrahman/peoplix-e2e-tests',
