@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { posts, allPostsIncludingDrafts, allTags } from '../data/posts';
 import { partsOf, categories, categoryStats, getCategoryById } from '../data/categories';
 import { buildFeed, pickFeaturedEntries, entryKey, type FeedEntry } from '../data/blogFeed';
@@ -10,6 +10,7 @@ import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import CategoryDropdown from '../components/CategoryDropdown';
 import CategoryCard from '../components/CategoryCard';
 import PostCard from '../components/PostCard';
+import TagSlider from '../components/TagSlider';
 import './Blog.css';
 
 const containerVariants = {
@@ -21,6 +22,28 @@ const itemVariants = {
     hidden: { y: 40, opacity: 0 },
     visible: { y: 0, opacity: 1, transition: { duration: 0.5, type: 'spring' as const } },
 };
+
+// Cross-fade between the feed and any category's series view. The wrapper is
+// keyed by the active category id, so every current and future category gets
+// the same transition with no per-category code.
+const viewVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const, when: 'beforeChildren' as const } },
+    exit: { opacity: 0, y: -12, transition: { duration: 0.2, ease: 'easeIn' as const } },
+};
+
+const listVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.16, delayChildren: 0.15 } },
+};
+
+// Series rows drift in slowly and softly (no spring bounce), one after another.
+const rowVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const } },
+};
+
+const MotionLink = motion.create(Link);
 
 function formatDate(iso: string): string {
     return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -136,7 +159,7 @@ const Blog = () => {
                     </div>
 
                     {allTags.length > 0 && (
-                        <div className="blog-tags" role="group" aria-label="Filter by tag">
+                        <TagSlider label="Filter by tag">
                             <button
                                 className={`blog-tag-chip ${activeTag === null ? 'active' : ''}`}
                                 onClick={() => setTag(null)}
@@ -152,7 +175,7 @@ const Blog = () => {
                                     {tag}
                                 </button>
                             ))}
-                        </div>
+                        </TagSlider>
                     )}
 
                     {(activeCategoryRecord || activeTag) && (
@@ -176,6 +199,14 @@ const Blog = () => {
                     )}
                 </div>
 
+                <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                    key={activeCategoryRecord ? `series-${activeCategoryRecord.id}` : 'feed'}
+                    variants={viewVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                >
                 {activeCategoryRecord && seriesStats ? (
                     <>
                         <div className="blog-series-header">
@@ -187,9 +218,9 @@ const Blog = () => {
                                 View the full series <i className="fas fa-arrow-right"></i>
                             </Link>
                         </div>
-                        <div className="series-compact-list">
+                        <motion.div className="series-compact-list" variants={listVariants}>
                             {seriesParts.map((post, i) => (
-                                <Link key={post.slug} to={`/blog/${post.id}`} className="series-compact-row">
+                                <MotionLink key={post.slug} to={`/blog/${post.id}`} className="series-compact-row" variants={rowVariants}>
                                     <span className="post-part-badge">Part {post.part ?? i + 1}</span>
                                     <div className="series-compact-row-title">
                                         <h3>
@@ -198,9 +229,9 @@ const Blog = () => {
                                         </h3>
                                     </div>
                                     <span className="series-compact-row-meta">{post.readingTime} min read</span>
-                                </Link>
+                                </MotionLink>
                             ))}
-                        </div>
+                        </motion.div>
                     </>
                 ) : (
                     <>
@@ -299,6 +330,8 @@ const Blog = () => {
                         )}
                     </>
                 )}
+                </motion.div>
+                </AnimatePresence>
             </div>
         </motion.div>
     );

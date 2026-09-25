@@ -356,8 +356,63 @@
     scrollbar-width: thin;
     scrollbar-color: var(--accent-primary) transparent;
     -webkit-overflow-scrolling: touch;
-    mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black calc(100% - 40px), transparent 100%);
+}
+
+/* Edge fades show on any side with more tags to reveal; arrows fade in only while hovering (or keyboard-focusing, not mouse-click focus) the row. */
+.tag-slider {
+    position: relative;
+    width: 100%;
+    --fade-left: 0px;
+    --fade-right: 0px;
+}
+
+.tag-slider.can-left { --fade-left: 48px; }
+.tag-slider.can-right { --fade-right: 48px; }
+
+.tag-slider .blog-tags {
+    mask-image: linear-gradient(to right, transparent 0, black var(--fade-left), black calc(100% - var(--fade-right)), transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, black var(--fade-left), black calc(100% - var(--fade-right)), transparent 100%);
+}
+
+.tag-slider-arrow {
+    position: absolute;
+    top: calc(50% - 0.3rem);
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.tag-slider-arrow.left { left: 0; }
+.tag-slider-arrow.right { right: 0; }
+
+.tag-slider.can-left:hover .tag-slider-arrow.left,
+.tag-slider.can-right:hover .tag-slider-arrow.right,
+.tag-slider.can-left:has(:focus-visible) .tag-slider-arrow.left,
+.tag-slider.can-right:has(:focus-visible) .tag-slider-arrow.right {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.tag-slider-arrow:hover {
+    border-color: var(--accent-primary);
+}
+
+/* Touch devices swipe natively; no arrows needed. */
+@media (hover: none) {
+    .tag-slider-arrow { display: none; }
 }
 
 .blog-tags::-webkit-scrollbar {
