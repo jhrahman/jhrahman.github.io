@@ -1,0 +1,17 @@
+{
+    "id": 22,
+    "slug": "heading-1",
+    "title": "Heading 1",
+    "excerpt": "Heading 2 Heading 3 Heading 4 Text Formatting Bold text Italic text Bold and italic text Strikethrough text Inline code Underline is HTML, not standard…",
+    "tags": [],
+    "cover": null,
+    "date": "2026-10-03T16:52:23.194Z",
+    "updated": null,
+    "readingTime": 1,
+    "featured": false,
+    "draft": false,
+    "html": "<div class=\"callout callout-warning\" data-callout=\"warning\"><p></p></div><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><div class=\"callout callout-caution\" data-callout=\"caution\"><p></p></div><hr><h2>Text Formatting</h2><p><strong>Bold text</strong></p><p><em>Italic text</em></p><p><strong><em>Bold and italic text</em></strong></p><p><s>Strikethrough text</s></p><p><code>Inline code</code></p><p><u>Underline is HTML, not standard Markdown</u></p><blockquote><p>This is a blockquote.</p></blockquote><blockquote><p>This is a multiline blockquote.</p><p>It can contain <strong>formatted text</strong> and <code>code</code>.</p></blockquote><div class=\"callout callout-important\" data-callout=\"important\"><p></p></div><hr><h2>Links</h2><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://openai.com\">OpenAI</a></p><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://openai.com\">https://openai.com</a></p><p><a target=\"_blank\" rel=\"noopener noreferrer nofollow\" href=\"https://openai.com\">Link with title</a></p><hr><h2>Images</h2><p></p><img src=\"https://via.placeholder.com/600x300\" alt=\"Example image\"><hr><h2>Lists</h2><h3>Unordered List</h3><ul><li><p>Item one</p></li><li><p>Item two</p><ul><li><p>Nested item</p></li><li><p>Another nested item</p></li></ul></li><li><p>Item three</p></li></ul><h3>Ordered List</h3><ol><li><p>First item</p></li><li><p>Second item</p></li><li><p>Third item</p><ol><li><p>Nested item</p></li><li><p>Another nested item</p></li></ol></li></ol><h3>Task List</h3><ul data-type=\"taskList\"><li data-checked=\"true\" data-type=\"taskItem\"><label><input type=\"checkbox\" checked=\"checked\"><span></span></label><div><p>Completed task</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Pending task</p></div></li><li data-checked=\"false\" data-type=\"taskItem\"><label><input type=\"checkbox\"><span></span></label><div><p>Another task</p></div></li></ul><hr><h2>Code</h2><p>Inline code: <code>const name = \"Jahidur\";</code></p><h3>JavaScript</h3><pre><code class=\"hljs language-javascript\"><span class=\"hljs-keyword\">const</span> name = <span class=\"hljs-string\">\"Jahidur Rahman\"</span>;\n\n<span class=\"hljs-keyword\">function</span> <span class=\"hljs-title function_\">greet</span>(<span class=\"hljs-params\">name</span>) {\n    <span class=\"hljs-keyword\">return</span> <span class=\"hljs-string\">`Hello, <span class=\"hljs-subst\">${name}</span>!`</span>;\n}\n\n<span class=\"hljs-variable language_\">console</span>.<span class=\"hljs-title function_\">log</span>(<span class=\"hljs-title function_\">greet</span>(name));\n</code></pre>",
+    "category": null,
+    "part": null,
+    "author": "Jahidur Rahman"
+}
