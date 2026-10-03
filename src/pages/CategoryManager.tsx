@@ -10,6 +10,7 @@ import { GitHubApiError, actionsUrl } from '../lib/github';
 // Reuses the editor-field/editor-panel/publish-btn primitives already
 // defined for the post editor, rather than duplicating that vocabulary -
 // CategoryManager.css only adds what's specific to the category list/form.
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import './PostEditor.css';
 import './CategoryManager.css';
 
@@ -40,8 +41,7 @@ const CategoryManager = () => {
     const [coverFile, setCoverFile] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(existing?.cover ?? null);
     const [saveState, setSaveState] = useState<SaveState>({ phase: 'idle' });
-    const [deletingId, setDeletingId] = useState<number | null>(null);
-    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<{ id: number; slug: string; title: string } | null>(null);
 
     useEffect(() => {
         if (!isOwner) navigate('/blog', { replace: true });
@@ -128,27 +128,17 @@ const CategoryManager = () => {
         }
     };
 
-    const handleDelete = async (targetId: number, targetSlug: string, targetTitle: string) => {
-        if (!window.confirm(`Delete "${targetTitle}"? This can't be undone.`)) return;
+    const confirmDelete = async (onProgress: (message: string) => void) => {
+        if (!deleteTarget) return;
         const token = getToken();
-        if (!token) {
-            setDeleteError('You are signed out. Sign in again from the settings panel.');
-            return;
-        }
-        setDeletingId(targetId);
-        setDeleteError(null);
-        try {
-            await deleteCategory(token, targetId, targetSlug, targetTitle);
-            if (numericEditId === targetId) startNew();
-        } catch (err) {
-            setDeleteError(
-                err instanceof GitHubApiError
-                    ? `GitHub rejected this: ${err.message}`
-                    : err instanceof Error ? err.message : 'Something went wrong while deleting.'
-            );
-        } finally {
-            setDeletingId(null);
-        }
+        if (!token) throw new Error('You are signed out. Sign in again from the settings panel.');
+        onProgress('Deleting category…');
+        await deleteCategory(token, deleteTarget.id, deleteTarget.slug, deleteTarget.title);
+    };
+
+    const finishDelete = () => {
+        if (deleteTarget && numericEditId === deleteTarget.id) startNew();
+        setDeleteTarget(null);
     };
 
     if (!isOwner) return null;
@@ -187,10 +177,10 @@ const CategoryManager = () => {
                                         <button
                                             type="button"
                                             className="delete-btn-inline"
-                                            onClick={() => handleDelete(c.id, c.slug, c.title)}
-                                            disabled={deletingId === c.id}
+                                            onClick={() => setDeleteTarget({ id: c.id, slug: c.slug, title: c.title })}
+                                            aria-label={`Delete ${c.title}`}
                                         >
-                                            <i className={`fas ${deletingId === c.id ? 'fa-spinner fa-spin' : 'fa-trash'}`}></i>
+                                            <i className="fas fa-trash"></i>
                                         </button>
                                     </div>
                                 </li>
@@ -198,7 +188,14 @@ const CategoryManager = () => {
                         })}
                     </ul>
                 )}
-                {deleteError && <p className="editor-field-error">{deleteError}</p>}
+                <DeleteConfirmModal
+                    isOpen={deleteTarget !== null}
+                    kind="category"
+                    name={deleteTarget?.title ?? ''}
+                    onConfirm={confirmDelete}
+                    onClose={() => setDeleteTarget(null)}
+                    onDone={finishDelete}
+                />
 
                 <div className="category-manager-form glass-effect">
                     <div className="category-manager-form-header">

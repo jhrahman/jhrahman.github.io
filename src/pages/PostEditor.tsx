@@ -12,6 +12,9 @@ import FontFamily from '@tiptap/extension-font-family';
 import LinkExtension from '@tiptap/extension-link';
 import { validateAttachment, formatBytes } from '../lib/attachments';
 import Image from '@tiptap/extension-image';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import { Callout } from '../lib/calloutExtension';
 import Placeholder from '@tiptap/extension-placeholder';
 import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
@@ -27,6 +30,8 @@ import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
 import { Embed } from '../lib/embedExtension';
 import { parseEmbedUrl, EMBED_HELP } from '../lib/embeds';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import MarkdownPanel from '../components/MarkdownPanel';
 import EditorToolbar from '../components/EditorToolbar';
 import './PostEditor.css';
 
@@ -93,9 +98,8 @@ const PostEditor = () => {
     const [coverPreview, setCoverPreview] = useState<string | null>(existingPost?.cover ?? null);
     const [publishState, setPublishState] = useState<PublishState>({ phase: 'idle' });
     const [restoredNotice, setRestoredNotice] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [deleteMessage, setDeleteMessage] = useState('Deleting…');
-    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [mode, setMode] = useState<'rich' | 'markdown'>('rich');
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const editor = useEditor({
         extensions: [
@@ -114,6 +118,9 @@ const PostEditor = () => {
             }),
             Image,
             Embed,
+            Callout,
+            TaskList,
+            TaskItem.configure({ nested: true }),
             Placeholder.configure({ placeholder: 'Start writing…' }),
             Table.configure({ resizable: true }),
             TableRow,
@@ -190,23 +197,36 @@ const PostEditor = () => {
         return match.id !== existingPost?.id;
     }, [slug, existingPost]);
 
-    const handleInsertImage = (file: File) => {
-        if (!editor) return;
+    /** Registers an image as a pending upload (swapped for its repo URL on publish) and returns the temporary blob: URL. */
+    const stageImage = (file: File): string => {
         const url = URL.createObjectURL(file);
         pendingImages.current.set(url, file);
-        editor.chain().focus().setImage({ src: url }).run();
+        return url;
+    };
+
+    /** Same for non-image files; validates first and reports why a file was refused. */
+    const stageAttachment = (file: File): { url: string } | { error: string } => {
+        const problem = validateAttachment(file);
+        if (problem) return { error: problem };
+        const url = URL.createObjectURL(file);
+        pendingFiles.current.set(url, file);
+        return { url };
+    };
+
+    const handleInsertImage = (file: File) => {
+        if (!editor) return;
+        editor.chain().focus().setImage({ src: stageImage(file) }).run();
     };
 
     const handleAttachFile = (file: File) => {
         if (!editor) return;
-        const problem = validateAttachment(file);
-        if (problem) {
-            setAttachError(problem);
+        const staged = stageAttachment(file);
+        if ('error' in staged) {
+            setAttachError(staged.error);
             return;
         }
         setAttachError(null);
-        const url = URL.createObjectURL(file);
-        pendingFiles.current.set(url, file);
+        const url = staged.url;
         editor.chain().focus().insertContent([
             {
                 type: 'text',
@@ -295,27 +315,11 @@ const PostEditor = () => {
         }
     };
 
-    const handleDelete = async () => {
+    const confirmDelete = async (onProgress: (message: string) => void) => {
         if (!existingPost) return;
-        if (!window.confirm(`Delete "${existingPost.title}"? This can't be undone.`)) return;
         const token = getToken();
-        if (!token) {
-            setDeleteError('You are signed out. Sign in again from the settings panel.');
-            return;
-        }
-        setDeleting(true);
-        setDeleteError(null);
-        try {
-            await deletePost(token, existingPost.slug, existingPost.title, (message) => setDeleteMessage(message));
-            navigate('/blog');
-        } catch (err) {
-            setDeleting(false);
-            setDeleteError(
-                err instanceof GitHubApiError
-                    ? `GitHub rejected this: ${err.message}`
-                    : err instanceof Error ? err.message : 'Something went wrong while deleting.'
-            );
-        }
+        if (!token) throw new Error('You are signed out. Sign in again from the settings panel.');
+        await deletePost(token, existingPost.slug, existingPost.title, onProgress);
     };
 
     if (!isOwner) return null;
@@ -350,9 +354,33 @@ const PostEditor = () => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
-                        <EditorToolbar editor={editor} onInsertImage={handleInsertImage} onAttachFile={handleAttachFile} onEmbed={handleEmbed} />
-                        {attachError && <p className="editor-attach-error" role="alert">{attachError}</p>}
-                        <EditorContent editor={editor} />
+                        <div className="editor-mode-tabs" role="tablist" aria-label="Editor mode">
+                            <button type="button" role="tab" aria-selected={mode === 'rich'} className={mode === 'rich' ? 'active' : ''} onClick={() => setMode('rich')}>Rich text</button>
+                            <button type="button" role="tab" aria-selected={mode === 'markdown'} className={mode === 'markdown' ? 'active' : ''} onClick={() => setMode('markdown')}>Markdown</button>
+                        </div>
+                        {mode === 'markdown' && (
+                            <MarkdownPanel
+                                draftKey={`blog_editor_md_${numericRouteId ?? 'new'}`}
+                                hasContent={Boolean(editor && !editor.isEmpty)}
+                                stageImage={stageImage}
+                                stageAttachment={stageAttachment}
+                                onReplace={(html, meta) => {
+                                    editor?.commands.setContent(html);
+                                    // Only ever fill what's still blank - never overwrite what was typed.
+                                    if (meta.title && !title.trim()) setTitle(meta.title);
+                                    if (meta.excerpt && !excerpt.trim()) setExcerpt(meta.excerpt);
+                                    if (meta.tags?.length) setTags((prev) => [...prev, ...meta.tags!.filter((t) => !prev.includes(t))]);
+                                    setMode('rich');
+                                }}
+                                onInsert={(html) => { editor?.chain().focus().insertContent(html).run(); setMode('rich'); }}
+                            />
+                        )}
+                        {/* Kept mounted (just hidden) in Markdown mode so the editor keeps its undo history, selection and pending uploads. */}
+                        <div hidden={mode !== 'rich'}>
+                            <EditorToolbar editor={editor} onInsertImage={handleInsertImage} onAttachFile={handleAttachFile} onEmbed={handleEmbed} />
+                            {attachError && <p className="editor-attach-error" role="alert">{attachError}</p>}
+                            <EditorContent editor={editor} />
+                        </div>
                     </div>
 
                     <aside className="editor-sidebar">
@@ -503,15 +531,18 @@ const PostEditor = () => {
                                 <button
                                     type="button"
                                     className="delete-btn"
-                                    onClick={handleDelete}
-                                    disabled={deleting}
+                                    onClick={() => setDeleteOpen(true)}
                                 >
-                                    {deleting
-                                        ? <><i className="fas fa-spinner fa-spin"></i> {deleteMessage}</>
-                                        : <><i className="fas fa-trash"></i> Delete post</>
-                                    }
+                                    <i className="fas fa-trash"></i> Delete post
                                 </button>
-                                {deleteError && <p className="editor-field-error">{deleteError}</p>}
+                                <DeleteConfirmModal
+                                    isOpen={deleteOpen}
+                                    kind="post"
+                                    name={existingPost.title}
+                                    onConfirm={confirmDelete}
+                                    onClose={() => setDeleteOpen(false)}
+                                    onDone={() => navigate('/blog')}
+                                />
                             </>
                         )}
                     </aside>

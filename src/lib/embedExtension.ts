@@ -1,4 +1,5 @@
 import { Node } from '@tiptap/core';
+import { embedIframeAttrs } from './embeds';
 
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
@@ -37,15 +38,7 @@ export const Embed = Node.create({
         return [
             'div',
             { class: 'embed', 'data-embed': '' },
-            ['iframe', {
-                src: node.attrs.src,
-                title: node.attrs.title,
-                loading: 'lazy',
-                allowfullscreen: 'true',
-                allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen',
-                referrerpolicy: 'strict-origin-when-cross-origin',
-                sandbox: 'allow-scripts allow-same-origin allow-presentation allow-popups allow-forms',
-            }],
+            ['iframe', embedIframeAttrs(node.attrs.src, node.attrs.title)],
         ];
     },
 

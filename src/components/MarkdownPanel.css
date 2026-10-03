@@ -1,0 +1,201 @@
+.md-panel {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.md-panel-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.md-tabs { display: flex; gap: 0.25rem; }
+
+.md-tabs button,
+.md-link-btn,
+.md-btn {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 0.4rem 0.8rem;
+}
+
+.md-tabs button.active {
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    font-weight: 600;
+}
+
+.md-link-btn:hover { color: var(--accent-primary); }
+
+.md-textarea {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    resize: none;
+    padding: 1rem;
+    border: 0;
+    outline: none;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    tab-size: 4;
+}
+
+.md-preview {
+    height: 100%;
+    overflow: auto;
+    padding: 1rem 1.25rem;
+    background: var(--bg-primary);
+}
+
+.md-empty { color: var(--text-secondary); }
+
+.md-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.md-hint {
+    flex: 1 1 220px;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.md-btn {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.md-btn:hover:not(:disabled) { border-color: var(--accent-primary); }
+.md-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.md-btn.primary {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+.md-btn.primary.warn { background: #dc2626; border-color: #dc2626; }
+
+.editor-mode-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-secondary);
+}
+
+.editor-mode-tabs button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.4rem 0.9rem;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.editor-mode-tabs button.active {
+    background: var(--accent-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.md-bar-actions { display: flex; gap: 0.25rem; margin-left: auto; }
+.md-link-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.md-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.md-select {
+    height: 40px;
+    padding: 0 0.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.md-embed-row {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.md-embed-row input {
+    flex: 1;
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font: inherit;
+}
+
+.md-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: min(70vh, 640px);
+}
+
+.md-body.view-split { grid-template-columns: 1fr 1fr; }
+.md-body.view-split .md-textarea { border-right: 1px solid var(--border-color); }
+.md-body > * { min-height: 0; min-width: 0; }
+
+@media (max-width: 800px) {
+    .md-body.view-split { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+    .md-body.view-split .md-textarea { border-right: 0; border-bottom: 1px solid var(--border-color); }
+}
+
+.md-textarea.dragging { outline: 2px dashed var(--accent-primary); outline-offset: -4px; }
+.md-error { margin: 0.5rem 0.75rem; }
+
+.md-statusbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.4rem 0.75rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.md-detected { color: var(--accent-primary); }
+
+/* .post-body caps its width to a reading measure and centres it; the preview pane should fill its column instead. */
+.md-preview.post-body {
+    max-width: none;
+    margin: 0;
+}

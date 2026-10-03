@@ -162,7 +162,7 @@ function hastToHtml(node: HastRoot | HastElement | HastText): string {
 // posts render with real syntax colors. Works for any language in the
 // `common` lowlight bundle, not just whatever was picked in the editor -
 // falls back to auto-detection when no language class is present.
-function highlightCodeBlocks(html: string): string {
+export function highlightCodeBlocks(html: string): string {
     const doc = new DOMParser().parseFromString(html, 'text/html');
     doc.querySelectorAll('pre > code').forEach((codeEl) => {
         const text = codeEl.textContent ?? '';

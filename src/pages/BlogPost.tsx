@@ -1,12 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import { sanitizeHtml } from '../lib/sanitize';
 import { getPostById, getAdjacentPosts } from '../data/posts';
 import { getCategoryById, partsOf, getSeriesAdjacent } from '../data/categories';
 import { useAuth } from '../lib/auth';
 import { deletePost } from '../lib/deletePost';
-import { GitHubApiError } from '../lib/github';
 import { attachCustomScrollbar } from '../lib/codeScrollbar';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import ReadingProgress from '../components/ReadingProgress';
@@ -48,9 +48,7 @@ const BlogPost = () => {
     const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
     const [linkCopied, setLinkCopied] = useState(false);
-    const [deleting, setDeleting] = useState(false);
-    const [deleteMessage, setDeleteMessage] = useState('Deleting…');
-    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const numericId = Number(id);
     const post = Number.isInteger(numericId) ? getPostById(numericId, isOwner) : undefined;
@@ -225,26 +223,10 @@ const BlogPost = () => {
         }
     };
 
-    const handleDelete = async () => {
-        if (!window.confirm(`Delete "${post.title}"? This can't be undone.`)) return;
+    const confirmDelete = async (onProgress: (message: string) => void) => {
         const token = getToken();
-        if (!token) {
-            setDeleteError('You are signed out. Sign in again from the settings panel.');
-            return;
-        }
-        setDeleting(true);
-        setDeleteError(null);
-        try {
-            await deletePost(token, post.slug, post.title, (message) => setDeleteMessage(message));
-            navigate('/blog');
-        } catch (err) {
-            setDeleting(false);
-            setDeleteError(
-                err instanceof GitHubApiError
-                    ? `GitHub rejected this: ${err.message}`
-                    : err instanceof Error ? err.message : 'Something went wrong while deleting.'
-            );
-        }
+        if (!token) throw new Error('You are signed out. Sign in again from the settings panel.');
+        await deletePost(token, post.slug, post.title, onProgress);
     };
 
     return (
@@ -300,13 +282,20 @@ const BlogPost = () => {
                             <button className="edit-post-btn" onClick={() => navigate(`/blog/edit/${post.id}`)}>
                                 <i className="fas fa-pen"></i> Edit post
                             </button>
-                            <button className="delete-post-btn" onClick={handleDelete} disabled={deleting}>
-                                <i className={`fas ${deleting ? 'fa-spinner fa-spin' : 'fa-trash'}`}></i>
-                                {deleting ? deleteMessage : 'Delete post'}
+                            <button className="delete-post-btn" onClick={() => setDeleteOpen(true)}>
+                                <i className="fas fa-trash"></i>
+                                Delete post
                             </button>
                         </div>
                     )}
-                    {deleteError && <p className="delete-post-error">{deleteError}</p>}
+                    <DeleteConfirmModal
+                        isOpen={deleteOpen}
+                        kind="post"
+                        name={post.title}
+                        onConfirm={confirmDelete}
+                        onClose={() => setDeleteOpen(false)}
+                        onDone={() => navigate('/blog')}
+                    />
                 </header>
 
                 {post.cover && (

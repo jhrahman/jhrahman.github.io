@@ -99,4 +99,17 @@ export function isAllowedEmbedSrc(src: string | null): boolean {
     }
 }
 
+/** The one place that decides an embed iframe's attributes, shared by the editor node and the Markdown importer so both emit identical, locked-down markup. */
+export function embedIframeAttrs(src: string, title: string): Record<string, string> {
+    return {
+        src,
+        title,
+        loading: 'lazy',
+        allowfullscreen: 'true',
+        allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen',
+        referrerpolicy: 'strict-origin-when-cross-origin',
+        sandbox: 'allow-scripts allow-same-origin allow-presentation allow-popups allow-forms',
+    };
+}
+
 export const EMBED_HELP = 'Paste a YouTube, Vimeo, Loom, CodeSandbox, StackBlitz or CodePen link.';

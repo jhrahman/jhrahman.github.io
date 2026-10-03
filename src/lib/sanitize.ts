@@ -14,6 +14,10 @@ const CONFIG = {
     ADD_ATTR: ['target', 'rel', 'download', 'allow', 'allowfullscreen', 'loading', 'referrerpolicy', 'sandbox'],
 };
 
-export function sanitizeHtml(html: string): string {
-    return DOMPurify.sanitize(html, CONFIG);
+// DOMPurify's default URI allowlist plus blob:, which the Markdown editor needs
+// while previewing images/files that are staged locally and not yet uploaded.
+const URI_WITH_BLOB = /^(?:(?:https?|mailto|tel|blob):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
+
+export function sanitizeHtml(html: string, options: { allowBlob?: boolean } = {}): string {
+    return DOMPurify.sanitize(html, options.allowBlob ? { ...CONFIG, ALLOWED_URI_REGEXP: URI_WITH_BLOB } : CONFIG);
 }

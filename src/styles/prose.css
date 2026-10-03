@@ -340,3 +340,53 @@ mark {
 /* Inside the editor, keep clicks on the node itself (selectable/draggable) rather than the frame. */
 .editor-canvas .embed iframe { pointer-events: none; }
 .editor-canvas .ProseMirror-selectednode.embed { outline: 2px solid var(--accent-primary); }
+
+/* GitHub-style callouts (> [!NOTE] etc.). The label comes from the type, so
+   saved HTML stays a plain typed wrapper. */
+.post-body .callout,
+.editor-canvas .callout {
+    --callout-color: #3b82f6;
+    margin: 1.25em 0;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--callout-color);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--callout-color) 10%, transparent);
+}
+
+.post-body .callout > :last-child,
+.editor-canvas .callout > :last-child { margin-bottom: 0; }
+
+.post-body .callout::before,
+.editor-canvas .callout::before {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 700;
+    color: var(--callout-color);
+    text-transform: capitalize;
+    content: attr(data-callout);
+}
+
+.post-body .callout-tip, .editor-canvas .callout-tip { --callout-color: #16a34a; }
+.post-body .callout-important, .editor-canvas .callout-important { --callout-color: #8b5cf6; }
+.post-body .callout-warning, .editor-canvas .callout-warning { --callout-color: #d97706; }
+.post-body .callout-caution, .editor-canvas .callout-caution { --callout-color: #dc2626; }
+
+/* Task lists. Checkboxes are display-only on published posts. */
+.post-body ul[data-type="taskList"],
+.editor-canvas ul[data-type="taskList"] {
+    list-style: none;
+    padding-left: 0.25em;
+}
+
+.post-body ul[data-type="taskList"] li,
+.editor-canvas ul[data-type="taskList"] li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.post-body ul[data-type="taskList"] li > label,
+.editor-canvas ul[data-type="taskList"] li > label { flex: none; user-select: none; }
+.post-body ul[data-type="taskList"] li > div,
+.editor-canvas ul[data-type="taskList"] li > div { flex: 1; min-width: 0; }
+.post-body ul[data-type="taskList"] input { pointer-events: none; }
