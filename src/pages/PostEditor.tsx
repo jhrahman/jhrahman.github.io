@@ -10,6 +10,7 @@ import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import FontFamily from '@tiptap/extension-font-family';
 import LinkExtension from '@tiptap/extension-link';
+import { validateAttachment, formatBytes } from '../lib/attachments';
 import Image from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 import Table from '@tiptap/extension-table';
@@ -24,10 +25,26 @@ import { categories, nextPartNumber } from '../data/categories';
 import { publishPost } from '../lib/publish';
 import { deletePost } from '../lib/deletePost';
 import { GitHubApiError } from '../lib/github';
+import { Embed } from '../lib/embedExtension';
+import { parseEmbedUrl, EMBED_HELP } from '../lib/embeds';
 import EditorToolbar from '../components/EditorToolbar';
 import './PostEditor.css';
 
 const lowlight = createLowlight(common);
+
+// Link plus a `download` attribute, so attached files save instead of navigating away.
+const AttachmentLink = LinkExtension.extend({
+    addAttributes() {
+        return {
+            ...this.parent?.(),
+            download: {
+                default: null,
+                parseHTML: (el) => el.getAttribute('download'),
+                renderHTML: (attrs) => (attrs.download ? { download: attrs.download } : {}),
+            },
+        };
+    },
+});
 const AUTOSAVE_KEY_PREFIX = 'blog_editor_draft_';
 
 interface DraftShape {
@@ -55,6 +72,8 @@ const PostEditor = () => {
 
     const autosaveKey = AUTOSAVE_KEY_PREFIX + (numericRouteId ?? 'new');
     const pendingImages = useRef<Map<string, File>>(new Map());
+    const pendingFiles = useRef<Map<string, File>>(new Map());
+    const [attachError, setAttachError] = useState<string | null>(null);
 
     const [title, setTitle] = useState(existingPost?.title ?? '');
     const [slug, setSlug] = useState(existingPost?.slug ?? '');
@@ -87,8 +106,14 @@ const PostEditor = () => {
             Highlight.configure({ multicolor: true }),
             FontFamily,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
-            LinkExtension.configure({ openOnClick: false, autolink: true }),
+            AttachmentLink.configure({
+                openOnClick: false,
+                autolink: true,
+                // Freshly attached files are blob: URLs until publish swaps in the repo path.
+                isAllowedUri: (url, ctx) => url.startsWith('blob:') || ctx.defaultValidate(url),
+            }),
             Image,
+            Embed,
             Placeholder.configure({ placeholder: 'Start writing…' }),
             Table.configure({ resizable: true }),
             TableRow,
@@ -172,6 +197,34 @@ const PostEditor = () => {
         editor.chain().focus().setImage({ src: url }).run();
     };
 
+    const handleAttachFile = (file: File) => {
+        if (!editor) return;
+        const problem = validateAttachment(file);
+        if (problem) {
+            setAttachError(problem);
+            return;
+        }
+        setAttachError(null);
+        const url = URL.createObjectURL(file);
+        pendingFiles.current.set(url, file);
+        editor.chain().focus().insertContent([
+            {
+                type: 'text',
+                text: `${file.name} (${formatBytes(file.size)})`,
+                marks: [{ type: 'link', attrs: { href: url, target: '_blank', rel: 'noopener noreferrer', download: file.name } }],
+            },
+            { type: 'text', text: ' ' },
+        ]).run();
+    };
+
+    const handleEmbed = (url: string): string | null => {
+        if (!editor) return null;
+        const info = parseEmbedUrl(url);
+        if (!info) return `Unsupported link. ${EMBED_HELP}`;
+        editor.chain().focus().setEmbed({ src: info.src, title: info.title }).run();
+        return null;
+    };
+
     const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -226,6 +279,7 @@ const PostEditor = () => {
                 author,
                 rawHtml: editor.getHTML(),
                 pendingImages: pendingImages.current,
+                pendingFiles: pendingFiles.current,
                 coverFile,
                 existingCover: coverFile ? null : (existingPost?.cover ?? coverPreview),
                 existingDate: existingPost?.date ?? null,
@@ -296,7 +350,8 @@ const PostEditor = () => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
-                        <EditorToolbar editor={editor} onInsertImage={handleInsertImage} />
+                        <EditorToolbar editor={editor} onInsertImage={handleInsertImage} onAttachFile={handleAttachFile} onEmbed={handleEmbed} />
+                        {attachError && <p className="editor-attach-error" role="alert">{attachError}</p>}
                         <EditorContent editor={editor} />
                     </div>
 

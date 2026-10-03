@@ -362,3 +362,13 @@
         font-size: 1.5rem;
     }
 }
+
+.editor-attach-error {
+    margin: -1rem 0 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #b91c1c;
+    background: rgba(185, 28, 28, 0.08);
+    border: 1px solid rgba(185, 28, 28, 0.3);
+}

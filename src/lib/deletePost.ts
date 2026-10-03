@@ -26,9 +26,11 @@ export async function deletePost(
     // order and briefly (or not so briefly) resurrect a "half-deleted" post.
     const changes: FileChange[] = [{ path, content: null }];
     const imageDir = `public/images/blog/${slug}`;
-    const files = await listDirectory(token, imageDir);
-    if (files) {
-        for (const file of files) changes.push({ path: file.path, content: null });
+    for (const dir of [imageDir, `public/files/blog/${slug}`]) {
+        const files = await listDirectory(token, dir);
+        if (files) {
+            for (const file of files) changes.push({ path: file.path, content: null });
+        }
     }
 
     await commitFiles(token, changes, `blog: delete "${title}"`);

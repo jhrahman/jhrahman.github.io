@@ -60,7 +60,7 @@ const About = () => {
         {
             category: 'CI/CD & Containers',
             icon: 'fa-diagram-project',
-            items: ['GitHub Actions', 'Git', 'GitHub', 'Docker', 'Docker Compose']
+            items: ['GitHub Actions', 'Jenkins', 'GitHub', 'Docker', 'Docker Compose']
         },
         {
             category: 'API & Performance Testing',

@@ -115,6 +115,7 @@
 
 .link-popover {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     width: 260px;
 }
@@ -150,4 +151,11 @@
         min-width: 36px;
         height: 36px;
     }
+}
+
+.toolbar-popover-error {
+    flex-basis: 100%;
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #b91c1c;
 }

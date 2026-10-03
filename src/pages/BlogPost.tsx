@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '../lib/sanitize';
 import { getPostById, getAdjacentPosts } from '../data/posts';
 import { getCategoryById, partsOf, getSeriesAdjacent } from '../data/categories';
 import { useAuth } from '../lib/auth';
@@ -56,7 +56,7 @@ const BlogPost = () => {
     const post = Number.isInteger(numericId) ? getPostById(numericId, isOwner) : undefined;
 
     const sanitizedHtml = useMemo(
-        () => (post ? DOMPurify.sanitize(post.html, { ADD_ATTR: ['target', 'rel'] }) : ''),
+        () => (post ? sanitizeHtml(post.html) : ''),
         [post]
     );
 

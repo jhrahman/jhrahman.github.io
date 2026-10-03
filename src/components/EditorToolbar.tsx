@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
+import { ATTACHMENT_ACCEPT } from '../lib/attachments';
 import './EditorToolbar.css';
 
 const FONT_OPTIONS = [
@@ -24,6 +25,9 @@ const ACCENT_COLORS = [
 interface ToolbarProps {
     editor: Editor | null;
     onInsertImage: (file: File) => void;
+    onAttachFile: (file: File) => void;
+    /** Returns an error message, or null when the embed was inserted. */
+    onEmbed: (url: string) => string | null;
 }
 
 function ToolbarButton({ active, disabled, onClick, label, icon, children }: {
@@ -44,14 +48,27 @@ function ToolbarButton({ active, disabled, onClick, label, icon, children }: {
     );
 }
 
-const EditorToolbar = ({ editor, onInsertImage }: ToolbarProps) => {
+const EditorToolbar = ({ editor, onInsertImage, onAttachFile, onEmbed }: ToolbarProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const attachInputRef = useRef<HTMLInputElement>(null);
+    const [showEmbedInput, setShowEmbedInput] = useState(false);
+    const [embedUrl, setEmbedUrl] = useState('');
+    const [embedError, setEmbedError] = useState<string | null>(null);
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
     const [showTextColor, setShowTextColor] = useState(false);
     const [showHighlight, setShowHighlight] = useState(false);
 
     if (!editor) return null;
+
+    const applyEmbed = () => {
+        const error = onEmbed(embedUrl);
+        setEmbedError(error);
+        if (!error) {
+            setEmbedUrl('');
+            setShowEmbedInput(false);
+        }
+    };
 
     const applyLink = () => {
         const url = linkUrl.trim();
@@ -178,6 +195,37 @@ const EditorToolbar = ({ editor, onInsertImage }: ToolbarProps) => {
                     e.target.value = '';
                 }}
             />
+
+            <ToolbarButton label="Attach file" icon="fa-paperclip" onClick={() => attachInputRef.current?.click()} />
+            <input
+                ref={attachInputRef}
+                type="file"
+                accept={ATTACHMENT_ACCEPT}
+                hidden
+                onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onAttachFile(file);
+                    e.target.value = '';
+                }}
+            />
+
+            <div className="toolbar-popover-wrap">
+                <ToolbarButton label="Embed video or demo" icon="fa-circle-play" active={showEmbedInput} onClick={() => { setEmbedError(null); setShowEmbedInput((s) => !s); }} />
+                {showEmbedInput && (
+                    <div className="toolbar-popover link-popover">
+                        <input
+                            type="url"
+                            placeholder="YouTube, Vimeo, CodeSandbox… URL"
+                            value={embedUrl}
+                            onChange={(e) => { setEmbedUrl(e.target.value); setEmbedError(null); }}
+                            onKeyDown={(e) => e.key === 'Enter' && applyEmbed()}
+                            autoFocus
+                        />
+                        <button type="button" onClick={applyEmbed}>Embed</button>
+                        {embedError && <p className="toolbar-popover-error" role="alert">{embedError}</p>}
+                    </div>
+                )}
+            </div>
 
             <ToolbarButton
                 label="Insert table"

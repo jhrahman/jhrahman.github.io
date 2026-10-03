@@ -1,17 +1,13 @@
-import DOMPurify from 'dompurify';
 import { createLowlight, common } from 'lowlight';
 import type { Root as HastRoot, Element as HastElement, Text as HastText } from 'hast';
 import type { Post } from '../types/blog';
 import { toBase64, blobToBase64, getFileContent, listDirectory, commitFiles, type FileChange } from './github';
+import { buildAttachmentDir, buildAttachmentPath } from './attachments';
 import { processImage, buildImagePath, buildCoverPath, buildImageDir, publicUrlFor } from './images';
+import { sanitizeHtml } from './sanitize';
 import { computeReadingTime, deriveExcerpt, DEFAULT_AUTHOR } from '../data/posts';
 
 const lowlight = createLowlight(common);
-
-const PURIFY_CONFIG = {
-    ADD_TAGS: ['iframe'],
-    ADD_ATTR: ['target', 'rel'],
-};
 
 export interface PublishInput {
     token: string;
@@ -29,6 +25,7 @@ export interface PublishInput {
     author: string;
     rawHtml: string;
     pendingImages: Map<string, File>;
+    pendingFiles: Map<string, File>;
     coverFile: File | null;
     existingCover: string | null;
     existingDate: string | null;
@@ -48,29 +45,59 @@ export interface PublishResult {
  * old-URL -> new-URL pairs so the caller can rewrite any already-published
  * <img src> / cover references, plus the FileChange entries themselves.
  */
-async function planImageFolderMove(
+async function planFolderMove(
     token: string,
-    oldSlug: string,
-    newSlug: string,
+    oldDir: string,
+    newDir: string,
     onProgress?: (message: string) => void
 ): Promise<{ replacements: Array<[string, string]>; changes: FileChange[] }> {
-    const files = await listDirectory(token, buildImageDir(oldSlug));
+    const files = await listDirectory(token, oldDir);
     if (!files || files.length === 0) return { replacements: [], changes: [] };
 
     const replacements: Array<[string, string]> = [];
     const changes: FileChange[] = [];
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        onProgress?.(`Reading image ${i + 1} of ${files.length} to move…`);
+        onProgress?.(`Reading file ${i + 1} of ${files.length} to move…`);
         const content = await getFileContent(token, file.path);
         if (!content) continue; // vanished between listing and reading - nothing to move
-        const newPath = `${buildImageDir(newSlug)}/${file.name}`;
+        const newPath = `${newDir}/${file.name}`;
         changes.push({ path: newPath, content: content.base64Content });
         changes.push({ path: file.path, content: null });
         replacements.push([publicUrlFor(file.path), publicUrlFor(newPath)]);
     }
 
     return { replacements, changes };
+}
+
+/** Swaps every blob: attachment <a href> for its final repo-hosted URL, staging the raw bytes as-is (no re-encoding, unlike images). */
+async function resolveAttachments(
+    slug: string,
+    html: string,
+    pendingFiles: Map<string, File>,
+    changes: FileChange[],
+    onProgress?: (message: string) => void
+): Promise<string> {
+    if (pendingFiles.size === 0) return html;
+
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const links = Array.from(doc.querySelectorAll('a[href^="blob:"]'));
+    const resolved = new Map<string, string>();
+
+    for (const link of links) {
+        const href = link.getAttribute('href')!;
+        if (!resolved.has(href)) {
+            const file = pendingFiles.get(href);
+            if (!file) continue;
+            onProgress?.(`Preparing file ${resolved.size + 1} of ${pendingFiles.size}…`);
+            const path = buildAttachmentPath(slug, file.name);
+            changes.push({ path, content: await blobToBase64(file) });
+            resolved.set(href, publicUrlFor(path));
+        }
+        link.setAttribute('href', resolved.get(href)!);
+    }
+
+    return doc.body.innerHTML;
 }
 
 async function stageImage(slug: string, file: File): Promise<{ path: string; url: string; base64: string }> {
@@ -179,7 +206,7 @@ function wrapTables(html: string): string {
 export async function publishPost(input: PublishInput): Promise<PublishResult> {
     const {
         token, id, slug, previousSlug, title, excerpt, tags, featured, draft, category, part, author,
-        rawHtml, pendingImages, coverFile, existingCover, existingDate, onProgress,
+        rawHtml, pendingImages, pendingFiles, coverFile, existingCover, existingDate, onProgress,
     } = input;
 
     if (!slug.trim()) throw new Error('A post needs a URL slug before it can be published.');
@@ -192,14 +219,23 @@ export async function publishPost(input: PublishInput): Promise<PublishResult> {
     // New images pasted into the editor this session already upload under
     // the *new* slug (below), so only pre-existing images - the ones a
     // rename actually needs to move - live under the old folder.
-    const move = isRename
-        ? await planImageFolderMove(token, previousSlug, slug, onProgress)
-        : { replacements: [] as Array<[string, string]>, changes: [] as FileChange[] };
+    const move = { replacements: [] as Array<[string, string]>, changes: [] as FileChange[] };
+    if (isRename) {
+        for (const [oldDir, newDir] of [
+            [buildImageDir(previousSlug), buildImageDir(slug)],
+            [buildAttachmentDir(previousSlug), buildAttachmentDir(slug)],
+        ]) {
+            const part = await planFolderMove(token, oldDir, newDir, onProgress);
+            move.replacements.push(...part.replacements);
+            move.changes.push(...part.changes);
+        }
+    }
     changes.push(...move.changes);
 
     const htmlWithImages = await resolveImages(slug, rawHtml, pendingImages, changes, onProgress);
-    const htmlWithHighlighting = highlightCodeBlocks(htmlWithImages);
-    const sanitized = DOMPurify.sanitize(htmlWithHighlighting, PURIFY_CONFIG);
+    const htmlWithFiles = await resolveAttachments(slug, htmlWithImages, pendingFiles, changes, onProgress);
+    const htmlWithHighlighting = highlightCodeBlocks(htmlWithFiles);
+    const sanitized = sanitizeHtml(htmlWithHighlighting);
     let cleanHtml = wrapTables(sanitized);
 
     let cover = existingCover;

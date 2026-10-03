@@ -315,3 +315,28 @@ mark {
         padding: 0.5rem 0.75rem;
     }
 }
+
+/* Provider embeds (YouTube, CodeSandbox, …): responsive 16:9 frame. */
+.post-body .embed,
+.editor-canvas .embed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    margin: 1.5em 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.post-body .embed iframe,
+.editor-canvas .embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Inside the editor, keep clicks on the node itself (selectable/draggable) rather than the frame. */
+.editor-canvas .embed iframe { pointer-events: none; }
+.editor-canvas .ProseMirror-selectednode.embed { outline: 2px solid var(--accent-primary); }
