@@ -31,6 +31,13 @@ const recommendations: Recommendation[] = [
         title: "Head of Media Operations, Craftsmen Software",
         image: `${import.meta.env.BASE_URL}images/reza.png`,
         text: "I’ve had the privilege of working with Jahidur and have always been impressed by his strong technical skills and positive, professional attitude. In his role as a Technical Support Associate, he consistently approaches challenges with focus and determination, quickly finding effective solutions and ensuring operations run seamlessly. He’s genuinely eager to learn and always looking to expand his technical knowledge, which reflects his ambition and dedication to personal growth. Reliable, resourceful, and driven — Jahidur is a true asset to any technical team and has a bright future ahead."
+    },
+    {
+        id: 4,
+        name: "Simon Oddy",
+        title: "Solution Architect, Vimond Media Solutions",
+        image: `${import.meta.env.BASE_URL}images/simon_oddy.jpeg`,
+        text: "Jahidur was an important member of our small support team for over two years. It was a pleasure to work with him during that time as he was very reliable and came to work every day with a positive \"can-do\" attitude. His team received increased responsibility whilst we worked together and each new challenge was met with enthusiasm. It is a credit to him and the other members of his team that our support metrics such as response times and resolution times improved due to their efforts and resulted in higher customer satisfaction. I would have no hesitation is working with Jahidur again if the opportunity arose in the future."
     }
 ];
 
@@ -87,7 +94,7 @@ const RecommendationsCarousel = () => {
 
     useEffect(() => {
         if (!isPaused) {
-            timeoutRef.current = window.setInterval(() => paginate(1), 5000);
+            timeoutRef.current = window.setInterval(() => paginate(1), 8000);
         }
 
         return () => {

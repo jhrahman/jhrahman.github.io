@@ -116,9 +116,14 @@ const About = () => {
 
     const experiences = [
         {
-            period: 'January, 2024 - Present',
+            period: 'January, 2024 - September, 2026',
             title: 'Technical Support Associate — Software QA & Tech Support',
             company: 'Craftsmen Limited',
+            application: {
+                label: 'Application',
+                name: 'Vimond VIA | OTT & Content Management Platform',
+                description: 'Worked on a cloud-based SaaS platform for OTT streaming and digital content management, serving international media organizations including TV 2, TV4, Thomson Reuters, Comcast, Foxtel, and TV Media.'
+            },
             responsibilities: [
                 'Review business requirements, user stories, and acceptance criteria to identify testable requirements, edge cases, and risks',
                 'Design and execute functional and regression test cases across cloud-based SaaS applications',
@@ -132,10 +137,35 @@ const About = () => {
             period: 'December, 2022 - January, 2024 (1 Year)',
             title: 'IT & Broadcast Engineer',
             company: 'Jamuna Television Ltd, a concern of Jamuna Group',
+            application: {
+                label: 'Applications',
+                name: 'AVECO | Octopus Newsroom | Haivision',
+                description: 'Worked with broadcast, newsroom, and media technology applications in a live television broadcasting environment, supporting application functionality, operational workflows, and technical troubleshooting.'
+            },
             responsibilities: [
                 'Monitored servers, networks, and system health across enterprise infrastructure supporting 500+ users',
                 'Triaged and resolved critical L1/L2 technical incidents across Windows, Linux, and macOS environments',
                 'Supported disaster recovery operations and ensured data backup integrity for business continuity'
+            ],
+            sections: [
+                {
+                    heading: 'Software Quality Assurance & Application Testing',
+                    points: [
+                        'Conducted User Acceptance Testing (UAT) and functional validation to ensure application behavior aligned with operational requirements',
+                        'Validated application workflows and system functionality across newsroom and broadcast operations',
+                        'Identified, reproduced, documented, and reported application defects and functional inconsistencies',
+                        'Performed retesting and fix verification in collaboration with technical teams and software vendors',
+                        'Collaborated with end users and technical stakeholders to investigate issues and improve application reliability'
+                    ]
+                },
+                {
+                    heading: 'IT Support & Operations',
+                    points: [
+                        'Provided application-level technical support and troubleshooting for broadcast and newsroom systems',
+                        'Investigated application, system, and integration issues affecting broadcast workflows',
+                        'Coordinated with internal technical teams and software vendors to resolve incidents and maintain operational continuity'
+                    ]
+                }
             ]
         },
         {
@@ -436,11 +466,28 @@ const About = () => {
                                     <span className="timeline-period">{exp.period}</span>
                                     <h3 className="timeline-title">{exp.title}</h3>
                                     <p className="timeline-company">{exp.company}</p>
+                                    {exp.application && (
+                                        <div className="timeline-application">
+                                            <span className="timeline-application-label">{exp.application.label}</span>
+                                            <p className="timeline-application-name">{exp.application.name}</p>
+                                            <p className="timeline-application-desc">{exp.application.description}</p>
+                                        </div>
+                                    )}
                                     <ul className="timeline-responsibilities">
                                         {exp.responsibilities.map((point, i) => (
                                             <li key={i}>{point}</li>
                                         ))}
                                     </ul>
+                                    {exp.sections?.map((section) => (
+                                        <div key={section.heading} className="timeline-subsection">
+                                            <h4 className="timeline-subheading">{section.heading}</h4>
+                                            <ul className="timeline-responsibilities">
+                                                {section.points.map((point, i) => (
+                                                    <li key={i}>{point}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ))}
                                 </div>
                             </motion.div>
                         ))}

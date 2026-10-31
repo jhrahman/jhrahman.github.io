@@ -204,7 +204,7 @@
     height: 100%;
     background: var(--accent-primary);
     width: 0%;
-    animation: progress 5s linear forwards;
+    animation: progress 8s linear forwards;
 }
 
 .carousel-container.is-paused .progress-fill {
