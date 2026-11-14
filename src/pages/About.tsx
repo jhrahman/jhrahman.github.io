@@ -116,6 +116,45 @@ const About = () => {
 
     const experiences = [
         {
+            period: 'November, 2026 - Present',
+            title: 'Senior SQA Engineer',
+            company: 'Neural Soft Limited',
+            application: {
+                label: 'Application',
+                name: 'Enterprise ERP & HRMS Systems',
+                description: 'Working on enterprise-grade custom ERP and HRMS applications designed to streamline business operations, workforce management, and organizational processes. The systems support various business functions through integrated modules and configurable workflows.'
+            },
+            responsibilities: [
+                'Analyze business requirements, technical specifications, and user stories to define test strategies, identify potential risks, and ensure adequate test coverage',
+                'Design and execute structured test plans and test cases covering functional, integration, regression, exploratory, and end-to-end testing across ERP and HRMS modules',
+                'Develop and maintain scalable web automation frameworks using Playwright, TypeScript, and Page Object Model (POM), improving regression coverage and test maintainability',
+                'Perform REST API testing using Postman, validating endpoints, authentication, request/response handling, error scenarios, and business logic',
+                'Execute database validation using SQL, verifying data integrity, transactional accuracy, and consistency across interconnected modules',
+                'Conduct performance and load testing using k6 to evaluate response times, system stability, and application behavior under concurrent user loads',
+                'Manage the complete defect lifecycle through Jira, including bug investigation, severity assessment, root cause analysis, retesting, and regression validation',
+                'Collaborate with developers, product stakeholders, and cross-functional teams throughout Agile sprints, contributing to release readiness, quality improvements, and continuous refinement of QA processes'
+            ]
+        },
+        {
+            period: 'September, 2026 - October, 2026',
+            title: 'Senior SQA Engineer',
+            company: 'Government of Sint Maarten, Kingdom of the Netherlands',
+            application: {
+                label: 'Project',
+                name: 'eSXM | Citizen Portal & Admin Portal',
+                description: 'A centralized government web application that enables citizens of Sint Maarten to access essential government services through a single platform. Comprising Citizen and Admin Portals, it integrates with third-party government offices and services including Civil Registry, Qmatic, and COCI, with key services such as NID registration, certificate issuance, and sole proprietorship registration.'
+            },
+            responsibilities: [
+                'Prepared and executed test plans, test cases, and scenarios covering functional, integration, regression, smoke, and end-to-end testing',
+                'Performed manual testing of Citizen and Admin Portals, covering business workflows, data validation, user permissions, and cross-browser compatibility',
+                'Developed and maintained Playwright automation scripts using TypeScript and the Page Object Model (POM) for end-to-end and regression testing',
+                'Conducted API and third-party integration testing to verify data exchange and workflows across external government systems',
+                'Designed and executed performance and load tests using k6 to evaluate application stability, responsiveness, and scalability',
+                'Managed defects in Jira, including bug reporting, prioritization, retesting, and regression validation in collaboration with developers',
+                'Worked closely with developers, business analysts, and project stakeholders throughout the SDLC and Agile lifecycle, supporting requirement reviews, release validation, and QA sign-off'
+            ]
+        },
+        {
             period: 'January, 2024 - September, 2026',
             title: 'Technical Support Associate — Software QA & Tech Support',
             company: 'Craftsmen Limited',
