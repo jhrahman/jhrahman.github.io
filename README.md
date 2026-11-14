@@ -1,41 +1,37 @@
-# Jahidur Rahman — Portfolio
+# Jahidur Rahman's Portfolio
 
-Personal portfolio site for Jahidur Rahman (QA & Test Automation / Technical Support). Built as a single-page app with React, TypeScript, and Vite.
+This is the source code for my personal portfolio. I'm a Senior SQA Engineer, and my work covers manual testing, API testing, test automation with Playwright and TypeScript, and performance testing. I've worked in QA and technical support side by side, so I tend to test with production in mind. I care about how a system fails for real users, not just whether it passes in a test environment.
 
-**Live**: [jhrahman.github.io](https://jhrahman.github.io/)
+You can see the live site at [jhrahman.github.io](https://jhrahman.github.io/).
 
-## Pages
+## What's on the site
 
-- **Home** — hero intro with capability pills, quick links to profile and projects, social links
-- **About** — bio, categorized skills, career timeline (with responsibilities per role), education, certifications, and a touch-swipeable recommendations carousel
-- **Activities** — 10 projects, including 4 test-automation repos with animated SVG workflow-diagram previews (CI/CD pipeline, API test flow, AI-generated tests, Page Object Model), plus Applywise and Peoplix
-- **Blog** — long-form posts with cover images, tags/search, reading time, featured posts, a table of contents, code syntax highlighting, and comments
-- **Contact** — EmailJS-powered contact form with a compact toast notification on send
+- **Home:** a short introduction, the areas I work in, and links to my profile, projects and socials.
+- **About:** my background, my skills grouped by area, a career timeline with the responsibilities for each role, my education and certifications, and recommendations from people I've worked with.
+- **Activities:** the projects I've built. Some are test automation repositories, and each has an animated diagram showing how it works, such as a CI/CD pipeline, an API test flow, AI-generated tests and the Page Object Model. There are also a couple of full applications.
+- **Blog:** posts about QA, testing and automation. You can browse by tag, search, and see the reading time. Posts have a table of contents, highlighted code and comments. I write them with a built-in editor.
+- **Contact:** a form that sends a message straight to my inbox. There's no backend behind it.
 
 ## Design
 
-- Dark theme uses a layered "elevation" surface system (à la Linear/Vercel) instead of a flat gray scale
-- Light theme follows the macOS convention: white card "sheets" floating on a soft gray canvas, with real vibrancy-style blur on glass panels
-- 9 accent color options (Petrol Navy is the default), all swappable live from the settings panel and persisted to `localStorage`
-- Fully responsive, with care taken to avoid scroll jank on mobile (no `backdrop-filter` on repeated elements like skill chips)
-- Respects `prefers-reduced-motion` throughout
+The dark theme uses layered surfaces to give a sense of depth instead of one flat gray. The light theme uses white cards on a soft gray background. Visitors can pick from nine accent colors, and the choice is saved in the browser. The layout works well on phones, and I removed a few effects that made scrolling feel janky. Animations also respect the reduced motion setting.
 
-## Stack
+## Tech stack
 
-- React 18 + TypeScript + Vite
-- React Router (`BrowserRouter`, with a static-shell fallback for GitHub Pages)
-- Framer Motion for page transitions and micro-interactions
-- TipTap (rich text editor), DOMPurify (sanitization), lowlight (code highlighting)
-- EmailJS for the contact form (no backend)
+- React 18, TypeScript and Vite
+- React Router, with a fallback so direct links work on GitHub Pages
+- Framer Motion for transitions and small interactions
+- TipTap for the post editor, DOMPurify for cleaning up content, and lowlight for code highlighting
+- EmailJS for the contact form
 
-## Development
+## Running it locally
 
 ```bash
 npm install
-npm run dev      # local dev server
-npm run build    # type-check + production build
+npm run dev      # start the dev server
+npm run build    # type-check and build for production
 ```
 
 ## Deployment
 
-Pushes to `master` trigger a GitHub Actions workflow (`.github/workflows/deploy.yml`) that builds the site and publishes it via GitHub Pages — no manual deploy step needed.
+Pushing to `master` starts a GitHub Actions workflow (`.github/workflows/deploy.yml`). It builds the site and publishes it to GitHub Pages, so there's no manual deploy step.
