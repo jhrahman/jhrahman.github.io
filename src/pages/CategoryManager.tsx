@@ -251,7 +251,7 @@ const CategoryManager = () => {
                     {saveState.phase === 'success' && (
                         <div className="editor-result success">
                             <i className="fas fa-check-circle"></i>
-                            <p>Committed! Live on the site in ~60–90s once the build finishes.</p>
+                            <p>Committed! Live on the site in ~60 to 90s once the build finishes.</p>
                             <a href={actionsUrl} target="_blank" rel="noopener noreferrer">Watch the deploy →</a>
                             <Link to={`/blog/category/${saveState.id}`}>View category →</Link>
                         </div>

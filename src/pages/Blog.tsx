@@ -325,7 +325,7 @@ const Blog = () => {
                         ) : (
                             <div className="blog-empty">
                                 <i className="fas fa-inbox" aria-hidden="true"></i>
-                                <p>{visiblePosts.length === 0 ? 'No posts yet — check back soon.' : 'No posts match your search.'}</p>
+                                <p>{visiblePosts.length === 0 ? 'No posts yet. Check back soon.' : 'No posts match your search.'}</p>
                             </div>
                         )}
                     </>

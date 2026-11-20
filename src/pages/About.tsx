@@ -156,7 +156,7 @@ const About = () => {
         },
         {
             period: 'January, 2024 - September, 2026',
-            title: 'Technical Support Associate — Software QA & Tech Support',
+            title: 'Technical Support Associate | Software QA & Tech Support',
             company: 'Craftsmen Limited',
             application: {
                 label: 'Application',

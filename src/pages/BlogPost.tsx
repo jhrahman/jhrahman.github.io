@@ -356,7 +356,7 @@ const BlogPost = () => {
                 {category && isLastInSeries && (
                     <Link to={`/blog/category/${category.id}`} className="series-complete-card glass-effect">
                         <i className="fas fa-flag-checkered" aria-hidden="true"></i>
-                        <span>You've finished <strong>{category.title}</strong> — revisit the full series</span>
+                        <span>You've finished <strong>{category.title}</strong>. Revisit the full series</span>
                         <i className="fas fa-arrow-right" aria-hidden="true"></i>
                     </Link>
                 )}

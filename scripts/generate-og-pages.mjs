@@ -111,7 +111,7 @@ let count = 0;
 for (const post of allPosts) {
     if (post.draft) continue;
 
-    const title = escapeHtml(`${post.title} — Jahidur Rahman`);
+    const title = escapeHtml(`${post.title} | Jahidur Rahman`);
     const description = escapeHtml(post.excerpt || stripHtml(post.html).slice(0, 160));
     const canonical = `${SITE_ORIGIN}/blog/${post.id}`;
 
@@ -157,7 +157,7 @@ if (existsSync(CATEGORIES_DIR)) {
             });
         if (parts.length === 0) continue;
 
-        const title = escapeHtml(`${category.title} — Jahidur Rahman`);
+        const title = escapeHtml(`${category.title} | Jahidur Rahman`);
         const description = escapeHtml(category.description || `A ${parts.length}-part series.`);
         const canonical = `${SITE_ORIGIN}/blog/category/${category.id}`;
 

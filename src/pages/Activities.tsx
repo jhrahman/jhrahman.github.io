@@ -18,6 +18,33 @@ const Activities = () => {
 
     const projects: Project[] = [
         {
+            title: 'TokenBar: Claude & Codex Usage Tracker',
+            tech: 'Swift, SwiftUI, macOS, Menu Bar App, Usage Analytics',
+            demo: 'https://github.com/jhrahman/TokenBar',
+            demoLabel: 'View on GitHub →',
+            image: `${import.meta.env.BASE_URL}images/tokenbar-logo.png`,
+            description: 'Mac menu bar app showing Claude and Codex usage limits, reset times, and API cost.',
+            logoPreview: true
+        },
+        {
+            title: 'Neurvo: Jira-Style Ticket Tracker',
+            tech: 'Ruby on Rails, OpenProject, Kanban, Docker, Issue Tracking',
+            demo: 'https://jhrahman.github.io/neurvo/',
+            demoLabel: 'View Demo →',
+            image: `${import.meta.env.BASE_URL}images/neurvo-logo.svg`,
+            description: 'Free, self-hosted Jira alternative for dev, QA, and DevOps teams, built on OpenProject.',
+            logoPreview: true
+        },
+        {
+            title: 'HoverFocus: Hover to Focus for macOS',
+            tech: 'Swift, macOS, Accessibility API, Menu Bar App, Apple Silicon',
+            demo: 'https://github.com/jhrahman/HoverFocus',
+            demoLabel: 'View on GitHub →',
+            image: `${import.meta.env.BASE_URL}images/hoverfocus-logo.png`,
+            description: 'Menu bar app that focuses the window under your cursor, like Windows hover-to-focus.',
+            logoPreview: true
+        },
+        {
             title: 'Dockerized Playwright CI/CD Automation Framework',
             tech: 'Playwright, TypeScript, Docker, GitHub Actions, Allure Report, GitHub Pages',
             demo: 'https://github.com/jhrahman/dockerized-playwright-project',
@@ -63,16 +90,16 @@ const Activities = () => {
             graphicPreview: true
         },
         {
-            title: 'Applywise – AI Powered Job Match Platform',
+            title: 'Applywise: AI Powered Job Match Platform',
             tech: 'AI, Client-Side Architecture, Privacy-First, Multi-Provider Fallback',
             demo: 'https://github.com/jhrahman/applywise',
             demoLabel: 'View on GitHub →',
             image: `${import.meta.env.BASE_URL}images/applywise-logo.svg`,
-            description: 'Privacy-first, client-side AI job matcher — resumes and keys never leave the browser.',
+            description: 'Privacy-first, client-side AI job matcher. Resumes and keys never leave the browser.',
             logoPreview: true
         },
         {
-            title: 'Peoplix – HR Management SaaS',
+            title: 'Peoplix: HR Management SaaS',
             tech: 'Next.js, TypeScript, Supabase, RBAC, Testability-First Design',
             demo: 'https://github.com/jhrahman/peoplix',
             demoLabel: 'View on GitHub →',

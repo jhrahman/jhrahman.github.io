@@ -23,14 +23,14 @@ const recommendations: Recommendation[] = [
         name: "Abul Kalam Azad",
         title: "Engineering Operations Strategist & Head of Technical Support, Craftsmen Software",
         image: `${import.meta.env.BASE_URL}images/azad.png`,
-        text: "I’ve had the pleasure of working with Jahidur Rahman for nearly two years, and it’s been amazing to see his growth. As the youngest member of our team, he stands out for his eagerness to learn and strong professionalism. His curiosity and initiative have helped us simplify and improve our daily support and QA operations. He has prior experiences in technical support; However, working in a software industry which has stakeholders across the globe was completely a new horizon for him. Yet, he managed to settle himself down quite nicely and quickly— which reflects his skill on adaptation. Always flexible, approachable, and open to feedback, he continuously looks for ways to make things better — a true team player with great potential ahead."
+        text: "I’ve had the pleasure of working with Jahidur Rahman for nearly two years, and it’s been amazing to see his growth. As the youngest member of our team, he stands out for his eagerness to learn and strong professionalism. His curiosity and initiative have helped us simplify and improve our daily support and QA operations. He has prior experiences in technical support; However, working in a software industry which has stakeholders across the globe was completely a new horizon for him. Yet, he managed to settle himself down quite nicely and quickly, which reflects his skill on adaptation. Always flexible, approachable, and open to feedback, he continuously looks for ways to make things better. He is a true team player with great potential ahead."
     },
     {
         id: 3,
         name: "Rezaul Karim Khan",
         title: "Head of Media Operations, Craftsmen Software",
         image: `${import.meta.env.BASE_URL}images/reza.png`,
-        text: "I’ve had the privilege of working with Jahidur and have always been impressed by his strong technical skills and positive, professional attitude. In his role as a Technical Support Associate, he consistently approaches challenges with focus and determination, quickly finding effective solutions and ensuring operations run seamlessly. He’s genuinely eager to learn and always looking to expand his technical knowledge, which reflects his ambition and dedication to personal growth. Reliable, resourceful, and driven — Jahidur is a true asset to any technical team and has a bright future ahead."
+        text: "I’ve had the privilege of working with Jahidur and have always been impressed by his strong technical skills and positive, professional attitude. In his role as a Technical Support Associate, he consistently approaches challenges with focus and determination, quickly finding effective solutions and ensuring operations run seamlessly. He’s genuinely eager to learn and always looking to expand his technical knowledge, which reflects his ambition and dedication to personal growth. Reliable, resourceful, and driven. Jahidur is a true asset to any technical team and has a bright future ahead."
     },
     {
         id: 4,

@@ -508,7 +508,7 @@ const PostEditor = () => {
                         {publishState.phase === 'success' && (
                             <div className="editor-result success">
                                 <i className="fas fa-check-circle"></i>
-                                <p>Committed! Live on the site in ~60–90s once the build finishes.</p>
+                                <p>Committed! Live on the site in ~60 to 90s once the build finishes.</p>
                                 <a href="https://github.com/jhrahman/jhrahman.github.io/actions" target="_blank" rel="noopener noreferrer">
                                     Watch the deploy →
                                 </a>
